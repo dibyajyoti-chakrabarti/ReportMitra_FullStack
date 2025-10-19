@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import GridDistortion from "../react-bits/GridDistortion";
 import bg_img from "../assets/blr-infra-1.png";
 import TextType from "../react-bits/TextType";
-import Footer from './Footer'
-import pencil from '../assets/pencilicon.png'
+import Footer from "./Footer";
+import report from "../assets/reporticon.png";
+import analysis from "../assets/analysisicon.png";
+import community from "../assets/communityicon.jpg";
 
 const Landing = () => {
   const { isAuthenticated, user } = useAuth();
@@ -87,14 +89,19 @@ const Landing = () => {
               <h2 className="text-3xl font-bold text-center mb-5">
                 How It Works
               </h2>
-              <div className="grid md:grid-cols-3 gap-8">
 
-                <div className="relative">
+              <div className="grid md:grid-cols-3 gap-8">
+                
+                <Link to='/report' className="relative hover:scale-105 cursor-pointer">
                   <div className="absolute inset-0 text-center p-6 bg-white text-black rounded-xl opacity-70"></div>
                   <div className="relative text-black p-4">
                     <div>
                       <span className="text-2xl">
-                        <img src={pencil} alt="" className="bg-red-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" />
+                        <img
+                          src={report}
+                          alt=""
+                          className="bg-transparent w-17 h-17 rounded-full flex items-center justify-center mx-auto mb-4"
+                        />
                       </span>
                     </div>
                     <h3 className="text-3xl font-extrabold mb-2">
@@ -105,13 +112,14 @@ const Landing = () => {
                       details.
                     </p>
                   </div>
-                </div>
-
-                <div className="relative">
+                </Link>
+                <Link to='/track' className="relative hover:scale-105 cursor-pointer">
                   <div className="absolute inset-0 text-center p-6 bg-white text-black rounded-xl opacity-70"></div>
                   <div className="relative text-black p-4">
-                    <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl">📊</span>
+                    <div>
+                      <span className="text-2xl rounded-full bg-white w-17 h-17 flex items-center justify-center mx-auto mb-4">
+                        <img src={analysis} alt="" className="w-12 h-12" />
+                      </span>
                     </div>
                     <h3 className="text-3xl font-extrabold mb-2">
                       Track Progress
@@ -120,13 +128,20 @@ const Landing = () => {
                       Monitor the status of your complaints in real-time.
                     </p>
                   </div>
-                </div>
+                </Link>
 
-                <div className="relative">
+                <Link to='/community' className="relative hover:scale-105 cursor-pointer">
                   <div className="absolute inset-0 text-center p-6 bg-white text-black rounded-xl opacity-70"></div>
                   <div className="relative text-black p-4">
-                    <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl">🌆</span>
+                    <div className="  flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl">
+                        <img
+                          src={community}
+                          alt=""
+                          className="
+                        w-16 h-16 rounded-full"
+                        />
+                      </span>
                     </div>
                     <h3 className="text-3xl font-extrabold mb-2">
                       Community Impact
@@ -135,13 +150,13 @@ const Landing = () => {
                       See how your reports contribute to city improvement.
                     </p>
                   </div>
-                </div>
+                </Link>
               </div>
             </section>
           </section>
         </main>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

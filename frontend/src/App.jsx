@@ -11,6 +11,7 @@ import Profile from './components/Profile'
 import Callback from './components/Callback'
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar'
+import Community from './components/Community'
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
               <Profile/>
             </ProtectedRoute>
           }/>
+          <Route path="/community" element={<Community/>}/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
