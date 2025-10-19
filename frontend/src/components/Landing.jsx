@@ -1,5 +1,4 @@
 import { useAuth } from '../AuthProvider';
-import Header from './Header';
 import { Link } from 'react-router-dom';
 
 const Landing = () => {
@@ -7,7 +6,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}

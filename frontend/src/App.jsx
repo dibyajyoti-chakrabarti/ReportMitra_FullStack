@@ -10,11 +10,13 @@ import Report from './components/Report'
 import Profile from './components/Profile'
 import Callback from './components/Callback'
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar'
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Navbar/>
         <Routes>
           <Route path="/" element={<Landing/>}/>
           <Route path="/login" element={<Login/>}/>
