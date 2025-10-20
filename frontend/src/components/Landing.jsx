@@ -1,9 +1,10 @@
 import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
-import GridDistortion from "../react-bits/GridDistortion";
+import GridDistortion from "../react-bits/gridDistortion";
 import bg_img from "../assets/blr-infra-1.png";
 import TextType from "../react-bits/TextType";
 import Footer from "./Footer";
+
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
@@ -11,6 +12,7 @@ import community from "../assets/communityicon.jpg";
 const Landing = () => {
   const { isAuthenticated, user } = useAuth();
   return (
+    <>
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
         {/* Background component from React-Bits */}

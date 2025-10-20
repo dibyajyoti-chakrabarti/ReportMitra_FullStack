@@ -9,6 +9,7 @@ import Track from './components/Track'
 import Report from './components/Report'
 import Profile from './components/Profile'
 import Callback from './components/Callback'
+import Community from './components/Community';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar'
 import Community from './components/Community'
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<Login/>}/>
           <Route path="/signin" element={<Signin/>}/>
           <Route path="/auth/callback" element={<Callback/>}/>
+          <Route path="/community" element={<Community/>}/>
           <Route path="/track" element={
             <ProtectedRoute>
               <Track/>
