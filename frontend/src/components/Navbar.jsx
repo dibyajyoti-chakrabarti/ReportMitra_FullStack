@@ -5,7 +5,7 @@ import logo_1 from "../assets/logo-1.png";
 import logo_2 from "../assets/logo-2.png";
 
 const Navbar = () => {
-  const { user, login, register, logout, isAuthenticated, isLoading } =
+  const { login, register, logout, isAuthenticated, isLoading } =
     useAuth();
 
   const handleLogin = async () => {
@@ -39,37 +39,36 @@ const Navbar = () => {
           <img src={logo_2} alt="" className="h-12" />
         </Link>
 
-        <nav className="flex items-center space-x-4">
+        <nav className="flex items-center">
           {isAuthenticated ? (
             <>
-              <Link
+              <div className="flex gap-5 font-bold mr-5 text-2xl">
+                <Link
                 to="/report"
-                className="hover:text-blue-200 transition duration-200"
+                className="transition duration-200 hover:underline"
               >
-                Report Issue
+                Report
               </Link>
+
               <Link
                 to="/track"
-                className="hover:text-blue-200 transition duration-200"
+                className=" hover:underline transition duration-200"
               >
-                Track Complaints
+                Track
               </Link>
-              <div className="flex items-center space-x-2">
-                <Link
-                  to="/profile"
-                  className="hover:text-blue-200 transition duration-200"
-                >
-                  {user?.email || user?.given_name || "Profile"}
-                  {user?.is_verified && (
-                    <span className="ml-1 text-green-300">✓</span>
-                  )}
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="bg-black px-3 py-1 rounded transition duration-200"
-                >
-                  Logout
-                </button>
+
+              <Link
+                to="/profile"
+                className=" hover:underline transition duration-200"
+              >
+                Profile
+              </Link>
+
+              <button className=" hover:underline cursor-pointer"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
               </div>
             </>
           ) : (

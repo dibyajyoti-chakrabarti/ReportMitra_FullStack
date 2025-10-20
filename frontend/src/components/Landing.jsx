@@ -65,20 +65,8 @@ const Landing = () => {
                 </Link>
               </div>
             ) : (
-              <div className="space-x-4">
-                <Link
-                  to="/report"
-                  className="bg-black text-white px-6 py-3 rounded-lg transition duration-200 inline-block"
-                >
-                  Report an Issue
-                </Link>
-                <Link
-                  to="/track"
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200 inline-block"
-                >
-                  Track Complaints
-                </Link>
-              </div>
+              <>
+              </>
             )}
 
             {/* How it Works */}
