@@ -1,6 +1,6 @@
 // src/components/Signin.jsx
 import { useAuth } from '../AuthProvider';
-import Header from './Header';
+import Navbar from './Navbar';
 import { useEffect } from 'react';
 
 const Signin = () => {
@@ -23,7 +23,7 @@ const Signin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Navbar />
       <div className="flex items-center justify-center py-12">
         <div className="bg-white p-8 rounded-lg shadow-md w-96">
           <h2 className="text-2xl font-bold mb-6 text-center">Join ReportMitra</h2>
