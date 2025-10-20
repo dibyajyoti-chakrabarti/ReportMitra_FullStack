@@ -10,7 +10,12 @@ import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
 
 const Landing = () => {
-  const { isAuthenticated} = useAuth();
+  const { login, isAuthenticated } =
+    useAuth();
+    const handleLogin = async () => {
+    await login();
+  };
+
   return (
     <div className="relative">
     <Navbar/>
@@ -57,12 +62,12 @@ const Landing = () => {
 
             {!isAuthenticated ? (
               <div className="space-x-4 flex gap-10 justify-center">
-                <Link
-                  to="/login"
-                  className="bg-white font-bold text-black px-10 py-3 rounded-4xl hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-4xl"
+                <button
+                  onClick={handleLogin}
+                  className="bg-white font-bold text-black px-10 py-3 rounded-4xl hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-4xl cursor-pointer"
                 >
                   Get Started
-                </Link>
+                </button>
               </div>
             ) : (
               <>
