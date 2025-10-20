@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import GridDistortion from "../react-bits/gridDistortion";
 import TextType from "../react-bits/TextType";
 import Footer from "./Footer";
+
 import bg_img from "../assets/blr-infra-1.png";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
