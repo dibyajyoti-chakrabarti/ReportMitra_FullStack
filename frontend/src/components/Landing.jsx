@@ -10,9 +10,9 @@ import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
 
 const Landing = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated} = useAuth();
   return (
-    <>
+    <div className="relative">
     <Navbar/>
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
@@ -59,22 +59,16 @@ const Landing = () => {
               <div className="space-x-4 flex gap-10 justify-center">
                 <Link
                   to="/login"
-                  className="bg-white font-bold text-black px-6 py-3 rounded-lg hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-3xl w-70"
+                  className="bg-white font-bold text-black px-10 py-3 rounded-4xl hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-4xl"
                 >
                   Get Started
-                </Link>
-                <Link
-                  to="/signin"
-                  className="bg-white font-bold text-black px-6 py-3 rounded-lg hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-3xl w-70"
-                >
-                  Create Account
                 </Link>
               </div>
             ) : (
               <div className="space-x-4">
                 <Link
                   to="/report"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200 inline-block"
+                  className="bg-black text-white px-6 py-3 rounded-lg transition duration-200 inline-block"
                 >
                   Report an Issue
                 </Link>
@@ -161,7 +155,7 @@ const Landing = () => {
       </div>
       <Footer />
     </div>
-    </>
+    </div>
   );
 };
 
