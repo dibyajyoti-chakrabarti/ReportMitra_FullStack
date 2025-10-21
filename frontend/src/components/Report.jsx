@@ -103,13 +103,13 @@ function Report() {
                     htmlFor="fileInput"
                     className="cursor-pointer bg-white hover:scale-110 text-black border-3 items-center px-1 pr-2 py-2 rounded-lg shadow transition duration-200  ease-in-out flex"
                   >
-                    <img src={folder} alt="" className="h-7 mr-1"/> Choose File
+                    <img src={folder} alt="" className="h-6 mr-1"/> Choose File
                   </label>
                 </div>
               </div>
               Preview
               <div className="relative">
-                <div className="absolute inset-0 w-125 h-63 object-contain bg-black shadow-md text-white">No File Selected</div>
+                <div className="absolute inset-0 w-125 h-63 object-contain bg-black shadow-md text-white flex items-center justify-center">No File Selected</div>
                 {preview && (
                 <img
                   src={preview}
