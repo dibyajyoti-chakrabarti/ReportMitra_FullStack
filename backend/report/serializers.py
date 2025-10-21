@@ -6,8 +6,12 @@ class IssueReportSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = IssueReport
-        fields = '__all__'
+        fields = [
+            'id', 'reporter_first_name', 'reporter_middle_name', 'reporter_last_name',
+            'reporter_full_name', 'location', 'issue_description', 'image_url',
+            'issue_date', 'status', 'updated_at'
+        ]
         read_only_fields = [
             'id', 'reporter_first_name', 'reporter_middle_name', 'reporter_last_name',
-            'reporter_full_name', 'issue_date', 'status', 'updated_at'
+            'reporter_full_name', 'issue_date', 'status', 'last_updated_at'
         ]

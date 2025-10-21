@@ -8,6 +8,7 @@ import Navbar from "./Navbar"
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
+import DebugToken from "./Debug";
 
 const Landing = () => {
   const { login, isAuthenticated } =
@@ -19,6 +20,10 @@ const Landing = () => {
   return (
     <div className="relative">
     <Navbar/>
+
+    {/* REMOVE FOR DEPLOYMENT */}
+    <DebugToken/>
+    
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
         {/* Background component from React-Bits */}

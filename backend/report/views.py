@@ -21,9 +21,8 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
                 {'detail': 'Please complete your profile before submitting reports.'}
             )
 
-        # Add profile information to the report
         serializer.save(
-            user=self.request.user,
+            user=self.request.user, 
             reporter_first_name=user_profile.first_name,
             reporter_middle_name=user_profile.middle_name,
             reporter_last_name=user_profile.last_name

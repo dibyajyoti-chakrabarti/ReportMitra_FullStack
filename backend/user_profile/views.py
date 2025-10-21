@@ -32,19 +32,19 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        # Add user to validated data
+        # Create the profile with the current user
+        profile_data = request.data.copy()
         profile = UserProfile.objects.create(
             user=request.user,
-            **serializer.validated_data
+            first_name=profile_data.get('first_name', ''),
+            middle_name=profile_data.get('middle_name', ''),
+            last_name=profile_data.get('last_name', ''),
+            mobile_number=profile_data.get('mobile_number', ''),
+            is_aadhar_verified=profile_data.get('is_aadhar_verified', False)
         )
         
-        return Response(
-            self.get_serializer(profile).data, 
-            status=status.HTTP_201_CREATED
-        )
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         instance = self.get_object()
