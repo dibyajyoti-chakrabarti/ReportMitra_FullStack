@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "./Navbar";
 import report_bg from "../assets/reportbg.jpg";
+import folder from '../assets/foldericon.png'
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -68,11 +69,13 @@ function Report() {
                 <input
                   type="text"
                   className="border px-2 py-1 placeholder:text-gray-500 w-125 mb-3"
-                  placeholder="Name the Issue" required
+                  placeholder="Name the Issue"
+                  required
                 />
                 Issue Description
                 <textarea
-                  className="border px-2 py-1 placeholder:text-gray-500 w-125 resize-none h-63" required
+                  className="border px-2 py-1 placeholder:text-gray-500 w-125 resize-none h-64"
+                  required
                   placeholder="Describe the Issue in Detail"
                 />
               </div>
@@ -82,38 +85,60 @@ function Report() {
             <div className="font-bold pl-7 flex flex-col">
               Issue Image
               <br />
-              <div className="flex justify-center items-center mb-1 gap-3">
+              <div className="flex justify-between items-center gap-3 w-full min-w-[500px]">
+
                 <a href="https://www.gov.wales/rural-grants-and-payments-geotagged-photo-guidance">
                   <u className="text-[15px]">Note: Geotagged Images Only</u>
                 </a>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="bg-black text-white rounded-xl py-2 px-2 w-55 text-center cursor-pointer" required
-                />
+                <div className="">
+                  <input
+                    id="fileInput"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+
+                  {/* Label as custom button */}
+                  <label
+                    htmlFor="fileInput"
+                    className="cursor-pointer bg-white hover:scale-110 text-black border-3 items-center px-1 pr-2 py-2 rounded-lg shadow transition duration-200  ease-in-out flex"
+                  >
+                    <img src={folder} alt="" className="h-7 mr-1"/> Choose File
+                  </label>
+                </div>
               </div>
               Preview
-              {preview && (
+              <div className="relative">
+                <div className="absolute inset-0 w-125 h-63 object-contain bg-black shadow-md text-white  flex items-center justify-center text-4xl">No File Selected</div>
+                {preview && (
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-125 h-63 object-contain bg-black shadow-md"
+                  className="relative w-125 h-63 object-contain bg-black shadow-md"
                 />
               )}
+              </div>
+              
             </div>
           </div>
+
           <hr />
           <div className="flex justify-between pt-1">
             <div className="flex gap-2 font-bold items-center">
-                <div className="pl-5">Issue Location:</div>
-                <input
-                  type="text"
-                  className="placeholder:text-gray-500 w-125" readOnly
-                  placeholder="Location"
-                />
+              <div className="pl-5">Issue Location:</div>
+              <input
+                type="text"
+                className="placeholder:text-gray-500 w-125"
+                readOnly
+                placeholder="Location"
+              />
             </div>
-            <button type="submit" className="px-4 py-1  rounded-xl text-2xl mr-10 bg-black text-white front-bold cursor-pointer">Submit Report</button>
+            <button
+              type="submit"
+              className="px-4 py-1  rounded-xl text-2xl mr-10 bg-black text-white front-bold cursor-pointer"
+            >
+              Submit Report
+            </button>
           </div>
         </div>
       </div>
