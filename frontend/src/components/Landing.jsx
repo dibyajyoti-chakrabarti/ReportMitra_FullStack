@@ -4,15 +4,21 @@ import GridDistortion from "../react-bits/gridDistortion";
 import bg_img from "../assets/blr-infra-1.png";
 import TextType from "../react-bits/TextType";
 import Footer from "./Footer";
-
+import Navbar from "./Navbar"
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
 
 const Landing = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated } =
+    useAuth();
+    const handleLogin = async () => {
+    await login();
+  };
+
   return (
-    <>
+    <div className="relative">
+    <Navbar/>
     <div className="flex flex-col min-h-screen">
       <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
         {/* Background component from React-Bits */}
@@ -56,34 +62,16 @@ const Landing = () => {
 
             {!isAuthenticated ? (
               <div className="space-x-4 flex gap-10 justify-center">
-                <Link
-                  to="/login"
-                  className="bg-white font-bold text-black px-6 py-3 rounded-lg hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-3xl w-70"
+                <button
+                  onClick={handleLogin}
+                  className="bg-white font-bold text-black px-10 py-3 rounded-4xl hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-4xl cursor-pointer"
                 >
                   Get Started
-                </Link>
-                <Link
-                  to="/signin"
-                  className="bg-white font-bold text-black px-6 py-3 rounded-lg hover:scale-110 hover:bg-black hover:text-white transition duration-200 inline-block text-3xl w-70"
-                >
-                  Create Account
-                </Link>
+                </button>
               </div>
             ) : (
-              <div className="space-x-4">
-                <Link
-                  to="/report"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-200 inline-block"
-                >
-                  Report an Issue
-                </Link>
-                <Link
-                  to="/track"
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200 inline-block"
-                >
-                  Track Complaints
-                </Link>
-              </div>
+              <>
+              </>
             )}
 
             {/* How it Works */}
@@ -160,7 +148,7 @@ const Landing = () => {
       </div>
       <Footer />
     </div>
-    </>
+    </div>
   );
 };
 

@@ -1,10 +1,12 @@
 // src/components/Navbar.jsx
-import { useAuth } from '../AuthProvider';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthProvider";
+import { Link } from "react-router-dom";
+import logo_1 from "../assets/logo-1.png";
+import logo_2 from "../assets/logo-2.png";
 
 const Navbar = () => {
-  const { user, login, register, logout, isAuthenticated, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const { login, register, logout, isAuthenticated, isLoading } =
+    useAuth();
 
   const handleLogin = async () => {
     await login();
@@ -20,8 +22,8 @@ const Navbar = () => {
 
   if (isLoading) {
     return (
-      <header className="bg-blue-600 text-white p-4 overflow-y-hidden shadow-md w-full overflow-x-hidden fixed top-0 left-0 z-50">
-  <div className="max-w-screen-xl mx-auto flex justify-between items-center">
+      <header className="bg-black text-white p-4 overflow-y-hidden shadow-md w-full overflow-x-hidden fixed top-0 left-0 z-50">
+        <div className="max-w-screen-xl flex justify-between items-center">
           <div className="text-xl font-bold">ReportMitra</div>
           <div>Loading...</div>
         </div>
@@ -30,43 +32,56 @@ const Navbar = () => {
   }
 
   return (
-    <header className="bg-black text-white p-4 shadow-md w-full overflow-x-hidden overflow-y-hidden fixed top-0 left-0 z-50">
-  <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">ReportMitra</Link>
-        
-        <nav className="flex items-center space-x-4">
+    <header className="bg-black text-white px-4 shadow-md w-full overflow-x-hidden overflow-y-hidden fixed top-0 left-0 z-50">
+      <div className="w-full flex justify-between items-center">
+        <Link to="/" className="text-xl font-bold flex items-center gap-2 py-2">
+          <img src={logo_1} alt="" className="w-16 h-16" />
+          <img src={logo_2} alt="" className="h-12" />
+        </Link>
+
+        <nav className="flex items-center">
           {isAuthenticated ? (
             <>
-              <Link to="/report" className="hover:text-blue-200 transition duration-200">
-                Report Issue
+              <div className="flex gap-5 font-bold mr-5 text-2xl">
+                <Link
+                to="/report"
+                className="transition duration-200 hover:underline"
+              >
+                Report
               </Link>
-              <Link to="/track" className="hover:text-blue-200 transition duration-200">
-                Track Complaints
+
+              <Link
+                to="/track"
+                className=" hover:underline transition duration-200"
+              >
+                Track
               </Link>
-              <div className="flex items-center space-x-2">
-                <Link to="/profile" className="hover:text-blue-200 transition duration-200">
-                  {user?.email || user?.given_name || 'Profile'}
-                  {user?.is_verified && <span className="ml-1 text-green-300">✓</span>}
-                </Link>
-                <button 
-                  onClick={handleLogout}
-                  className="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800 transition duration-200"
-                >
-                  Logout
-                </button>
+
+              <Link
+                to="/profile"
+                className=" hover:underline transition duration-200"
+              >
+                Profile
+              </Link>
+
+              <button className=" hover:underline cursor-pointer"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
               </div>
             </>
           ) : (
-            <div className="flex items-center space-x-2">
-              <button 
+            <div className="flex items-center space-x-2 font-bold">
+              <button
                 onClick={handleLogin}
-                className="px-3 py-1 transition duration-200 cursor-pointer"
+                className="px-3 py-1 transition duration-200 cursor-pointer hover:underline text-2xl"
               >
                 Login
               </button>
-              <button 
+              <button
                 onClick={handleRegister}
-                className="px-3 py-1 transition duration-200 cursor-pointer"
+                className="px-3 py-1 transition duration-200 cursor-pointer hover:underline text-2xl"
               >
                 Sign Up
               </button>
