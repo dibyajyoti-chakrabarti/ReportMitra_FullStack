@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
+import DebugToken from "./Debug";
 
 const Landing = () => {
   const { login, isAuthenticated } = useAuth();
@@ -17,6 +18,28 @@ const Landing = () => {
 
   return (
     <div className="relative">
+    <Navbar/>
+
+    {/* REMOVE FOR DEPLOYMENT */}
+    <DebugToken/>
+    
+    <div className="flex flex-col min-h-screen">
+      <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
+        {/* Background component from React-Bits */}
+        <div className="absolute inset-0 brightness-40">
+          <GridDistortion
+            imageSrc={bg_img}
+            grid={80}
+            mouse={0.03}
+            strength={0.15}
+            relaxation={0.9}
+            className="custom-class"
+          />
+        </div>
+        {/* Content on Background */}
+        <main className="relative container mx-auto px-4 py-8 ">
+          <section className="text-center py-16 flex flex-col gap-10">
+            <h1 className="text-8xl font-bold mt-10">Welcome to ReportMitra</h1>
       <Navbar />
       <div className="flex flex-col min-h-screen">
         <div className="relative w-full overflow-x-hidden text-white flex items-start flex-grow">
