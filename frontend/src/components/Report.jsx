@@ -74,7 +74,7 @@ function Report() {
                 />
                 Issue Description
                 <textarea
-                  className="border px-2 py-1 placeholder:text-gray-500 w-125 resize-none h-63"
+                  className="border px-2 py-1 placeholder:text-gray-500 w-125 resize-none h-64"
                   required
                   placeholder="Describe the Issue in Detail"
                 />
@@ -109,7 +109,7 @@ function Report() {
               </div>
               Preview
               <div className="relative">
-                <div className="absolute inset-0 w-125 h-63 object-contain bg-black shadow-md text-white">No File Selected</div>
+                <div className="absolute inset-0 w-125 h-63 object-contain bg-black shadow-md text-white  flex items-center justify-center text-4xl">No File Selected</div>
                 {preview && (
                 <img
                   src={preview}
