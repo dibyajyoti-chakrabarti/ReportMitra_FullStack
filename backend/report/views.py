@@ -41,7 +41,7 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
 
 #     def get_queryset(self):
 #         return IssueReport.objects.filter(user=self.request.user)
-# report/views.py
+
 from rest_framework import generics
 from rest_framework.permissions import AllowAny  # Add this
 from .models import IssueReport
