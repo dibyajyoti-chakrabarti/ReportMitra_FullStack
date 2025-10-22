@@ -36,7 +36,7 @@ function Track() {
                     type="text"
                     className="border px-2 py-1 text-gray-500 w-70"
                   />
-                  <button className="text-[15px] underline cursor-pointer ml-5">
+                  <button className="text-[15px] bg-black text-white px-2 py-2 rounded-xl cursor-pointer ml-5 hover:scale-110">
                     CHECK
                   </button>
                 </div>
