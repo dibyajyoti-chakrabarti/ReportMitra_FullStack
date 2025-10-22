@@ -34,10 +34,27 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
         except serializers.ValidationError as e:
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
-class IssueReportDetailView(generics.RetrieveAPIView):
-    serializer_class = IssueReportSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'id'
+# class IssueReportDetailView(generics.RetrieveAPIView):
+#     serializer_class = IssueReportSerializer
+#     permission_classes = [IsAuthenticated]
+#     lookup_field = 'id'
 
-    def get_queryset(self):
-        return IssueReport.objects.filter(user=self.request.user)
+#     def get_queryset(self):
+#         return IssueReport.objects.filter(user=self.request.user)
+# report/views.py
+from rest_framework import generics
+from rest_framework.permissions import AllowAny  # Add this
+from .models import IssueReport
+from .serializers import IssueReportSerializer
+
+class PublicIssueReportDetailView(generics.RetrieveAPIView):
+    """Public view for tracking reports without authentication"""
+    serializer_class = IssueReportSerializer
+    permission_classes = [AllowAny]  # Allow anyone to access
+    lookup_field = 'id'
+    queryset = IssueReport.objects.all()  # No user filtering for public access
+
+    def get_serializer_class(self):
+        # You might want a different serializer for public views
+        # that excludes sensitive information
+        return IssueReportSerializer

@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from report.views import PublicIssueReportDetailView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/reports/', include('report.urls')),
     path('api/profile/', include('user_profile.urls')),
+    path('track/detail/<int:id>/', PublicIssueReportDetailView.as_view(), name='report-detail'),
 ]

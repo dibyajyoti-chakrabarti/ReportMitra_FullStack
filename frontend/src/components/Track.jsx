@@ -1,10 +1,40 @@
 import Navbar from "./Navbar";
 import report_bg from "../assets/reportbg.jpg";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function Track() {
   const [active, setActive] = useState("details");
+  const [trackingId, setTrackingId] = useState("");
+  const [reportData, setReportData] = useState(null);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleCheckReport = async () => {
+    if (!trackingId.trim()) {
+      setError("Please enter a Tracking ID");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/track/detail/${trackingId}/`);
+      if (response.ok) {
+        const data = await response.json();
+        setReportData(data);
+        setError("");
+        // Navigate to details view
+        navigate("details");
+        setActive("details");
+      } else {
+        setError("Report not found. Please check your Tracking ID.");
+        setReportData(null);
+      }
+    } catch (err) {
+      setError("Error fetching report. Please try again.");
+      setReportData(null);
+    }
+  };
+
   return (
     <div>
       <Navbar />
@@ -14,7 +44,7 @@ function Track() {
           alt=""
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
-        <div className="relative bg-white h-full w-[80vw] pt-20 z-10">
+        <div className="relative bg-white h-full w-[80vw] pt-20 z-10 overflow-y-auto">
           <div className="text-center font-extrabold text-5xl py-3">
             Track Progress
           </div>
@@ -34,48 +64,76 @@ function Track() {
                 <div className="flex items-center">
                   <input
                     type="text"
+                    value={trackingId}
+                    onChange={(e) => setTrackingId(e.target.value)}
+                    placeholder="Enter Tracking ID"
                     className="border px-2 py-1 text-gray-500 w-70"
                   />
-                  <button className="text-[15px] bg-black text-white px-2 py-2 rounded-xl cursor-pointer ml-5 hover:scale-110">
+                  <button 
+                    onClick={handleCheckReport}
+                    className="text-[15px] bg-black text-white px-2 py-2 rounded-xl cursor-pointer ml-5 hover:scale-110"
+                  >
                     CHECK
                   </button>
                 </div>
               </div>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="text-center text-red-500 font-semibold my-2">
+                {error}
+              </div>
+            )}
+
+            {/* Report Found Message */}
+            {reportData && (
+              <div className="text-center text-green-500 font-semibold my-2">
+                ✓ Report found! View details below.
+              </div>
+            )}
+
             <hr />
-            <div className="my-4">
-              <nav className="flex gap-2 items-center justify-center font-bold">
-                <div className="border-2 p-1 rounded-2xl">
+            
+            {/* Navigation Tabs - Only show if report is found */}
+            {reportData && (
+              <div className="my-4">
+                <nav className="flex gap-2 items-center justify-center font-bold">
+                  <div className="border-2 p-1 rounded-2xl">
                     <Link
-                  to="details"
-                  onClick={() => setActive("details")}
-                  className={`px-2 py-1 ${
-                    active === "details"
-                      ? "bg-black text-white rounded-3xl"
-                      : "bg-white text-black rounded-3xl"
-                  }`}
-                >
-                  Issue Details
-                </Link>
-                <Link
-                  to="action"
-                  onClick={() => setActive("action")}
-                  className={`px-2 py-1 ${
-                    active === "action"
-                      ? "bg-black text-white rounded-3xl"
-                      : "bg-white text-black rounded-3xl"
-                  }`}
-                >
-                  Actions Taken
-                </Link>
-                </div>
-              </nav>
-              <Outlet />
-            </div>
+                      to="details"
+                      onClick={() => setActive("details")}
+                      className={`px-2 py-1 ${
+                        active === "details"
+                          ? "bg-black text-white rounded-3xl"
+                          : "bg-white text-black rounded-3xl"
+                      }`}
+                    >
+                      Issue Details
+                    </Link>
+                    <Link
+                      to="action"
+                      onClick={() => setActive("action")}
+                      className={`px-2 py-1 ${
+                        active === "action"
+                          ? "bg-black text-white rounded-3xl"
+                          : "bg-white text-black rounded-3xl"
+                      }`}
+                    >
+                      Actions Taken
+                    </Link>
+                  </div>
+                </nav>
+                
+                {/* Pass report data to child components */}
+                <Outlet context={[reportData]} />
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 export default Track;
