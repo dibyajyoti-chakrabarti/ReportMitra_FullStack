@@ -37,7 +37,7 @@ function Profile() {
             <hr />
             <div className="flex justify-center text-2xl my-4">
               <div className="flex gap-10 font-bold">
-                Aadhar Number:
+                Aadhaar Number:
                 <div className="flex items-center">
                   <input
                     type="text"

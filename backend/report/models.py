@@ -16,6 +16,7 @@ class IssueReport(models.Model):
     reporter_last_name = models.CharField(max_length=50)
     
     # Form input fields
+    issue_title = models.CharField(max_length=150)
     location = models.CharField(max_length=150)
     issue_description = models.TextField(max_length=500)
     image_url = models.CharField(max_length=150, blank=True, null=True)
