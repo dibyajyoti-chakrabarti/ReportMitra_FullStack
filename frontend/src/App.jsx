@@ -1,5 +1,5 @@
 // App.jsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./AuthProvider";
 import "./App.css";
 import Landing from "./components/Landing";
@@ -11,6 +11,8 @@ import Profile from "./components/Profile";
 import Callback from "./components/Callback";
 import Community from "./components/Community";
 import ProtectedRoute from "./components/ProtectedRoute";
+import IssueDetails from "./components/IssueDetails";
+import IssueAction from "./components/IssueAction";
 
 function App() {
   return (
@@ -21,14 +23,11 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/auth/callback" element={<Callback />} />
         <Route path="/community" element={<Community />} />
-        <Route
-          path="/track"
-          element={
-            <ProtectedRoute>
-              <Track />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/track" element={<Track />}>
+          <Route index element={<Navigate to="details" replace />} />
+          <Route path="details" element={<IssueDetails />} />
+          <Route path="action" element={<IssueAction />} />
+        </Route>
         <Route
           path="/report"
           element={
