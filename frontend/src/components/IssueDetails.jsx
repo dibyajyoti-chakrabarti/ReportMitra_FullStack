@@ -12,7 +12,7 @@ function IssueDetails() {
   const issueDate = reportData?.issue_date ? new Date(reportData.issue_date).toLocaleDateString() : "DEFAULT_VAL";
 
   return (
-    <div className="flex border-dashed border-3 py-3 mt-3 h-80">
+    <div className="flex border-dashed border-3 mt-3 h-77">
       <div className=" w-[50%] flex flex-col gap-1 justify-center pl-2 border-r-3 border-dashed">
         <div className="text-[18px]">
           <span className="font-bold">Tracking ID: </span> {issueID}

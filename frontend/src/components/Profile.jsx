@@ -36,14 +36,14 @@ function Profile() {
             <div className="my-4"></div>
             <hr />
             <div className="flex justify-center text-2xl my-4">
-              <div className="flex gap-10 font-bold">
+              <div className="flex gap-10 font-bold items-center">
                 Aadhaar Number:
                 <div className="flex items-center">
                   <input
                     type="text"
                     className="border px-2 py-1 text-gray-500 w-70"
                   />
-                  <button className="text-[15px] underline cursor-pointer ml-5">
+                  <button className="text-[15px] bg-black text-white px-2 py-2 rounded-3xl cursor-pointer ml-5 hover:scale-110">
                     VERIFY
                   </button>
                 <span className="ml-10 px-2 text-[15px] border-2 border-red-900 bg-red-400 text-red-950">{verified}</span>

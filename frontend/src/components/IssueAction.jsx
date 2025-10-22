@@ -11,7 +11,7 @@ function IssueAction() {
   const escalated = reportData?.status === 'in_progress' ? "Yes" : "No";
 
   return (
-    <div className="flex border-dashed border-3 py-3 mt-3 h-70">
+    <div className="flex border-dashed border-3 mt-3 h-70">
       <div className=" w-[50%] flex flex-col gap-1 justify-center pl-2 border-r-3 border-dashed">
         <div className="text-[18px]">
           <span className="font-bold">Tracking ID: </span> {trackingID}
@@ -34,7 +34,7 @@ function IssueAction() {
       </div>
       <div className=" w-[50%] flex flex-col gap-1 px-2 overflow-y-scroll">
         <div className="text-[18px] flex flex-col">
-          <p className="font-bold text-center">Comments from Department </p>
+          <p className="font-bold text-center py-1">Comments from Department </p>
           {comments}
         </div>
       </div>

@@ -44,7 +44,7 @@ function Track() {
           alt=""
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
-        <div className="relative bg-white h-full w-[80vw] pt-20 z-10 overflow-y-auto">
+        <div className="relative bg-white h-full w-[80vw] pt-20 z-10">
           <div className="text-center font-extrabold text-5xl py-3">
             Track Progress
           </div>
@@ -58,8 +58,8 @@ function Track() {
             exact ID provided at the time of submission.
             <div className="my-4"></div>
             <hr />
-            <div className="flex justify-center text-2xl my-4">
-              <div className="flex gap-10 font-bold">
+            <div className="flex justify-center text-xl">
+              <div className="flex gap-3 font-bold items-center my-1">
                 Tracking ID:
                 <div className="flex items-center">
                   <input
@@ -67,11 +67,11 @@ function Track() {
                     value={trackingId}
                     onChange={(e) => setTrackingId(e.target.value)}
                     placeholder="Enter Tracking ID"
-                    className="border px-2 py-1 text-gray-500 w-70"
+                    className="border px-2 text-gray-500 w-30"
                   />
                   <button 
                     onClick={handleCheckReport}
-                    className="text-[15px] bg-black text-white px-2 py-2 rounded-xl cursor-pointer ml-5 hover:scale-110"
+                    className="text-[15px] bg-black text-white px-2 py-2 rounded-3xl cursor-pointer ml-2 hover:scale-110"
                   >
                     CHECK
                   </button>
@@ -81,15 +81,15 @@ function Track() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-center text-red-500 font-semibold my-2">
+              <div className="text-center text-red-500 font-bold underline">
                 {error}
               </div>
             )}
 
             {/* Report Found Message */}
             {reportData && (
-              <div className="text-center text-green-500 font-semibold my-2">
-                ✓ Report found! View details below.
+              <div className="text-center text-green-600 underline font-bold my-2">
+                Report found! View details below.
               </div>
             )}
 
@@ -97,8 +97,8 @@ function Track() {
             
             {/* Navigation Tabs - Only show if report is found */}
             {reportData && (
-              <div className="my-4">
-                <nav className="flex gap-2 items-center justify-center font-bold">
+              <div>
+                <nav className="flex gap-2 items-center justify-center font-bold my-2">
                   <div className="border-2 p-1 rounded-2xl">
                     <Link
                       to="details"
