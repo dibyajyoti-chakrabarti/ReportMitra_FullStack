@@ -7,6 +7,7 @@ import { useAuth } from "../AuthProvider";
 function Report() {
   const [preview, setPreview] = useState(null);
   const [formData, setFormData] = useState({
+    issue_title: "",
     location: "",
     issue_description: "",
     image_url: ""
@@ -156,6 +157,16 @@ function Report() {
             <div className="flex mt-3 justify-center gap-10 mb-5">
               {/* Left side: description */}
               <div className="flex flex-col font-bold">
+                Issue Title
+                  <input
+                    type="text"
+                    name="issue_title"
+                    className="border px-2 py-1 placeholder:text-gray-500 w-100 mb-3"
+                    placeholder="Name the Issue"
+                    value={formData.issue_title}
+                    onChange={handleInputChange}
+                    required
+                  />
                 Issue Description
                 <textarea
                   name="issue_description"

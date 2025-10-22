@@ -6,7 +6,7 @@ function IssueDetails() {
   const firstName = reportData?.reporter_first_name || "DEFAULT_VAL";
   const midName = reportData?.reporter_middle_name || "DEFAULT_VAL";
   const lastName = reportData?.reporter_last_name || "DEFAULT_VAL";
-  const issueTitle = "Civic Issue Report"; // Default title since not in API
+  const issueTitle = reportData?.issue_title || "DEFAULT_VAL";
   const issueDesc = reportData?.issue_description || "DEFAULT_VAL";
   const issueLocation = reportData?.location || "DEFAULT_VAL";
   const issueDate = reportData?.issue_date ? new Date(reportData.issue_date).toLocaleDateString() : "DEFAULT_VAL";
