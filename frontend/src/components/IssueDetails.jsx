@@ -9,48 +9,54 @@ function IssueDetails() {
   const issueTitle = reportData?.issue_title || "DEFAULT_VAL";
   const issueDesc = reportData?.issue_description || "DEFAULT_VAL";
   const issueLocation = reportData?.location || "DEFAULT_VAL";
-  const issueDate = reportData?.issue_date ? new Date(reportData.issue_date).toLocaleDateString() : "DEFAULT_VAL";
+  const issueDate = reportData?.issue_date
+    ? new Date(reportData.issue_date).toLocaleDateString()
+    : "DEFAULT_VAL";
 
   return (
-    <div className="flex border-dashed border-3 mt-3 h-77">
-      <div className=" w-[50%] flex flex-col gap-1 justify-center pl-2 border-r-3 border-dashed">
-        <div className="text-[18px]">
+    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 min-h-[70vh] lg:min-h-[75vh] rounded-xl shadow-sm">
+      {/* Left Column */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center gap-3 p-5 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed border-gray-400">
+        <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Tracking ID: </span> {issueID}
         </div>
-        <div className="text-[18px]">
+        <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Full Name: </span> {firstName} {midName}{" "}
           {lastName}
         </div>
-        <div className="text-[18px]">
+        <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Title: </span> {issueTitle}
         </div>
-        <div className="text-[18px] overflow-y-scroll flex flex-col mr-2 border-2 px-2">
+        <div className="text-base sm:text-lg lg:text-[18px] flex flex-col bg-gray-50 border border-gray-300 p-2 rounded-md overflow-y-auto max-h-40">
           <span className="font-bold">Issue Description: </span> {issueDesc}
         </div>
-        <div className="text-[18px]">
+        <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Location: </span> {issueLocation}
         </div>
-        <div className="text-[18px]">
+        <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Date: </span> {issueDate}
         </div>
       </div>
-      <div className=" w-[50%] flex flex-col gap-1 ">
-        <div className="text-[18px] flex flex-col items-center">
-          <p className="font-bold">Issue Image </p>
-          <div className="inset-0 w-120 h-63 object-contain bg-black shadow-md text-white flex items-center justify-center">
-            {reportData?.image_url ? (
-              <img 
-                src={reportData.image_url} 
-                alt="Issue" 
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              "DEFAULT_VAL"
-            )}
-          </div>
+
+      {/* Right Column */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5">
+        <p className="font-bold text-lg lg:text-[18px] mb-2 text-center">
+          Issue Image
+        </p>
+        <div className="relative bg-gray-900 w-full max-w-sm aspect-[4/3] rounded-lg shadow-md overflow-hidden flex items-center justify-center text-white">
+          {reportData?.image_url ? (
+            <img
+              src={reportData.image_url}
+              alt="Issue"
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            "DEFAULT_VAL"
+          )}
         </div>
       </div>
     </div>
   );
 }
+
 export default IssueDetails;
