@@ -32,8 +32,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="/about" className="hover:text-white transition">
-                  About Us
+                <a href="/community" className="hover:text-white transition">
+                  Community Page
                 </a>
               </li>
             </ul>
@@ -43,21 +43,7 @@ const Footer = () => {
           <div>
             <h3 className="text-xl font-semibold mb-3">Get in Touch</h3>
             <p className="text-gray-400 mb-3">📍 Bangalore, India</p>
-            <p className="text-gray-400 mb-3">📧 support@reportmitra.in</p>
-            <div className="flex justify-center md:justify-start space-x-4 text-gray-400 text-2xl">
-              <a href="#" className="hover:text-blue-400 transition">
-                🌐
-              </a>
-              <a href="#" className="hover:text-blue-400 transition">
-                🐦
-              </a>
-              <a href="#" className="hover:text-blue-400 transition">
-                📘
-              </a>
-              <a href="#" className="hover:text-blue-400 transition">
-                📸
-              </a>
-            </div>
+            <p className="text-gray-400 mb-3">📧 example@mail.com</p>
           </div>
         </div>
 

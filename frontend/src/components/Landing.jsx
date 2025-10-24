@@ -125,7 +125,7 @@ const Landing = () => {
             >
               <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
               <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 bg-white flex items-center justify-center rounded-full mb-4">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 bg-white flex items-center justify-center rounded-full mb-4">
                   <img
                     src={analysis}
                     alt="Track"
