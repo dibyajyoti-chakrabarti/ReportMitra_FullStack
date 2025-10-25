@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'users',
     'user_profile',
     'report',
+    'aadhaar',
 ]
 
 MIDDLEWARE = [

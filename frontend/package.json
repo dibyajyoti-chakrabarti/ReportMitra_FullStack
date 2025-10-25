@@ -13,6 +13,7 @@
     "@kinde-oss/kinde-auth-react": "^5.8.0",
     "@tailwindcss/vite": "^4.1.14",
     "gsap": "^3.13.0",
+    "lucide-react": "^0.548.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
