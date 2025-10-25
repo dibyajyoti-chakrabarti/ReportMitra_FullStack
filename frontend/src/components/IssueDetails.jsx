@@ -14,8 +14,8 @@ function IssueDetails() {
     : "DEFAULT_VAL";
 
   return (
-    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 min-h-[70vh] lg:min-h-[75vh] rounded-xl shadow-sm">
-      {/* Left Column */}
+   <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 rounded-xl shadow-sm">
+    {/* Left Column */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center gap-3 p-5 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed border-gray-400">
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Tracking ID: </span> {issueID}

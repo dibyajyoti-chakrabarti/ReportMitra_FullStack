@@ -2,6 +2,7 @@ import Navbar from "./Navbar";
 import report_bg from "../assets/reportbg.jpg";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Footer from './Footer'
 
 function Track() {
   const [active, setActive] = useState("details");
@@ -44,7 +45,7 @@ function Track() {
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
 
-        <div className="relative bg-white w-[90vw] md:w-[80vw] lg:w-[75vw] min-h-screen md:min-h-[100vh] py-20 px-4 md:px-10 z-10 shadow-lg overflow-y-auto">
+        <div className="relative bg-white w-[90vw] md:w-[80vw] lg:w-[75vw] min-h-screen md:min-h-[100vh] py-20 px-4 md:px-10 z-10 shadow-lg overflow-y-auto mt-7">
           <div className="text-center font-extrabold text-3xl sm:text-4xl md:text-5xl py-3">
             Track Progress
           </div>
@@ -103,14 +104,14 @@ function Track() {
           {reportData && (
             <div>
               <nav className="flex flex-wrap gap-2 items-center justify-center font-bold my-2">
-                <div className="border-2 rounded-2xl p-1 flex flex-wrap justify-center">
+                <div className="border-2 rounded-4xl p-1 flex flex-wrap justify-center">
                   <Link
                     to="details"
                     onClick={() => setActive("details")}
                     className={`px-3 py-1 sm:px-4 sm:py-2 m-1 ${
                       active === "details"
                         ? "bg-black text-white rounded-3xl"
-                        : "bg-white text-black rounded-3xl border"
+                        : "bg-white text-black rounded-3xl"
                     }`}
                   >
                     Issue Details
@@ -121,7 +122,7 @@ function Track() {
                     className={`px-3 py-1 sm:px-4 sm:py-2 m-1 ${
                       active === "action"
                         ? "bg-black text-white rounded-3xl"
-                        : "bg-white text-black rounded-3xl border"
+                        : "bg-white text-black rounded-3xl"
                     }`}
                   >
                     Actions Taken
@@ -129,13 +130,14 @@ function Track() {
                 </div>
               </nav>
 
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto md:mt-15">
                 <Outlet context={[reportData]} />
               </div>
             </div>
           )}
         </div>
       </div>
+          <Footer/>
     </div>
   );
 }

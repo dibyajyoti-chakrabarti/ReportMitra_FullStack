@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import report_bg from "../assets/reportbg.jpg";
 import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
+import Footer from './Footer'
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -64,7 +65,12 @@ function Report() {
 
       if (response.ok) {
         alert("Report submitted successfully!");
-        setFormData({ issue_title: "", location: "", issue_description: "", image_url: "" });
+        setFormData({
+          issue_title: "",
+          location: "",
+          issue_description: "",
+          image_url: "",
+        });
         setPreview(null);
         document.getElementById("fileInput").value = "";
       } else {
@@ -83,148 +89,164 @@ function Report() {
 
   return (
     <div>
-  <Navbar />
-  <div className="relative min-h-screen flex items-center justify-center">
-    <img
-      src={report_bg}
-      alt=""
-      className="absolute inset-0 object-cover w-full h-full -z-10"
-    />
+      <Navbar />
+      <div className="relative flex items-center justify-center h-auto md:min-h-240 lg:min-h-260 ">
+        <img
+          src={report_bg}
+          alt=""
+          className="absolute inset-0 object-cover w-full h-full -z-10"
+        />
 
-    {/* White container fills most of the screen height */}
-    <div className="relative bg-white w-[90vw] md:w-[80vw] h-[90vh] md:h-[85vh] rounded-xl shadow-lg overflow-y-auto flex flex-col justify-center p-6 md:p-10">
-      {/* Title */}
-      <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
-        Issue a Report
-      </h1>
+        {/* White container fills most of the screen height */}
+        <div className="relative bg-white mt-22 md:mt-23 mb-5 w-[90vw] md:w-[80vw] min-h-[89vh] md:min-h-[69vh] rounded-xl shadow-lg overflow-y-scroll flex flex-col justify-start p-6 md:p-10 lg:mt-15 lg:mb-0 lg:min-h-[40vh]">
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col justify-center">
-        {/* User details */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {[
-            { label: "First Name", value: userProfile?.first_name || "Loading..." },
-            { label: "Middle Name", value: userProfile?.middle_name || "Loading..." },
-            { label: "Last Name", value: userProfile?.last_name || "Loading..." },
-          ].map((f) => (
-            <div key={f.label} className="flex flex-col font-bold">
-              <label>{f.label}</label>
-              <input
-                type="text"
-                readOnly
-                value={f.value}
-                className="border px-2 py-1 rounded-md"
-              />
+          {/* Title */}
+          
+
+          {/* Content */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
+            Issue a Report
+          </h1>
+            {/* User details */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {[
+                {
+                  label: "First Name",
+                  value: userProfile?.first_name || "Loading...",
+                },
+                {
+                  label: "Middle Name",
+                  value: userProfile?.middle_name || "Loading...",
+                },
+                {
+                  label: "Last Name",
+                  value: userProfile?.last_name || "Loading...",
+                },
+              ].map((f) => (
+                <div key={f.label} className="flex flex-col font-bold">
+                  <label>{f.label}</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={f.value}
+                    className="border px-2 py-1 rounded-md text-gray-500"
+                  />
+                </div>
+              ))}
+
+              <div className="flex flex-col font-bold">
+                <label>Issue Date</label>
+                <input
+                  type="date"
+                  readOnly
+                  value={getCurrentDate()}
+                  className="border px-2 py-1 rounded-md text-gray-500"
+                />
+              </div>
             </div>
-          ))}
 
-          <div className="flex flex-col font-bold">
-            <label>Issue Date</label>
-            <input
-              type="date"
-              readOnly
-              value={getCurrentDate()}
-              className="border px-2 py-1 rounded-md text-gray-500"
-            />
-          </div>
-        </div>
+            <hr className="my-4" />
 
-        <hr className="my-4" />
+            {/* Issue details */}
+            <div className="flex flex-col md:flex-row gap-8 mb-6">
+              {/* Left */}
+              <div className="flex flex-col flex-1 font-bold space-y-2">
+                <label>Issue Title</label>
+                <input
+                  type="text"
+                  name="issue_title"
+                  placeholder="Name the Issue"
+                  value={formData.issue_title}
+                  onChange={handleInputChange}
+                  className="border px-3 py-2 rounded-md placeholder:text-gray-500"
+                  required
+                />
 
-        {/* Issue details */}
-        <div className="flex flex-col md:flex-row gap-8 mb-6">
-          {/* Left */}
-          <div className="flex flex-col flex-1 font-bold space-y-2">
-            <label>Issue Title</label>
-            <input
-              type="text"
-              name="issue_title"
-              placeholder="Name the Issue"
-              value={formData.issue_title}
-              onChange={handleInputChange}
-              className="border px-3 py-2 rounded-md placeholder:text-gray-500"
-              required
-            />
+                <label>Issue Description</label>
+                <textarea
+                  name="issue_description"
+                  value={formData.issue_description}
+                  onChange={handleInputChange}
+                  placeholder="Describe the Issue in Detail"
+                  required
+                  className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-40 md:h-44 lg:h-60 2xl:h-66"
+                />
+              </div>
 
-            <label>Issue Description</label>
-            <textarea
-              name="issue_description"
-              value={formData.issue_description}
-              onChange={handleInputChange}
-              placeholder="Describe the Issue in Detail"
-              required
-              className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-40"
-            />
-          </div>
+              {/* Right */}
+              <div className="flex flex-col flex-1 font-bold space-y-2 items-ce">
+                <label>Issue Image</label>
+                <div className="flex flex-wrap justify-between items-center gap-3 justify-center">
+                  <a
+                    href="https://www.gov.wales/rural-grants-and-payments-geotagged-photo-guidance#121535"
+                    className="underline text-sm text-blue-700"
+                  >
+                    NOTE: GEOTAGGED IMAGES ONLY
+                  </a>
 
-          {/* Right */}
-          <div className="flex flex-col flex-1 font-bold space-y-2">
-            <label>Issue Image</label>
-            <div className="flex flex-wrap justify-between items-center gap-3">
-              <a
-                href="https://www.gov.wales/rural-grants-and-payments-geotagged-photo-guidance#121535"
-                className="underline text-sm text-blue-700"
+                  <label
+                    htmlFor="fileInput"
+                    className="cursor-pointer bg-white border-3 px-3 py-2 rounded-lg shadow hover:scale-105 transition flex items-center gap-2 text-3xl"
+                  >
+                    <img src={folder} alt="" className="h-7" />
+                    Choose File
+                  </label>
+                  <input
+                    id="fileInput"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  
+                </div>
+                <div className="w-full bg-black h-40 lg:h-55 flex items-center justify-center rounded-md shadow 2xl:h-70">
+                  {preview ? (
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="object-contain w-full h-full rounded-md"
+                    />
+                  ) : (
+                    <span className="text-white text-sm">
+                      No Image Selected
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <hr className="my-4" />
+
+            {/* Bottom section */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-2 font-bold">
+                <label className="whitespace-nowrap">Issue Location:</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter issue location"
+                  required
+                  className="border px-3 py-2 rounded-md w-full md:w-57 placeholder:text-gray-500 2xl:w-108"
+                />
+              </div>
+
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-black text-white rounded-xl text-lg font-bold hover:scale-105 transition disabled:opacity-50"
               >
-                NOTE: GEOTAGGED IMAGES ONLY
-              </a>
-
-              <label
-                htmlFor="fileInput"
-                className="cursor-pointer bg-white border px-3 py-2 rounded-lg shadow hover:scale-105 transition flex items-center gap-2"
-              >
-                <img src={folder} alt="" className="h-6" />
-                Choose File
-              </label>
-              <input
-                id="fileInput"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </div>
-
-            <label>Preview</label>
-            <div className="w-full bg-black h-40 flex items-center justify-center rounded-md shadow">
-              {preview ? (
-                <img src={preview} alt="Preview" className="object-contain w-full h-full rounded-md" />
-              ) : (
-                <span className="text-white text-sm">No Image Selected</span>
-              )}
+                {isSubmitting ? "Submitting..." : "Submit Report"}
+              </button>
             </div>
           </div>
-        </div>
-
-        <hr className="my-4" />
-
-        {/* Bottom section */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-2 font-bold">
-            <label className="whitespace-nowrap">Issue Location:</label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="Enter issue location"
-              required
-              className="border px-3 py-2 rounded-md w-full md:w-96 placeholder:text-gray-500"
-            />
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-6 py-2 bg-black text-white rounded-xl text-lg font-bold hover:scale-105 transition disabled:opacity-50"
-          >
-            {isSubmitting ? "Submitting..." : "Submit Report"}
-          </button>
         </div>
       </div>
+      <Footer/>
     </div>
-  </div>
-</div>
-
   );
 }
 
