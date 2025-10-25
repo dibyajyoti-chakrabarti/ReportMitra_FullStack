@@ -1,5 +1,6 @@
 import Navbar from "./Navbar";
 import report_bg from "../assets/reportbg.jpg";
+import Footer from "./Footer";
 
 function Profile() {
   let firstName = "DEFAULT_VAL";
@@ -15,7 +16,7 @@ function Profile() {
     <div>
       <Navbar />
 
-      <div className="relative min-h-screen flex items-center justify-center">
+      <div className="relative min-h-screen flex flex-col items-center justify-center">
         {/* Background */}
         <img
           src={report_bg}
@@ -24,8 +25,7 @@ function Profile() {
         />
 
         {/* Main content box */}
-        <div className="relative bg-white w-[90vw] md:w-[80vw] h-[90vh] md:h-[85vh] rounded-xl shadow-lg overflow-y-auto flex flex-col justify-center p-6 md:p-10">
-          
+        <div className="relative bg-white mt-24 mb-7 md:mt-20 w-[90vw] md:w-[80vw] min-h-[80vh] rounded-xl shadow-lg overflow-y-auto flex flex-col p-6 md:p-10 justify-center md:min-h-[70vh] lg:min-h-[60vh] lg:mt-30">
           {/* Title */}
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-4">
             Profile
@@ -34,14 +34,16 @@ function Profile() {
           {/* Note Section */}
           <div className="text-sm md:text-base leading-relaxed">
             <p>
-              <b><u>Note:</u></b> To ensure authenticity and prevent misuse, all
-              users must complete Aadhaar Verification before submitting
-              complaints. Upon entering your Aadhaar Number, your basic details
-              (Name, Age, and Phone Number) will be securely fetched from the
-              official Aadhaar database. You will then receive a One-Time
-              Password (OTP) on your registered mobile number to confirm your
-              identity. We do not store or share your Aadhaar information beyond
-              verification purposes.
+              <b>
+                <u>Note:</u>
+              </b>{" "}
+              To ensure authenticity and prevent misuse, all users must complete
+              Aadhaar Verification before submitting complaints. Upon entering
+              your Aadhaar Number, your basic details (Name, Age, and Phone
+              Number) will be securely fetched from the official Aadhaar
+              database. You will then receive a One-Time Password (OTP) on your
+              registered mobile number to confirm your identity. We do not store
+              or share your Aadhaar information beyond verification purposes.
             </p>
           </div>
 
@@ -49,11 +51,10 @@ function Profile() {
 
           {/* Aadhaar Input Section */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
-            <label className="font-bold text-lg md:text-2xl whitespace-nowrap">
-              Aadhaar Number:
-            </label>
-
             <div className="flex flex-wrap justify-center items-center gap-3">
+              <label className="font-bold text-lg md:text-2xl whitespace-nowrap">
+                Aadhaar Number
+              </label>
               <input
                 type="text"
                 className="border px-3 py-2 rounded-md text-gray-700 w-60 md:w-72"
@@ -100,6 +101,7 @@ function Profile() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
