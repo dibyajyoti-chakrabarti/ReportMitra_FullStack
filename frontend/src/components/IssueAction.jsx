@@ -17,7 +17,8 @@ function IssueAction() {
   const escalated = reportData?.status === "in_progress" ? "Yes" : "No";
 
   return (
-    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 min-h-[65vh] lg:min-h-[60vh] rounded-xl shadow-sm">
+    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 rounded-xl shadow-sm">
+
       {/* Left Column */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center gap-3 p-4 lg:p-3 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed border-gray-400">
         <div className="text-base sm:text-lg lg:text-[17px]">
