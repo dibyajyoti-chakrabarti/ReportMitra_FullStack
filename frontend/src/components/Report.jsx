@@ -4,6 +4,8 @@ import report_bg from "../assets/reportbg.jpg";
 import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
 import Footer from './Footer'
+import Tick from '../assets/tick.png'
+import Copy from '../assets/copy.jpg'
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -109,59 +111,65 @@ function Report() {
   return (
     <div>
       <Navbar />
-  {/* Success Popup */}
-  {showSuccessPopup && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl">✅</span>
-        </div>
-        
-        <h2 className="text-2xl font-bold text-gray-800 mb-3">
-          Report Submitted Successfully!
-        </h2>
-        
-        <p className="text-gray-600 mb-4">
-          Your report has been submitted and is now under review.
-        </p>
-        
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-gray-600 mb-2">Application ID for tracking:</p>
-          <div className="flex items-center justify-center gap-2">
-            <code className="bg-white px-3 py-2 rounded border text-lg font-mono font-bold text-blue-700">
-              {applicationId}
-            </code>
-            <button
-              onClick={copyToClipboard}
-              className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
-              title="Copy to clipboard"
-            >
-              📋
-            </button>
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">
+                <img src={Tick} alt="" className="" />
+              </span>
+            </div>
+
+            <h2 className="text-2xl font-bold text-green-600 mb-3">
+              Report Submitted Successfully!
+            </h2>
+
+            <p className="text-green-600 font-bold mb-4">
+              Your report has been submitted and is now under review.
+            </p>
+
+            <div className="border-3 border-dashed border-green-600 rounded-lg p-4 mb-6">
+              <p className="text-2xl text-green-600 mb-2 font-extrabold">
+                Application ID for tracking
+              </p>
+              <div className="flex items-center justify-center">
+                <div className="flex">
+                  <code className="bg-green-200  border-2 px-3 text-2xl font-bold text-green-700 border-green-600 py-2 rounded-l-md flex items-center">
+                    {applicationId}
+                  </code>
+                  <button
+                    onClick={copyToClipboard}
+                    className="text-white  border-2 border-green-600 transition py-2 px-3 cursor-pointer rounded-r-md bg-green-600"
+                    title="Copy to clipboard"
+                  >
+                    <img src={Copy} alt="" className="h-7"/>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={closePopup}
+                className="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition cursor-pointer"
+              >
+                Continue
+              </button>
+              <button
+                onClick={() => {
+                  closePopup();
+                  // Navigate to the specific report detail page
+                  window.location.href = `/track`;
+                }}
+                className="text-green-600 hover:text-green-700 underline hover:scale-110 cursor-pointer transition font-bold"
+              >
+                Track this report
+              </button>
+            </div>
           </div>
         </div>
-        
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={closePopup}
-            className="bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition"
-          >
-            Continue
-          </button>
-          <button
-            onClick={() => {
-              closePopup();
-              // Navigate to the specific report detail page
-              window.location.href = `/track/detail/`;
-            }}
-            className="text-blue-600 hover:text-blue-800 transition"
-          >
-            Track this report →
-          </button>
-        </div>
-      </div>
-    </div>
-  )}
+      )}
       <div className="relative flex items-center justify-center h-auto md:min-h-240 lg:min-h-260 ">
         <img
           src={report_bg}
@@ -171,7 +179,6 @@ function Report() {
 
         {/* White container fills most of the screen height */}
         <div className="relative bg-white mt-22 md:mt-23 mb-5 w-[90vw] md:w-[80vw] min-h-[89vh] md:min-h-[69vh] rounded-xl shadow-lg overflow-y-scroll flex flex-col justify-start p-6 md:p-10 lg:mt-15 lg:mb-0 lg:min-h-[40vh]">
-
           {/* Title */}
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
@@ -273,7 +280,7 @@ function Report() {
                     onChange={handleFileChange}
                   />
                 </div>
-                <div className="w-full bg-black h-40 lg:h-55 flex items-center justify-center rounded-md shadow 2xl:h-70">
+                <div className="w-full bg-black h-40 lg:h-55 flex items-center justify-center rounded-md shadow 2xl:h-70 xl:h-64">
                   {preview ? (
                     <img
                       src={preview}
@@ -317,7 +324,7 @@ function Report() {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
