@@ -98,25 +98,48 @@ const Landing = () => {
   */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 md:px-8 place-items-stretch">
             {/* Report */}
-            <Link
-              to="/report"
-              className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
-              <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
-                <img
-                  src={report}
-                  alt="Report"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
-                />
-                <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
-                  Report Issues
-                </h3>
-                <p className="text-sm sm:text-base">
-                  Easily report civic problems with photos and location details.
-                </p>
+            {isAuthenticated ? (
+              <Link
+                to="/report"
+                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
+                <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
+                  <img
+                    src={report}
+                    alt="Report"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
+                  />
+                  <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
+                    Report Issues
+                  </h3>
+                  <p className="text-sm sm:text-base">
+                    Easily report civic problems with photos and location
+                    details.
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <div
+                onClick={handleLogin}
+                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
+                <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
+                  <img
+                    src={report}
+                    alt="Report"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
+                  />
+                  <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
+                    Report Issues
+                  </h3>
+                  <p className="text-sm sm:text-base">
+                    Login required to report issues. Click to sign in.
+                  </p>
+                </div>
               </div>
-            </Link>
+            )}
 
             {/* Track */}
             <Link
