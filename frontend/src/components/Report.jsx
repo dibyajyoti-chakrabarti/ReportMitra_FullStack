@@ -15,6 +15,8 @@ function Report() {
   });
   const [userProfile, setUserProfile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
 
   useEffect(() => {
@@ -59,12 +61,19 @@ function Report() {
       const headers = await getAuthHeaders();
       const response = await fetch("http://localhost:8000/api/reports/", {
         method: "POST",
-        headers,
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        alert("Report submitted successfully!");
+        const result = await response.json();
+        setApplicationId(result.id);
+        setShowSuccessPopup(true);
+        
+        // Reset form
         setFormData({
           issue_title: "",
           location: "",
@@ -87,9 +96,72 @@ function Report() {
 
   const getCurrentDate = () => new Date().toISOString().split("T")[0];
 
+  const closePopup = () => {
+    setShowSuccessPopup(false);
+    setApplicationId(null);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(applicationId);
+    alert("Application ID copied to clipboard!");
+  };
+
   return (
     <div>
       <Navbar />
+  {/* Success Popup */}
+  {showSuccessPopup && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">✅</span>
+        </div>
+        
+        <h2 className="text-2xl font-bold text-gray-800 mb-3">
+          Report Submitted Successfully!
+        </h2>
+        
+        <p className="text-gray-600 mb-4">
+          Your report has been submitted and is now under review.
+        </p>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-gray-600 mb-2">Application ID for tracking:</p>
+          <div className="flex items-center justify-center gap-2">
+            <code className="bg-white px-3 py-2 rounded border text-lg font-mono font-bold text-blue-700">
+              {applicationId}
+            </code>
+            <button
+              onClick={copyToClipboard}
+              className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
+              title="Copy to clipboard"
+            >
+              📋
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={closePopup}
+            className="bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition"
+          >
+            Continue
+          </button>
+          <button
+            onClick={() => {
+              closePopup();
+              // Navigate to the specific report detail page
+              window.location.href = `/track/detail/`;
+            }}
+            className="text-blue-600 hover:text-blue-800 transition"
+          >
+            Track this report →
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
       <div className="relative flex items-center justify-center h-auto md:min-h-240 lg:min-h-260 ">
         <img
           src={report_bg}
@@ -101,13 +173,12 @@ function Report() {
         <div className="relative bg-white mt-22 md:mt-23 mb-5 w-[90vw] md:w-[80vw] min-h-[89vh] md:min-h-[69vh] rounded-xl shadow-lg overflow-y-scroll flex flex-col justify-start p-6 md:p-10 lg:mt-15 lg:mb-0 lg:min-h-[40vh]">
 
           {/* Title */}
-          
+          <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
+            Issue a Report
+          </h1>
 
           {/* Content */}
           <div className="flex-1 flex flex-col justify-center">
-            <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
-            Issue a Report
-          </h1>
             {/* User details */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               {[
@@ -117,7 +188,7 @@ function Report() {
                 },
                 {
                   label: "Middle Name",
-                  value: userProfile?.middle_name || "Loading...",
+                  value: userProfile?.middle_name || "N/A",
                 },
                 {
                   label: "Last Name",
@@ -175,12 +246,14 @@ function Report() {
               </div>
 
               {/* Right */}
-              <div className="flex flex-col flex-1 font-bold space-y-2 items-ce">
+              <div className="flex flex-col flex-1 font-bold space-y-2">
                 <label>Issue Image</label>
-                <div className="flex flex-wrap justify-between items-center gap-3 justify-center">
+                <div className="flex flex-wrap justify-between items-center gap-3">
                   <a
                     href="https://www.gov.wales/rural-grants-and-payments-geotagged-photo-guidance#121535"
                     className="underline text-sm text-blue-700"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     NOTE: GEOTAGGED IMAGES ONLY
                   </a>
@@ -199,7 +272,6 @@ function Report() {
                     accept="image/*"
                     onChange={handleFileChange}
                   />
-                  
                 </div>
                 <div className="w-full bg-black h-40 lg:h-55 flex items-center justify-center rounded-md shadow 2xl:h-70">
                   {preview ? (
