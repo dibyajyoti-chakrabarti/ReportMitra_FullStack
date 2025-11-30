@@ -4,17 +4,17 @@ import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
 import PostCard from "./PostCard"; // make sure this file exists and exports default
 import report_bg from "../assets/reportbg.jpg"; // optional; use same bg used elsewhere
-import before1 from "../assets/analysisicon.png"
-import after1 from "../assets/communityicon.jpg"
+import before1 from "../assets/before_sample.jpeg"
+import after1 from "../assets/after_sample.jpeg"
 
 const samplePosts = [
   {
     id: 1,
-    title: "Broken Street Light at Dholakpur",
-    description: "Street light at junction near market not working for 2 weeks.",
+    title: "Pothole in Indranagar",
+    description: "Pothole has caused several accidents. Lorem ipsum dolor sit, amet consectetur adipisicing elit. Soluta quam facilis cupiditate explicabo sunt adipisci, natus molestias blanditiis et dolor ipsum asperiores architecto dolorem reiciendis odio eos ipsam? Deleniti autem ipsam eaque consequatur est eos, error similique odio iste, aperiam, labore voluptatem. Repellat perspiciatis accusamus nulla voluptatem. Dolorum, atque possimus!",
     issueDate: "2025-10-01",
     solutionDate: "2025-10-05",
-    department: "Electrical",
+    department: "Road",
     // If you keep these in /public/assets, use absolute paths like below.
     // Or import the images at top and pass the imported variable instead.
     beforeImage: before1,
