@@ -18,13 +18,22 @@ const Landing = () => {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen text-white overflow-hidden">
+    <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
       <Navbar />
       <DebugToken />
 
-      {/* Background */}
-      <div className="absolute inset-0 -z-10 overflow-hidden brightness-40">
-        <div className="w-full h-full">
+      {/* Background: fixed so it stays visible while page grows */}
+      <div
+        className="fixed inset-0 -z-10 overflow-hidden brightness-40"
+        style={{
+          backgroundImage: `url(${bg_img})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "top center",
+        }}
+      >
+        {/* Keep GridDistortion fixed and full-screen so the effect covers the whole viewport */}
+        <div className="fixed inset-0 w-full h-full pointer-events-none">
           <GridDistortion
             imageSrc={bg_img}
             grid={80}
@@ -34,22 +43,22 @@ const Landing = () => {
           />
         </div>
 
-        {/* Overlay responsive image fallback for mobile */}
+        {/* Mobile fallback image (shows top of image on small screens) */}
         <img
           src={bg_img}
           alt="background"
-          className="absolute inset-0 w-full h-full object-cover md:hidden"
+          className="absolute inset-0 w-full h-full object-cover object-top md:hidden"
         />
       </div>
 
       {/* Main content */}
-      <main className="flex-grow container mx-auto px-4 py-16 text-center flex flex-col gap-10 justify-center">
+      <main className="flex-grow container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-20 text-center flex flex-col gap-8 md:gap-10 justify-center pt-6 md:pt-12">
         {/* Hero Text */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mt-10 leading-tight">
+        <h1 className="text-4xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mt-15 md:mt-12 leading-tight lg:mt-12">
           Welcome to ReportMitra
         </h1>
 
-        <div className="font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl px-2">
+        <div className="font-bold text-lg sm:text-xl md:text-3xl lg:text-4xl px-1 md:px-4">
           <TextType
             text={[
               "Report issues instantly",
@@ -77,7 +86,7 @@ const Landing = () => {
           <div className="flex justify-center">
             <button
               onClick={handleLogin}
-              className="bg-white font-bold cursor-pointer text-black px-8 sm:px-10 py-3 rounded-full hover:scale-110 hover:bg-black hover:text-white transition duration-200 text-2xl sm:text-3xl"
+              className="bg-white font-bold cursor-pointer text-black px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 rounded-full hover:scale-105 hover:bg-black hover:text-white transition duration-200 text-lg sm:text-xl md:text-2xl"
             >
               Get Started
             </button>
@@ -85,37 +94,31 @@ const Landing = () => {
         )}
 
         {/* How it works */}
-        {/* How it works */}
-        <section className="mt-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
+        <section className="mt-8 md:mt-12 w-full">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
             How It Works
           </h2>
 
-          {/* Responsive grid:
-      - mobile: 1 column
-      - md (tablet/iPad): 2 columns (report + track top, community full width below)
-      - lg (desktop): 3 columns
-  */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 md:px-8 place-items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto px-2 md:px-0 place-items-stretch">
             {/* Report */}
             {isAuthenticated ? (
               <Link
                 to="/report"
                 className="relative w-full hover:scale-105 transition-transform cursor-pointer"
               >
-                <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
-                <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
+                {/* rounded corners kept for visual appeal */}
+                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
+                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
                   <img
                     src={report}
                     alt="Report"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
+                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
                   />
-                  <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
                     Report Issues
                   </h3>
-                  <p className="text-sm sm:text-base">
-                    Easily report civic problems with photos and location
-                    details.
+                  <p className="text-sm sm:text-base md:text-base max-w-xs">
+                    Easily report civic problems with photos and location details.
                   </p>
                 </div>
               </Link>
@@ -124,17 +127,17 @@ const Landing = () => {
                 onClick={handleLogin}
                 className="relative w-full hover:scale-105 transition-transform cursor-pointer"
               >
-                <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
-                <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
+                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
+                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
                   <img
                     src={report}
                     alt="Report"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
+                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3"
                   />
-                  <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
                     Report Issues
                   </h3>
-                  <p className="text-sm sm:text-base">
+                  <p className="text-sm sm:text-base md:text-base max-w-xs">
                     Login required to report issues. Click to sign in.
                   </p>
                 </div>
@@ -146,48 +149,103 @@ const Landing = () => {
               to="/track"
               className="relative w-full hover:scale-105 transition-transform cursor-pointer"
             >
-              <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
-              <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
-                <div className="h-16 w-16 sm:h-20 sm:w-20 bg-white flex items-center justify-center rounded-full mb-4">
-                  <img
-                    src={analysis}
-                    alt="Track"
-                    className="w-8 h-8 sm:w-12 sm:h-12"
-                  />
+              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
+              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
+                <div className="h-14 w-14 sm:h-16 sm:w-16 bg-white flex items-center justify-center mb-3  rounded-full">
+                  <img src={analysis} alt="Track" className="w-7 h-7 sm:w-10 sm:h-10" />
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
-                  Track Progress
-                </h3>
-                <p className="text-sm sm:text-base">
-                  Monitor the status of your complaints in real-time.
-                </p>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Track Progress</h3>
+                <p className="text-sm sm:text-base md:text-base max-w-xs">Monitor the status of your complaints in real-time.</p>
               </div>
             </Link>
 
-            {/* Community -> will span both columns on md (tablet) and be single column on mobile and normal 3rd column on lg */}
+            {/* Community */}
             <Link
               to="/community"
               className="relative w-full hover:scale-105 transition-transform cursor-pointer md:col-span-2 lg:col-span-1"
             >
-              <div className="absolute inset-0 bg-white text-black rounded-xl opacity-70"></div>
-              <div className="relative text-black p-6 sm:p-8 flex flex-col items-center text-center h-full">
-                <img
-                  src={community}
-                  alt="Community"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-4"
-                />
-                <h3 className="text-2xl sm:text-3xl font-extrabold mb-2">
-                  Community Impact
-                </h3>
-                <p className="text-sm sm:text-base">
-                  See how your reports contribute to city improvement.
-                </p>
+              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
+              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full ">
+                <img src={community} alt="Community" className="w-14 h-14 sm:w-16 sm:h-16 mb-3  rounded-full" />
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Community Impact</h3>
+                <p className="text-sm sm:text-base md:text-base max-w-xs">See how your reports contribute to city improvement.</p>
               </div>
             </Link>
           </div>
         </section>
       </main>
+
+      {/* ABOUT SECTION (stacked cards on black background, no rounding) */}
+      <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
+        <div className="max-w-7xl mx-auto flex flex-col gap-12 sm:gap-16">
+
+          {/* Mission */}
+          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Our Mission</h2>
+            <div className="h-1 w-20 bg-[#2563EB] mb-6"></div>
+
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+              Our mission is to build a unified and transparent civic reporting platform that every
+              citizen of Bengaluru can rely on. We want to remove the confusion around where and how
+              to report issues, and provide a single, trusted destination for citizens to highlight
+              civic problems.
+              <br /><br />
+              We aim to make reporting simple, eliminate unnecessary delays caused by manual routing,
+              and ensure that every complaint reaches the correct department without friction. Through
+              clear communication, accessible tools, and reliable tracking, ReportMitra empowers citizens
+              to take meaningful action in improving their neighbourhoods.
+              <br /><br />
+              At its core, our mission is to strengthen the relationship between the people of Bengaluru
+              and the systems that serve them — making civic participation easier, faster, and more impactful.
+            </p>
+          </div>
+
+          {/* Vision */}
+          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Our Vision</h2>
+            <div className="h-1 w-20 bg-[#2563EB] mb-6"></div>
+
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+              We envision a future where Bengaluru becomes a model for citizen-driven urban improvement.
+              A city where everyone — from daily commuters to families to students — has the ability to
+              report issues effortlessly, track real progress, and see visible outcomes in their community.
+              <br /><br />
+              Our vision is a Bengaluru where transparency is the norm, technology removes unnecessary
+              barriers, and civic bodies and citizens work together with mutual trust. We believe that
+              cleaner, safer, and smarter neighbourhoods can be achieved when citizens are empowered
+              with the right tools and information.
+              <br /><br />
+              Ultimately, we aspire to build a city where civic problems don’t accumulate silently but
+              are acknowledged, addressed, and resolved with efficiency — shaping a more accountable and
+              responsive urban environment for everyone.
+            </p>
+          </div>
+
+          {/* Why ReportMitra */}
+          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Why ReportMitra?</h2>
+            <div className="h-1 w-28 bg-[#2563EB] mb-6"></div>
+
+            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+              Civic issues in Bengaluru often go unresolved simply because citizens are unsure where to
+              report them, which department is responsible, or whether their complaints will lead to any
+              visible action. ReportMitra was created to bring clarity and confidence to this process.
+              <br /><br />
+              Through machine learning, every report is automatically classified and sent to the correct
+              civic department — eliminating delays and reducing the dependency on manual decision-making.
+              Our priority-based escalation model ensures long-pending issues receive increasing attention
+              over time, even if the citizen does not repeatedly follow up.
+              <br /><br />
+              By giving residents a transparent way to track progress and stay informed, we aim to foster
+              a culture where civic participation becomes easy, meaningful, and rewarding.
+              <br /><br />
+              ReportMitra exists because Bengaluru deserves a system where every problem is heard, every
+              voice matters, and every neighbourhood is valued.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>
