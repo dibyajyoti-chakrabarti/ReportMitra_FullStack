@@ -140,158 +140,177 @@ function Profile() {
     setAadhaarNumber(value);
   };
 
-  const verified = profileData.isVerified ? "Verified ✓" : "Not Verified";
+  const verified = profileData.isVerified ? "✓" : "Not Verified";
 
   return (
-    <div>
-      <Navbar />
+  <div className="min-h-screen flex flex-col">
+    <Navbar />
 
-      <div className="relative min-h-screen flex flex-col items-center justify-center">
-        {/* Background */}
-        <img
-          src={report_bg}
-          alt="background"
-          className="absolute inset-0 w-full h-full object-cover -z-10"
-        />
+    {/* main content area with background */}
+    <main className="flex-grow relative flex justify-center py-10 md:py-14 lg:py-16">
+      <img
+        src={report_bg}
+        alt="background"
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+      />
 
-        {/* Main content box */}
-        <div className="relative bg-white mt-24 mb-7 md:mt-20 w-[90vw] md:w-[80vw] min-h-[80vh] rounded-xl shadow-lg overflow-y-auto flex flex-col p-6 md:p-10 justify-center md:min-h-[70vh] lg:min-h-[60vh] lg:mt-30">
-          {/* Title */}
-          <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-4">
-            Profile
-          </h1>
+      {/* white card container (fluid height) */}
+      <div
+        className="
+          relative bg-white w-[90vw] md:w-[80vw] lg:w-[75vw]
+           shadow-lg z-10
+          px-6 md:px-10 py-8
+          transition-all duration-300 ease-out
+        "
+      >
+        {/* Title */}
+        <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-4">
+          Profile
+        </h1>
 
-          {/* Note Section */}
-          <div className="text-sm md:text-base leading-relaxed mb-6">
-            <p>
-              <b>
-                <u>Note:</u>
-              </b>{" "}
-              To ensure authenticity and prevent misuse, all users must complete
-              Aadhaar Verification before submitting complaints. Upon entering
-              your Aadhaar Number, your basic details (Name, Age, and Phone
-              Number) will be securely fetched from the official Aadhaar
-              database. You will then receive a One-Time Password (OTP) on your
-              registered mobile number to confirm your identity. We do not store
-              or share your Aadhaar information beyond verification purposes.
-            </p>
-          </div>
+        {/* Note Section */}
+        <div className="text-sm md:text-base leading-relaxed mb-6">
+          <p>
+            <b><u>Note:</u></b> To ensure authenticity and prevent misuse, all
+            users must complete Aadhaar Verification before submitting complaints.
+            Upon entering your Aadhaar Number, your basic details (Name, Age,
+            Phone Number) will be securely fetched from the Aadhaar database.
+          </p>
+        </div>
 
-          <hr className="my-4" />
+        <hr className="my-4" />
 
-          {/* Aadhaar Input Section */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
-            <div className="flex flex-wrap justify-center items-center gap-3">
-              <label className="font-bold text-lg md:text-2xl whitespace-nowrap">
-                Aadhaar Number
-              </label>
-              <input
-                type="text"
-                value={aadhaarNumber}
-                onChange={handleAadhaarChange}
-                className="border px-3 py-2 rounded-md text-gray-700 w-60 md:w-72"
-                placeholder="Enter 12-digit Aadhaar"
-                maxLength={12}
-                disabled={profileData.isVerified}
-              />
-              <button 
-                onClick={verifyAadhaar}
-                disabled={isVerifying || profileData.isVerified}
-                className={`text-sm md:text-base px-4 py-2 rounded-3xl cursor-pointer transition ${
+        {/* Aadhaar Input Section */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
+          <div className="flex flex-wrap justify-center items-center gap-3">
+            <label className="font-bold text-lg md:text-2xl whitespace-nowrap">
+              Aadhaar Number
+            </label>
+
+            <input
+              type="text"
+              value={aadhaarNumber}
+              onChange={handleAadhaarChange}
+              className="border px-3 py-2 rounded-md text-gray-700 w-60 md:w-72"
+              placeholder="Enter 12-digit Aadhaar"
+              maxLength={12}
+              disabled={profileData.isVerified}
+            />
+
+            <button
+              onClick={verifyAadhaar}
+              disabled={isVerifying || profileData.isVerified}
+              className={`
+                text-sm md:text-base px-4 py-2 rounded-2xl cursor-pointer transition
+                ${
                   profileData.isVerified
-                    ? 'bg-green-600 text-white cursor-not-allowed'
+                    ? 'bg-green-700 text-white cursor-not-allowed'
                     : isVerifying
                     ? 'bg-gray-400 text-white cursor-not-allowed'
                     : 'bg-black text-white hover:scale-105'
+                }
+              `}
+            >
+              {isVerifying ? 'VERIFYING...' : profileData.isVerified ? 'VERIFIED' : 'VERIFY'}
+            </button>
+
+            <span
+              className={`
+                px-3 py-1 border-2 rounded-full text-sm md:text-base font-semibold
+                ${
+                  profileData.isVerified
+                    ? 'border-green-700 bg-green-100 text-green-700 border-3'
+                    : 'border-red-900 bg-red-400 text-red-950'
+                }
+              `}
+            >
+              {verified}
+            </span>
+          </div>
+        </div>
+
+        {/* Verification Status */}
+        {verificationResult && (
+          <div
+            className={`text-center mb-4 text-sm ${
+              verificationResult.verified ? 'text-green-700' : 'text-red-600'
+            }`}
+          >
+            {verificationResult.verified
+              ? "✓ Aadhaar verified successfully! Your profile has been updated."
+              : verificationResult.error || "Aadhaar verification failed"}
+          </div>
+        )}
+
+        <hr className="my-4" />
+
+        {/* Personal Details Section */}
+        <div className="font-bold flex flex-col items-center justify-center">
+          <p className="text-2xl md:text-3xl mb-6">Personal Details</p>
+
+          <div className="flex flex-col gap-4 text-base md:text-xl w-full md:w-[80%]">
+            <div className="flex justify-between">
+              <span className="w-1/3">Full Name:</span>
+              <span className="text-gray-500 text-right w-2/3">
+                {profileData.firstName} {profileData.midName} {profileData.lastName}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Age:</span>
+              <span className="text-gray-500 text-right w-2/3">{profileData.age}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Date of Birth:</span>
+              <span className="text-gray-500 text-right w-2/3">{profileData.dateOfBirth}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Phone Number:</span>
+              <span className="text-gray-500 text-right w-2/3">{profileData.ph}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Address:</span>
+              <span className="text-gray-500 text-right w-2/3 whitespace-pre-line">
+                {profileData.addr}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Last Updated:</span>
+              <span className="text-gray-500 text-right w-2/3">{profileData.lastUpdated}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="w-1/3">Aadhaar Status:</span>
+              <span
+                className={`text-right w-2/3 font-semibold ${
+                  profileData.isVerified ? 'text-green-700' : 'text-red-600'
                 }`}
               >
-                {isVerifying ? 'VERIFYING...' : profileData.isVerified ? 'VERIFIED' : 'VERIFY'}
-              </button>
-              <span className={`px-3 py-1 border-2 rounded-md text-sm md:text-base font-semibold ${
-                profileData.isVerified 
-                  ? 'border-green-900 bg-green-400 text-green-950' 
-                  : 'border-red-900 bg-red-400 text-red-950'
-              }`}>
                 {verified}
               </span>
             </div>
           </div>
-
-          {/* Verification Status Message */}
-          {verificationResult && (
-            <div className={`text-center mb-4 text-sm ${
-              verificationResult.verified ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {verificationResult.verified 
-                ? "✓ Aadhaar verified successfully! Your profile has been updated."
-                : verificationResult.error || "Aadhaar verification failed"
-              }
-            </div>
-          )}
-
-          <hr className="my-4" />
-
-          {/* Personal Details Section */}
-          <div className="font-bold flex flex-col items-center justify-center">
-            <p className="text-2xl md:text-3xl mb-6">Personal Details</p>
-
-            <div className="flex flex-col gap-4 text-base md:text-xl w-full md:w-[80%]">
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Full Name:</span>
-                <span className="text-gray-500 text-right w-2/3">
-                  {profileData.firstName} {profileData.midName} {profileData.lastName}
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Age:</span>
-                <span className="text-gray-500 text-right w-2/3">{profileData.age}</span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Date of Birth:</span>
-                <span className="text-gray-500 text-right w-2/3">{profileData.dateOfBirth}</span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Phone Number:</span>
-                <span className="text-gray-500 text-right w-2/3">{profileData.ph}</span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Address:</span>
-                <span className="text-gray-500 text-right w-2/3 whitespace-pre-line">{profileData.addr}</span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Last Updated:</span>
-                <span className="text-gray-500 text-right w-2/3">{profileData.lastUpdated}</span>
-              </div>
-              
-              <div className="flex justify-between items-start">
-                <span className="w-1/3">Aadhaar Status:</span>
-                <span className={`text-right w-2/3 font-semibold ${
-                  profileData.isVerified ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {verified}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Instructions for verified users */}
-          {profileData.isVerified && (
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800 text-center">
-                <strong>✓ Your profile is verified!</strong> You can now submit reports and track your complaints.
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* Verified Message */}
+        {profileData.isVerified && (
+          <div className="mt-8 p-4 bg-green-100 border-2 border-green-700 rounded-lg">
+            <p className="text-green-700 text-center">
+              <strong>Your profile is verified!</strong> <br />You can now submit reports.
+            </p>
+          </div>
+        )}
       </div>
-      <Footer />
-    </div>
-  );
+    </main>
+
+    <Footer />
+  </div>
+);
+
 }
 
 export default Profile;

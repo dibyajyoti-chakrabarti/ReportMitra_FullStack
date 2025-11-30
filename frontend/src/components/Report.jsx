@@ -3,9 +3,9 @@ import Navbar from "./MiniNavbar";
 import report_bg from "../assets/reportbg.jpg";
 import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
-import Footer from './Footer'
-import Tick from '../assets/tick.png'
-import Copy from '../assets/copy.jpg'
+import Footer from "./Footer";
+import Tick from "../assets/tick.png";
+import Copy from "../assets/copy.jpg";
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -65,7 +65,7 @@ function Report() {
         method: "POST",
         headers: {
           ...headers,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -74,7 +74,7 @@ function Report() {
         const result = await response.json();
         setApplicationId(result.id);
         setShowSuccessPopup(true);
-        
+
         // Reset form
         setFormData({
           issue_title: "",
@@ -108,10 +108,11 @@ function Report() {
     alert("Application ID copied to clipboard!");
   };
 
-  return (
-    <div>
+    return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      {/* Success Popup */}
+
+      {/* Success Popup (overlay) */}
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
@@ -143,7 +144,7 @@ function Report() {
                     className="text-white  border-2 border-green-600 transition py-2 px-3 cursor-pointer rounded-r-md bg-green-600"
                     title="Copy to clipboard"
                   >
-                    <img src={Copy} alt="" className="h-7"/>
+                    <img src={Copy} alt="" className="h-7" />
                   </button>
                 </div>
               </div>
@@ -159,7 +160,6 @@ function Report() {
               <button
                 onClick={() => {
                   closePopup();
-                  // Navigate to the specific report detail page
                   window.location.href = `/track`;
                 }}
                 className="text-green-600 hover:text-green-700 underline hover:scale-110 cursor-pointer transition font-bold"
@@ -170,15 +170,21 @@ function Report() {
           </div>
         </div>
       )}
-      <div className="relative flex items-center justify-center h-auto md:min-h-240 lg:min-h-260 ">
+
+      {/* main area: background only covers the main; main grows to push footer down */}
+      <main className="flex-grow relative flex justify-center py-8 md:py-12 lg:py-16">
         <img
           src={report_bg}
           alt=""
           className="absolute inset-0 object-cover w-full h-full -z-10"
         />
 
-        {/* White container fills most of the screen height */}
-        <div className="relative bg-white mt-22 md:mt-23 mb-5 w-[90vw] md:w-[80vw] min-h-[89vh] md:min-h-[69vh] rounded-xl shadow-lg overflow-y-scroll flex flex-col justify-start p-6 md:p-10 lg:mt-15 lg:mb-0 lg:min-h-[40vh]">
+        {/* white card: responsive width + smooth height/padding transition */}
+        <div
+          className={`relative bg-white w-[90vw] md:w-[80vw] rounded-xl shadow-lg z-10
+                      px-6 md:px-10 py-6 md:py-10 transition-all duration-300 ease-out`}
+          style={{ willChange: "height, padding" }}
+        >
           {/* Title */}
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
@@ -323,7 +329,8 @@ function Report() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
+
       <Footer />
     </div>
   );
