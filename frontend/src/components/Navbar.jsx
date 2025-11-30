@@ -49,6 +49,9 @@ const Navbar = () => {
               <Link to="/profile" className="hover:underline transition">
                 Profile
               </Link>
+              <Link to="/community" className="hover:underline transition">
+                Community
+              </Link>
               <button
                 onClick={handleLogout}
                 className="hover:underline cursor-pointer"

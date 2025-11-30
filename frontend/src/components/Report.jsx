@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Navbar from "./Navbar";
+import Navbar from "./MiniNavbar";
 import report_bg from "../assets/reportbg.jpg";
 import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
