@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from '../AuthProvider';
-import Navbar from "./Navbar";
+import Navbar from "./MiniNavbar";
 import report_bg from "../assets/reportbg.jpg";
 import Footer from "./Footer";
 

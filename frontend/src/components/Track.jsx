@@ -1,4 +1,4 @@
-import Navbar from "./Navbar";
+import Navbar from "./MiniNavbar";
 import report_bg from "../assets/reportbg.jpg";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
