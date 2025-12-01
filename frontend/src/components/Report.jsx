@@ -50,10 +50,10 @@ function Report() {
       setFormData((p) => ({ ...p, image_url: "" }));
     } else {
       if (preview) {
-  URL.revokeObjectURL(preview);
-}
-setSelectedFile(null);
-setPreview(null);
+        URL.revokeObjectURL(preview);
+      }
+      setSelectedFile(null);
+      setPreview(null);
       setFormData((p) => ({ ...p, image_url: "" }));
     }
   };
@@ -109,44 +109,63 @@ setPreview(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
+      // Start with existing image_url from formData (if any)
       let imageUrl = formData.image_url || "";
 
-      // if there is a selected file, upload it first
+      // If there's a selected file, attempt S3 upload first
       if (selectedFile) {
         try {
           const { objectUrl } = await uploadFileToS3(selectedFile);
           imageUrl = objectUrl;
           console.log("Uploaded image URL:", imageUrl); // requirement: show in console
         } catch (uploadErr) {
+          // If upload fails, report to console and user, and stop submit early
           console.error("Image upload error:", uploadErr);
-          alert("Failed to upload image. Try again.");
+          alert("Failed to upload image. Please try again.");
           setIsSubmitting(false);
-          return;
+          return; // don't continue to submit report without a valid image
         }
       }
 
-      // send report payload (include image_url)
+      // Prepare headers (support both function and static object)
       const headers =
         typeof getAuthHeaders === "function"
           ? await getAuthHeaders()
           : { "Content-Type": "application/json" };
+
+      // Build payload including image_url (either uploaded or existing/blank)
+      const payload = { ...formData, image_url: imageUrl };
+
+      // Send report
       const response = await fetch("http://localhost:8000/api/reports/", {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, image_url: imageUrl }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const err = await response.text();
-        throw new Error(err || "Report submit failed");
+        // Try parse JSON error if possible, otherwise text
+        let errDetail = "Failed to submit report";
+        try {
+          const errJson = await response.json();
+          errDetail = errJson.detail || JSON.stringify(errJson);
+        } catch {
+          const errText = await response.text().catch(() => null);
+          if (errText) errDetail = errText;
+        }
+        throw new Error(errDetail);
       }
 
+      // Success path: show popup and set application id
       const result = await response.json();
       console.log("Report submit result:", result);
-      alert("Report submitted!");
+      setApplicationId(result.id);
+      setShowSuccessPopup(true);
+      // alert("Report submitted!");
 
-      // reset form + file input
+      // Reset form + file input + preview
       setFormData({
         issue_title: "",
         location: "",
@@ -159,7 +178,7 @@ setPreview(null);
       if (fileInput) fileInput.value = "";
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Error: " + err.message);
+      alert("Error: " + (err.message || "Unknown error"));
     } finally {
       setIsSubmitting(false);
     }
