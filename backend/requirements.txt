@@ -7,4 +7,4 @@ requests==2.32.3
 sqlparse==0.5.3
 python-dotenv==1.0.1
 django-phonenumber-field==8.3.0 
-phonenumbers==9.0.16
+phonenumbers==9.0.16boto3==1.42.0
