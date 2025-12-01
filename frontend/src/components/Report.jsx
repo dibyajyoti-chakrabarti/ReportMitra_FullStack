@@ -9,14 +9,16 @@ import Copy from "../assets/copy.jpg";
 
 function Report() {
   const [preview, setPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); // NEW
+  const [isSubmitting, setIsSubmitting] = useState(false); // NEW (optional)
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
     issue_description: "",
     image_url: "",
   });
+
   const [userProfile, setUserProfile] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
@@ -40,15 +42,63 @@ function Report() {
   }, [user, getAuthHeaders]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setPreview(imageUrl);
-      setFormData((p) => ({ ...p, image_url: imageUrl }));
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+      // keep formData.image_url empty - we'll set after upload
+      setFormData((p) => ({ ...p, image_url: "" }));
     } else {
-      setPreview(null);
+      if (preview) {
+  URL.revokeObjectURL(preview);
+}
+setSelectedFile(null);
+setPreview(null);
       setFormData((p) => ({ ...p, image_url: "" }));
     }
+  };
+
+  const uploadFileToS3 = async (file) => {
+    // get auth headers if your app uses auth; otherwise remove getAuthHeaders()
+    const authHeaders =
+      typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
+
+    // request presigned URL
+    const presignResp = await fetch(
+      "http://localhost:8000/api/reports/s3/presign/",
+      {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name, contentType: file.type }),
+      }
+    );
+    if (!presignResp.ok) {
+      const err = await presignResp.text();
+      throw new Error("Presign failed: " + err);
+    }
+    const { url: presignedUrl, key } = await presignResp.json();
+
+    // upload the file using PUT
+    const putResp = await fetch(presignedUrl, {
+      method: "PUT",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+    if (!putResp.ok) {
+      const txt = await putResp.text();
+      throw new Error("S3 upload failed: " + txt);
+    }
+
+    // construct object URL (private bucket) — store this in DB
+    const S3_BUCKET =
+      import.meta.env.VITE_S3_BUCKET || "reportmitra-report-images-dc";
+    const AWS_REGION = import.meta.env.VITE_AWS_REGION || "ap-south-1";
+
+    const objectUrl = `https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${encodeURIComponent(
+      key
+    )}`;
+
+    return { objectUrl, key };
   };
 
   const handleInputChange = (e) => {
@@ -60,37 +110,56 @@ function Report() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const headers = await getAuthHeaders();
+      let imageUrl = formData.image_url || "";
+
+      // if there is a selected file, upload it first
+      if (selectedFile) {
+        try {
+          const { objectUrl } = await uploadFileToS3(selectedFile);
+          imageUrl = objectUrl;
+          console.log("Uploaded image URL:", imageUrl); // requirement: show in console
+        } catch (uploadErr) {
+          console.error("Image upload error:", uploadErr);
+          alert("Failed to upload image. Try again.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // send report payload (include image_url)
+      const headers =
+        typeof getAuthHeaders === "function"
+          ? await getAuthHeaders()
+          : { "Content-Type": "application/json" };
       const response = await fetch("http://localhost:8000/api/reports/", {
         method: "POST",
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, image_url: imageUrl }),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setApplicationId(result.id);
-        setShowSuccessPopup(true);
-
-        // Reset form
-        setFormData({
-          issue_title: "",
-          location: "",
-          issue_description: "",
-          image_url: "",
-        });
-        setPreview(null);
-        document.getElementById("fileInput").value = "";
-      } else {
-        const err = await response.json();
-        alert(`Error: ${err.detail || "Failed to submit report"}`);
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || "Report submit failed");
       }
-    } catch (error) {
-      console.error("Error submitting report:", error);
-      alert("Error submitting report. Please try again.");
+
+      const result = await response.json();
+      console.log("Report submit result:", result);
+      alert("Report submitted!");
+
+      // reset form + file input
+      setFormData({
+        issue_title: "",
+        location: "",
+        issue_description: "",
+        image_url: "",
+      });
+      setSelectedFile(null);
+      setPreview(null);
+      const fileInput = document.getElementById("fileInput");
+      if (fileInput) fileInput.value = "";
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Error: " + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +177,7 @@ function Report() {
     alert("Application ID copied to clipboard!");
   };
 
-    return (
+  return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
@@ -281,7 +350,6 @@ function Report() {
                   <input
                     id="fileInput"
                     type="file"
-                    className="hidden"
                     accept="image/*"
                     onChange={handleFileChange}
                   />
