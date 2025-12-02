@@ -3,6 +3,8 @@ import os
 from django.conf import settings
 from rest_framework import serializers
 from .models import IssueReport
+from urllib.parse import urlparse, unquote
+
 
 class IssueReportSerializer(serializers.ModelSerializer):
     reporter_first_name = serializers.CharField(required=False, allow_blank=True)
@@ -32,23 +34,41 @@ class IssueReportSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        Normalize image_url (key -> full URL), attach request.user as user,
-        and auto-fill reporter_first_name / reporter_last_name from user's profile
-        if the client didn't provide them.
+        Normalize image_url (key -> full URL) or extract image_key from a full URL,
+        decode percent-encoding, attach request.user, and auto-fill reporter names.
         """
-        # --- Normalise image_url / image_key if present ---
         image_val = validated_data.get("image_url")
+        bucket = os.getenv("S3_BUCKET") or getattr(settings, "S3_BUCKET", None)
+        region = os.getenv("AWS_REGION") or getattr(settings, "AWS_REGION", "ap-south-1")
+
+        # 1) If frontend sent only a key like "reports/xxx.jpg"
         if image_val and not image_val.startswith("http"):
             key = image_val
-            # only set image_key if model has that field (you may have added it)
-            if "image_key" in self.Meta.model._meta.fields_map or hasattr(self.Meta.model, "image_key"):
-                validated_data["image_key"] = key
-            validated_data["image_url"] = self.build_s3_url(key)
-        elif image_val and image_val.startswith("http"):
-            # leave image_url as-is; optional: try to infer key if you want
-            pass
+            validated_data["image_key"] = key if ("image_key" in [f.name for f in self.Meta.model._meta.fields]) else None
+            validated_data["image_url"] = f"https://{bucket}.s3.{region}.amazonaws.com/{key}" if bucket else image_val
 
-        # --- Attach user from request if not provided ---
+        # 2) If frontend sent a full URL (possibly percent-encoded)
+        elif image_val and image_val.startswith("http"):
+            try:
+                parsed = urlparse(image_val)
+                raw_path = parsed.path.lstrip('/')
+                key = unquote(raw_path)           # decode %2F -> '/'
+                # If path starts with bucket/, strip it
+                if bucket and key.startswith(bucket + "/"):
+                    key = key[len(bucket)+1:]
+                # set image_key if the model has that field
+                if "image_key" in [f.name for f in self.Meta.model._meta.fields]:
+                    validated_data["image_key"] = key
+                # canonicalize image_url to unencoded public url
+                if bucket:
+                    validated_data["image_url"] = f"https://{bucket}.s3.{region}.amazonaws.com/{key}"
+                else:
+                    validated_data["image_url"] = unquote(image_val)
+            except Exception:
+                # leave as-is on failure
+                validated_data["image_url"] = image_val
+
+        # Attach user from request if not provided
         request = self.context.get("request")
         user = None
         if request and hasattr(request, "user") and request.user and request.user.is_authenticated:
@@ -56,19 +76,17 @@ class IssueReportSerializer(serializers.ModelSerializer):
             if not validated_data.get("user"):
                 validated_data["user"] = user
 
-        # --- Auto-fill reporter name fields from user profile if missing ---
+        # Auto-fill reporter name fields if missing
         try:
             profile = getattr(user, "user_profile", None)
             if profile:
                 if not validated_data.get("reporter_first_name"):
-                    validated_data["reporter_first_name"] = profile.first_name or profile.get_full_name().split()[0]
+                    validated_data["reporter_first_name"] = profile.first_name or ""
                 if not validated_data.get("reporter_last_name"):
-                    validated_data["reporter_last_name"] = profile.last_name or profile.get_full_name().split()[-1]
-                # optionally fill middle name too
+                    validated_data["reporter_last_name"] = profile.last_name or ""
                 if not validated_data.get("reporter_middle_name"):
                     validated_data["reporter_middle_name"] = profile.middle_name or ""
         except Exception:
-            # fail-safe: do nothing; validation will catch missing required fields if profile absent
             pass
 
         return super().create(validated_data)
