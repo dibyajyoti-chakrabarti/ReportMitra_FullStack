@@ -15,6 +15,9 @@ from botocore.exceptions import ClientError
 import boto3
 from botocore.config import Config
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
 class IssueReportListCreateView(generics.ListCreateAPIView):
     serializer_class = IssueReportSerializer
     permission_classes = [IsAuthenticated]
@@ -112,3 +115,43 @@ def presign_s3(request):
         return JsonResponse({"error": str(e)}, status=500)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def presign_get_for_track(request, id):
+    from urllib.parse import urlparse, unquote
+    import boto3
+    from botocore.config import Config
+    import os
+
+    try:
+        report = IssueReport.objects.get(id=id)
+    except IssueReport.DoesNotExist:
+        return Response({"detail": "Not found"}, status=404)
+
+    # try to use image_key first
+    key = getattr(report, "image_key", None)
+
+    if not key and report.image_url:
+        parsed = urlparse(report.image_url)
+        key = unquote(parsed.path.lstrip("/"))
+        bucket = os.getenv("S3_BUCKET")
+        if bucket and key.startswith(bucket + "/"):
+            key = key[len(bucket) + 1:]
+
+    if not key:
+        return Response({"detail": "No image provided"}, status=404)
+
+    bucket = os.getenv("S3_BUCKET")
+    region = os.getenv("AWS_REGION", "ap-south-1")
+
+    config = Config(signature_version="s3v4", region_name=region)
+    s3 = boto3.client("s3", config=config)
+
+    url = s3.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": bucket, "Key": key},
+        ExpiresIn=3600
+    )
+
+    return Response({"url": url})
