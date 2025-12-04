@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import IssueReport
 from .serializers import IssueReportSerializer
 from user_profile.models import UserProfile
+from rest_framework.permissions import AllowAny  # Add this
 
 #AWS
 import os
@@ -43,28 +44,33 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         try:
-            return super().create(request, *args, **kwargs)
+            response = super().create(request, *args, **kwargs)
+            # Add tracking ID to response
+            if response.status_code == status.HTTP_201_CREATED:
+                report = IssueReport.objects.get(id=response.data['id'])
+                response.data['tracking_id'] = report.tracking_id
+            return response
         except serializers.ValidationError as e:
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework import generics
-from rest_framework.permissions import AllowAny  # Add this
-from .models import IssueReport
-from .serializers import IssueReportSerializer
-
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
     """Public view for tracking reports without authentication"""
     serializer_class = IssueReportSerializer
-    permission_classes = [AllowAny]  # Allow anyone to access
-    lookup_field = 'id'
-    queryset = IssueReport.objects.all()  # No user filtering for public access
+    permission_classes = [AllowAny]
+    lookup_field = 'tracking_id'
+    queryset = IssueReport.objects.all()
 
-    def get_serializer_class(self):
-        # You might want a different serializer for public views
-        # that excludes sensitive information
-        return IssueReportSerializer
-    
+    def get_object(self):
+        tracking_id = self.kwargs.get('tracking_id')
+        try:
+            return IssueReport.objects.get(tracking_id=tracking_id.upper())  # Ensure uppercase
+        except IssueReport.DoesNotExist:
+            raise serializers.ValidationError(
+                {'detail': 'Report not found. Please check the tracking ID.'}
+            )
+        
+
 @csrf_exempt
 def presign_s3(request):
     if request.method != "POST":
