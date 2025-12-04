@@ -1,4 +1,3 @@
-# report/serializers.py
 import os
 from django.conf import settings
 from rest_framework import serializers
@@ -13,7 +12,7 @@ class IssueReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueReport
         fields = '__all__'
-        read_only_fields = ('id', 'issue_date', 'updated_at', 'status', 'user')  # adjust if yours differ
+        read_only_fields = ('id', 'issue_date', 'updated_at', 'status', 'user','tracking_id')
 
     def build_s3_url(self, key: str) -> str:
         """Build the full s3 HTTPS url for a given key if key looks like one."""

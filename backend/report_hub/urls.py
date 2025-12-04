@@ -23,5 +23,5 @@ urlpatterns = [
     path('api/reports/', include('report.urls')),
     path('api/profile/', include('user_profile.urls')),
     path('api/aadhaar/', include('aadhaar.urls')),
-    path('track/detail/<int:id>/', PublicIssueReportDetailView.as_view(), name='report-detail'),
+    path('track/detail/<str:tracking_id>/', PublicIssueReportDetailView.as_view(), name='report-detail'),
 ]
