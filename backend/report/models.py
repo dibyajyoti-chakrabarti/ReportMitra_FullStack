@@ -1,5 +1,8 @@
 from django.db import models
 from django.conf import settings
+import hashlib
+import random
+import string
 
 class IssueReport(models.Model):
     STATUS_CHOICES = [
@@ -26,14 +29,47 @@ class IssueReport(models.Model):
     issue_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     updated_at = models.DateTimeField(auto_now=True)
-
+    tracking_id = models.CharField(max_length=8, blank=True, null=True)  
+    
     def __str__(self):
-        return f"Issue at {self.location} - {self.get_status_display()}"
+        return f"Tracking ID: {self.tracking_id} - Issue at {self.location}"
 
     def get_reporter_full_name(self):
         if self.reporter_middle_name:
             return f"{self.reporter_first_name} {self.reporter_middle_name} {self.reporter_last_name}"
         return f"{self.reporter_first_name} {self.reporter_last_name}"
+    
+    def generate_tracking_id(self):
+        """Generate an 8-character unique tracking ID"""
+        # Create a base string with timestamp and random data
+        base_string = f"{self.issue_date.timestamp()}{self.user.id}{self.location}"
+        
+        # Generate SHA256 hash
+        hash_object = hashlib.sha256(base_string.encode())
+        hash_hex = hash_object.hexdigest()
+        
+        # Take first 7 characters and add a check digit
+        base_id = hash_hex[:7].upper()
+        
+        # Generate check digit (simple sum of character codes mod 10)
+        check_digit = sum(ord(c) for c in base_id) % 10
+        
+        tracking_id = f"{base_id}{check_digit}"
+        
+        # Ensure uniqueness
+        if IssueReport.objects.filter(tracking_id=tracking_id).exists():
+            # If collision occurs, generate alternative
+            alt_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+            check_digit = sum(ord(c) for c in alt_chars) % 10
+            tracking_id = f"{alt_chars}{check_digit}"
+        
+        return tracking_id
+    
+    def save(self, *args, **kwargs):
+        # Generate tracking_id only on creation
+        if not self.tracking_id:
+            self.tracking_id = self.generate_tracking_id()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-issue_date']

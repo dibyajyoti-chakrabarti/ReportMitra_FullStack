@@ -47,13 +47,6 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
         except serializers.ValidationError as e:
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
-# class IssueReportDetailView(generics.RetrieveAPIView):
-#     serializer_class = IssueReportSerializer
-#     permission_classes = [IsAuthenticated]
-#     lookup_field = 'id'
-
-#     def get_queryset(self):
-#         return IssueReport.objects.filter(user=self.request.user)
 
 from rest_framework import generics
 from rest_framework.permissions import AllowAny  # Add this
