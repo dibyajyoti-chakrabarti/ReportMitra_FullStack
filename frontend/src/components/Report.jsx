@@ -161,7 +161,7 @@ function Report() {
       // Success path: show popup and set application id
       const result = await response.json();
       console.log("Report submit result:", result);
-      setApplicationId(result.id);
+      setApplicationId(result.tracking_id);
       setShowSuccessPopup(true);
       // alert("Report submitted!");
 
