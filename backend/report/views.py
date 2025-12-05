@@ -7,6 +7,14 @@ from .models import IssueReport
 from .serializers import IssueReportSerializer
 from user_profile.models import UserProfile
 
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+import boto3
+import uuid
+
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
     queryset = IssueReport.objects.all().order_by("-updated_at")
@@ -17,6 +25,8 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
         user = self.request.user
 
         # Get / create profile
+        from user_profile.models import UserProfile
+
         profile, _ = UserProfile.objects.get_or_create(user=user)
 
         # 1️⃣ Block if Aadhaar not verified
@@ -25,19 +35,66 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
                 "Aadhaar verification is required before creating a report."
             )
 
-        aadhaar = profile.aadhaar
+        # 2️⃣ Just save with user; serializer generates tracking_id
+        serializer.save(user=user)
 
-        # 2️⃣ Decide name parts from Aadhaar
-        first_name = aadhaar.first_name or aadhaar.full_name.split(" ")[0]
-        middle_name = aadhaar.middle_name or ""
-        last_name = aadhaar.last_name or (
-            " ".join(aadhaar.full_name.split(" ")[1:]) if " " in aadhaar.full_name else ""
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def presign_s3(request):
+    """
+    Return a pre-signed S3 URL for direct image upload.
+    Frontend expects: { url, key }
+    """
+    file_name = request.data.get("fileName")
+    content_type = request.data.get("contentType")
+
+    if not file_name or not content_type:
+        return Response(
+            {"detail": "fileName and contentType are required"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
-        # 3️⃣ Save report with locked-in Aadhaar name + user
-        serializer.save(
-            user=user,
-            reporter_first_name=first_name,
-            reporter_middle_name=middle_name or None,
-            reporter_last_name=last_name or first_name,  # fallback if needed
+    # Use your existing AWS settings / env vars
+    bucket_name = getattr(
+        settings,
+        "REPORT_IMAGES_BUCKET",
+        getattr(settings, "AWS_STORAGE_BUCKET_NAME", None),
+    )
+    if not bucket_name:
+        return Response(
+            {"detail": "S3 bucket name not configured on server"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
+            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
+            region_name=region_name,
+        )
+
+        # Example key: reports/<user_id>/<uuid>-originalName.jpg
+        key = f"reports/{request.user.id}/{uuid.uuid4().hex}-{file_name}"
+
+        presigned_url = s3_client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": bucket_name,
+                "Key": key,
+                "ContentType": content_type,
+            },
+            ExpiresIn=3600,  # 1 hour
+        )
+
+        return Response({"url": presigned_url, "key": key})
+    except Exception as e:
+        # Log server-side, but send generic message to client
+        print("S3 presign error:", e)
+        return Response(
+            {"detail": "Could not create upload URL"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

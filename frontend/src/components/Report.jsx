@@ -7,10 +7,12 @@ import Footer from "./Footer";
 import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
 
+const API_BASE = "http://localhost:8000";
+
 function Report() {
   const [preview, setPreview] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null); // NEW
-  const [isSubmitting, setIsSubmitting] = useState(false); // NEW (optional)
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
@@ -23,16 +25,19 @@ function Report() {
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
 
+  // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const headers = await getAuthHeaders();
-        const response = await fetch("http://localhost:8000/api/profile/", {
+        const response = await fetch(`${API_BASE}/api/profile/me/`, {
           headers,
         });
         if (response.ok) {
           const data = await response.json();
           setUserProfile(data);
+        } else {
+          console.error("Failed to fetch profile:", response.status);
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -46,7 +51,6 @@ function Report() {
     if (file) {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
-      // keep formData.image_url empty - we'll set after upload
       setFormData((p) => ({ ...p, image_url: "" }));
     } else {
       if (preview) {
@@ -59,26 +63,24 @@ function Report() {
   };
 
   const uploadFileToS3 = async (file) => {
-    // get auth headers if your app uses auth; otherwise remove getAuthHeaders()
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    // request presigned URL
     const presignResp = await fetch(
-      "http://localhost:8000/api/reports/s3/presign/",
+      `${API_BASE}/api/reports/s3/presign/`,
       {
         method: "POST",
         headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify({ fileName: file.name, contentType: file.type }),
       }
     );
+
     if (!presignResp.ok) {
       const err = await presignResp.text();
       throw new Error("Presign failed: " + err);
     }
     const { url: presignedUrl, key } = await presignResp.json();
 
-    // upload the file using PUT
     const putResp = await fetch(presignedUrl, {
       method: "PUT",
       headers: { "Content-Type": file.type },
@@ -89,7 +91,6 @@ function Report() {
       throw new Error("S3 upload failed: " + txt);
     }
 
-    // construct object URL (private bucket) — store this in DB
     const S3_BUCKET =
       import.meta.env.VITE_S3_BUCKET || "reportmitra-report-images-dc";
     const AWS_REGION = import.meta.env.VITE_AWS_REGION || "ap-south-1";
@@ -111,42 +112,62 @@ function Report() {
     setIsSubmitting(true);
 
     try {
-      // Start with existing image_url from formData (if any)
+      // --- Frontend guard: login + Aadhaar verification ---
+      if (!user) {
+        alert("Please log in before submitting a report.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!userProfile) {
+        alert("Profile data is still loading. Please wait and try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!userProfile.is_aadhaar_verified) {
+        alert(
+          "Please complete Aadhaar verification in your Profile page before creating a report."
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       let imageUrl = formData.image_url || "";
 
-      // If there's a selected file, attempt S3 upload first
       if (selectedFile) {
         try {
           const { objectUrl } = await uploadFileToS3(selectedFile);
           imageUrl = objectUrl;
-          console.log("Uploaded image URL:", imageUrl); // requirement: show in console
+          console.log("Uploaded image URL:", imageUrl);
         } catch (uploadErr) {
-          // If upload fails, report to console and user, and stop submit early
           console.error("Image upload error:", uploadErr);
           alert("Failed to upload image. Please try again.");
           setIsSubmitting(false);
-          return; // don't continue to submit report without a valid image
+          return;
         }
       }
 
-      // Prepare headers (support both function and static object)
       const headers =
         typeof getAuthHeaders === "function"
           ? await getAuthHeaders()
           : { "Content-Type": "application/json" };
 
-      // Build payload including image_url (either uploaded or existing/blank)
-      const payload = { ...formData, image_url: imageUrl };
+      const payload = {
+  issue_title: formData.issue_title,
+  location: formData.location,
+  issue_description: formData.issue_description,
+  image_url: imageUrl,
+  status: "PENDING", // or "pending" depending on your choices
+};
 
-      // Send report
-      const response = await fetch("http://localhost:8000/api/reports/", {
+      const response = await fetch(`${API_BASE}/api/reports/`, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        // Try parse JSON error if possible, otherwise text
         let errDetail = "Failed to submit report";
         try {
           const errJson = await response.json();
@@ -158,14 +179,11 @@ function Report() {
         throw new Error(errDetail);
       }
 
-      // Success path: show popup and set application id
       const result = await response.json();
       console.log("Report submit result:", result);
       setApplicationId(result.id);
       setShowSuccessPopup(true);
-      // alert("Report submitted!");
 
-      // Reset form + file input + preview
       setFormData({
         issue_title: "",
         location: "",
@@ -196,11 +214,22 @@ function Report() {
     alert("Application ID copied to clipboard!");
   };
 
+  // Helper to safely read Aadhaar name fields
+  const aadhaar = userProfile?.aadhaar;
+  const firstNameDisplay = !userProfile
+    ? "Loading..."
+    : aadhaar?.first_name || "Not provided";
+  const middleNameDisplay = !userProfile
+    ? "Loading..."
+    : aadhaar?.middle_name || "Not provided";
+  const lastNameDisplay = !userProfile
+    ? "Loading..."
+    : aadhaar?.last_name || "Not provided";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Success Popup (overlay) */}
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
@@ -259,7 +288,6 @@ function Report() {
         </div>
       )}
 
-      {/* main area: background only covers the main; main grows to push footer down */}
       <main className="flex-grow relative flex justify-center py-8 md:py-12 lg:py-16">
         <img
           src={report_bg}
@@ -267,33 +295,30 @@ function Report() {
           className="absolute inset-0 object-cover w-full h-full -z-10"
         />
 
-        {/* white card: responsive width + smooth height/padding transition */}
         <div
           className={`relative bg-white w-[90vw] md:w-[80vw] rounded-xl shadow-lg z-10
                       px-6 md:px-10 py-6 md:py-10 transition-all duration-300 ease-out`}
           style={{ willChange: "height, padding" }}
         >
-          {/* Title */}
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
           </h1>
 
-          {/* Content */}
           <div className="flex-1 flex flex-col justify-center">
             {/* User details */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               {[
                 {
                   label: "First Name",
-                  value: userProfile?.first_name || "Loading...",
+                  value: firstNameDisplay,
                 },
                 {
                   label: "Middle Name",
-                  value: userProfile?.middle_name || "N/A",
+                  value: middleNameDisplay,
                 },
                 {
                   label: "Last Name",
-                  value: userProfile?.last_name || "Loading...",
+                  value: lastNameDisplay,
                 },
               ].map((f) => (
                 <div key={f.label} className="flex flex-col font-bold">

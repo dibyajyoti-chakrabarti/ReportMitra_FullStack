@@ -56,13 +56,9 @@ class KindeAuthentication(authentication.BaseAuthentication):
     def get_or_create_user(self, user_info):
         """Get or create user based on Kinde user info"""
         kinde_id = user_info.get('id')  # Use 'id' instead of 'sub'
-        email = user_info.get('preferred_email') or user_info.get('email')  # Check both fields
-        
-        print(f"Looking for email in: {user_info}")  # Debug
-        
-        if not email:
-            raise AuthenticationFailed(f'Email not found in token. Available fields: {list(user_info.keys())}')
-        
+        email = user_info.get('preferred_email') or user_info.get('email')
+
+        ...
         try:
             user = User.objects.get(kinde_id=kinde_id)
             print(f"Found existing user: {user.email}")
@@ -74,12 +70,14 @@ class KindeAuthentication(authentication.BaseAuthentication):
                 username=email,
                 first_name=user_info.get('first_name', ''),
                 last_name=user_info.get('last_name', ''),
-                is_verified=user_info.get('email_verified', False)
+                # 👇 use the actual field on CustomUser
+                is_email_verified=user_info.get('email_verified', False),
             )
-            
-            # Create user profile
-            from .models import UserProfile
+
+            # Create user profile in the user_profile app
+            from user_profile.models import UserProfile
             UserProfile.objects.create(user=user)
             print(f"Created new user: {user.email}")
-        
+
+
         return user

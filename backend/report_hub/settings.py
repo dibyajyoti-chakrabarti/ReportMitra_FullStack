@@ -105,6 +105,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'report_hub.wsgi.application'
 
+# --- S3 / AWS settings for report image uploads ---
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION")
+REPORT_IMAGES_BUCKET = os.environ.get("S3_BUCKET")
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

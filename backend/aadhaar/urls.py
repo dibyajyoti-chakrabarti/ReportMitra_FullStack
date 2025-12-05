@@ -1,6 +1,7 @@
+# aadhaar/urls.py
 from django.urls import path
-from .views import AadhaarVerifyView
+from . import views
 
 urlpatterns = [
-    path("verify/", AadhaarVerifyView.as_view(), name="aadhaar-verify"),
+    path("verify/", views.verify_aadhaar, name="verify-aadhaar"),
 ]
