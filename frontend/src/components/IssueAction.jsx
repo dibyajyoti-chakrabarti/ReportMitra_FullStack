@@ -2,7 +2,7 @@ import { useOutletContext } from "react-router-dom";
 
 function IssueAction() {
   const [reportData] = useOutletContext();
-  const trackingID = reportData?.id || "DEFAULT_VAL";
+  const trackingID = reportData?.tracking_id || "DEFAULT_VAL";
   const status = reportData?.status
     ? reportData.status.replace("_", " ").toUpperCase()
     : "DEFAULT_VAL";

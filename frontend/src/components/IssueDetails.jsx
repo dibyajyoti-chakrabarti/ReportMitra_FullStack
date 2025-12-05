@@ -8,7 +8,7 @@ export default function IssueDetails() {
   const [loadingImg, setLoadingImg] = useState(false);
   const [imgError, setImgError] = useState("");
 
-  const issueID = reportData?.id ?? "N/A";
+  const issueID = reportData?.tracking_id ?? "N/A";
   const firstName = reportData?.reporter_first_name ?? "N/A";
   const midName = reportData?.reporter_middle_name ?? "";
   const lastName = reportData?.reporter_last_name ?? "N/A";

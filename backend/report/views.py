@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from .models import IssueReport
 from .serializers import IssueReportSerializer
 from user_profile.models import UserProfile
+from rest_framework.permissions import AllowAny  # Add this
 
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes

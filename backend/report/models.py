@@ -1,6 +1,9 @@
 # report/models.py
 from django.db import models
 from django.conf import settings
+import random
+import string
+
 
 
 class IssueReport(models.Model):
@@ -35,6 +38,7 @@ class IssueReport(models.Model):
         max_length=20, choices=STATUS_CHOICES, default="pending"
     )
     updated_at = models.DateTimeField(auto_now=True)
+    tracking_id = models.CharField(max_length=8, unique=True, editable=False, blank=False)
 
     class Meta:
         ordering = ["-issue_date"]
