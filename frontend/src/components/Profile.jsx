@@ -22,6 +22,21 @@ function Profile() {
     isVerified: false
   });
 
+  // helper: calculate age from DOB string (YYYY-MM-DD)
+  const calculateAge = (dobString) => {
+    if (!dobString) return null;
+    const dob = new Date(dobString);
+    if (Number.isNaN(dob.getTime())) return null;
+
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   // Load profile data when component mounts
   useEffect(() => {
     loadProfileData();
@@ -30,45 +45,77 @@ function Profile() {
   const loadProfileData = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile/`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile/me/`, {
         method: 'GET',
         headers: headers,
       });
 
       if (response.ok) {
         const profile = await response.json();
-        
-        // Format date for display
-        const formattedDob = profile.date_of_birth 
-          ? new Date(profile.date_of_birth).toLocaleDateString('en-IN', {
+
+        const aadhaar = profile.aadhaar || null;
+
+        const rawDob = aadhaar?.date_of_birth || null;
+        const formattedDob = rawDob
+          ? new Date(rawDob).toLocaleDateString('en-IN', {
               day: '2-digit',
               month: '2-digit',
               year: 'numeric'
             })
           : "Not provided";
-        
+
+        const ageNumber = calculateAge(rawDob);
+        const ageDisplay = ageNumber !== null ? `${ageNumber} years` : "Not provided";
+
+        const phone = aadhaar?.phone_number || "Not provided";
+        const address = aadhaar?.address || "Not provided";
+
+        let firstName = aadhaar?.first_name || "";
+        let middleName = aadhaar?.middle_name || "";
+        let lastName = aadhaar?.last_name || "";
+
+        // Fallback: if split names are missing but full_name exists
+        if ((!firstName || !lastName) && aadhaar?.full_name) {
+          const parts = aadhaar.full_name.trim().split(/\s+/);
+          if (parts.length === 1) {
+            firstName = firstName || parts[0];
+          } else if (parts.length === 2) {
+            firstName = firstName || parts[0];
+            lastName = lastName || parts[1];
+          } else if (parts.length >= 3) {
+            firstName = firstName || parts[0];
+            lastName = lastName || parts[parts.length - 1];
+            middleName = middleName || parts.slice(1, -1).join(" ");
+          }
+        }
+
+        const createdOrUpdated = profile.updated_at || profile.created_at || null;
+        const formattedUpdated = createdOrUpdated
+          ? new Date(createdOrUpdated).toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            })
+          : "Not provided";
+
+        const isVerified = profile.is_aadhaar_verified || false;
+
         setProfileData({
-          firstName: profile.first_name || "Not provided",
-          midName: profile.middle_name || "Not provided",
-          lastName: profile.last_name || "Not provided",
-          age: profile.age ? `${profile.age} years` : "Not provided",
+          firstName: firstName || "Not provided",
+          midName: middleName || "Not provided",
+          lastName: lastName || "Not provided",
+          age: ageDisplay,
           dateOfBirth: formattedDob,
-          ph: profile.mobile_number || "Not provided",
-          addr: profile.address || "Not provided",
-          lastUpdated: profile.last_updated_at 
-            ? new Date(profile.last_updated_at).toLocaleDateString('en-IN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })
-            : "Not provided",
-          isVerified: profile.is_aadhar_verified || false
+          ph: phone,
+          addr: address,
+          lastUpdated: formattedUpdated,
+          isVerified: isVerified,
         });
 
         // If already verified, set verification result and Aadhaar number
-        if (profile.is_aadhar_verified && profile.aadhaar_number) {
+        if (isVerified && aadhaar?.aadhaar_number) {
           setVerificationResult({ verified: true });
-          setAadhaarNumber(profile.aadhaar_number);
+          setAadhaarNumber(aadhaar.aadhaar_number);
         }
       }
     } catch (error) {
@@ -100,10 +147,10 @@ function Profile() {
         body: JSON.stringify({ aadhaar_number: aadhaarNumber })
       });
 
-      // Check if response is JSON
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
+        console.error("Non-JSON response from server:", text);
         throw new Error('Server error - please try again later');
       }
 

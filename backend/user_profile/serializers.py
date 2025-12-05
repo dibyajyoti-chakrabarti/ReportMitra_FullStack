@@ -1,16 +1,36 @@
+# user_profile/serializers.py
 from rest_framework import serializers
-from .models import UserProfile
+from user_profile.models import UserProfile
+from aadhaar.models import AadhaarDatabase
+
+
+class AadhaarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AadhaarDatabase
+        fields = [
+            "aadhaar_number",
+            "full_name",
+            "date_of_birth",
+            "address",
+            "gender",
+            "phone_number",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "created_at",
+        ]
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    full_name = serializers.ReadOnlyField()
+    aadhaar = AadhaarSerializer(read_only=True)
+
     class Meta:
         model = UserProfile
         fields = [
-            'id', 'first_name', 'middle_name', 'last_name', 
-            'mobile_number', 'date_of_birth', 'age', 'address',
-            'is_aadhar_verified', 'aadhaar_number', 'full_name',
-            'created_at', 'last_updated_at'
+            "id",
+            "aadhaar",
+            "is_aadhaar_verified",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = [
-            'id', 'age', 'full_name', 'created_at', 'last_updated_at',
-            'is_aadhar_verified', 'aadhaar_number']
+        read_only_fields = fields  # for now, profile is read-only from this endpoint

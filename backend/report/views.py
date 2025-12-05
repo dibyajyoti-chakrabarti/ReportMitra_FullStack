@@ -1,156 +1,177 @@
-from rest_framework import generics, serializers, status
-from rest_framework.permissions import IsAuthenticated
+# report/views.py
+from rest_framework import generics, permissions, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
+
 from .models import IssueReport
 from .serializers import IssueReportSerializer
 from user_profile.models import UserProfile
 from rest_framework.permissions import AllowAny  # Add this
 
-#AWS
-import os
-import json
-import uuid
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseBadRequest
-from botocore.exceptions import ClientError
-import boto3
-from botocore.config import Config
-
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import boto3
+import uuid
+
 from rest_framework.permissions import AllowAny
+from urllib.parse import urlparse, unquote
+
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
+    queryset = IssueReport.objects.all().order_by("-updated_at")
     serializer_class = IssueReportSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return IssueReport.objects.filter(user=self.request.user)
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # Check if user has a profile
-        try:
-            user_profile = UserProfile.objects.get(user=self.request.user)
-        except UserProfile.DoesNotExist:
-            raise serializers.ValidationError(
-                {'detail': 'Please complete your profile before submitting reports.'}
+        user = self.request.user
+
+        # Get / create profile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+
+        # Block if Aadhaar not verified
+        if not profile.is_aadhaar_verified or not profile.aadhaar:
+            raise PermissionDenied(
+                "Aadhaar verification is required before creating a report."
             )
 
-        serializer.save(
-            user=self.request.user, 
-            reporter_first_name=user_profile.first_name,
-            reporter_middle_name=user_profile.middle_name,
-            reporter_last_name=user_profile.last_name
+        # Just save report for this user; Aadhaar details stay in Aadhaar table
+        serializer.save(user=user)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def presign_s3(request):
+    """
+    Return a pre-signed S3 URL for direct image upload.
+    Frontend expects: { url, key }
+    """
+    file_name = request.data.get("fileName")
+    content_type = request.data.get("contentType")
+
+    if not file_name or not content_type:
+        return Response(
+            {"detail": "fileName and contentType are required"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
-    def create(self, request, *args, **kwargs):
-        try:
-            response = super().create(request, *args, **kwargs)
-            # Add tracking ID to response
-            if response.status_code == status.HTTP_201_CREATED:
-                report = IssueReport.objects.get(id=response.data['id'])
-                response.data['tracking_id'] = report.tracking_id
-            return response
-        except serializers.ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+    # Use your existing AWS settings / env vars
+    bucket_name = getattr(
+        settings,
+        "REPORT_IMAGES_BUCKET",
+        getattr(settings, "AWS_STORAGE_BUCKET_NAME", None),
+    )
+    if not bucket_name:
+        return Response(
+            {"detail": "S3 bucket name not configured on server"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
+            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
+            region_name=region_name,
+        )
+
+        # Example key: reports/<user_id>/<uuid>-originalName.jpg
+        key = f"reports/{request.user.id}/{uuid.uuid4().hex}-{file_name}"
+
+        presigned_url = s3_client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": bucket_name,
+                "Key": key,
+                "ContentType": content_type,
+            },
+            ExpiresIn=3600,  # 1 hour
+        )
+
+        return Response({"url": presigned_url, "key": key})
+    except Exception as e:
+        # Log server-side, but send generic message to client
+        print("S3 presign error:", e)
+        return Response(
+            {"detail": "Could not create upload URL"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    
+@api_view(["GET"])
+@permission_classes([AllowAny])  # tracking is public
+def presign_get_for_track(request, id):
+    """
+    Given a report ID, return a presigned GET URL for its S3 image.
+    Used by the Track -> IssueDetails page.
+    """
+    from .models import IssueReport  # local import to avoid circulars
+
+    try:
+        report = IssueReport.objects.get(pk=id)
+    except IssueReport.DoesNotExist:
+        return Response(
+            {"detail": "Report not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    if not report.image_url:
+        return Response(
+            {"detail": "No image for this report"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Bucket + region from settings / env
+    bucket_name = getattr(
+        settings,
+        "REPORT_IMAGES_BUCKET",
+        getattr(settings, "AWS_STORAGE_BUCKET_NAME", None),
+    )
+    if not bucket_name:
+        return Response(
+            {"detail": "S3 bucket name not configured on server"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
+
+    # Derive the object key from the stored image_url
+    parsed = urlparse(report.image_url)
+    key = unquote(parsed.path.lstrip("/"))  # strip leading '/' and decode %2F etc.
+
+    # If path is like 'bucket-name/reports/..', strip the leading 'bucket-name/'
+    if key.startswith(bucket_name + "/"):
+        key = key[len(bucket_name) + 1 :]
+
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
+            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
+            region_name=region_name,
+        )
+
+        presigned_get_url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": key},
+            ExpiresIn=3600,  # 1 hour
+        )
+
+        return Response({"url": presigned_get_url})
+    except Exception as e:
+        print("S3 presign-get error:", e)
+        return Response(
+            {"detail": "Could not create image view URL"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
-    """Public view for tracking reports without authentication"""
+    """
+    Public endpoint to fetch a single report by tracking_id.
+    No authentication required.
+    """
+    queryset = IssueReport.objects.all()
     serializer_class = IssueReportSerializer
     permission_classes = [AllowAny]
-    lookup_field = 'tracking_id'
-    queryset = IssueReport.objects.all()
-
-    def get_object(self):
-        tracking_id = self.kwargs.get('tracking_id')
-        try:
-            return IssueReport.objects.get(tracking_id=tracking_id.upper())  # Ensure uppercase
-        except IssueReport.DoesNotExist:
-            raise serializers.ValidationError(
-                {'detail': 'Report not found. Please check the tracking ID.'}
-            )
-        
-
-@csrf_exempt
-def presign_s3(request):
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST only")
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-        file_name = payload.get("fileName")
-        content_type = payload.get("contentType", "application/octet-stream")
-        if not file_name:
-            return HttpResponseBadRequest(json.dumps({"error":"fileName required"}), content_type="application/json")
-
-        BUCKET = os.getenv("S3_BUCKET")
-        REGION = os.getenv("AWS_REGION", "ap-south-1")
-
-        # Force regional endpoint and virtual-hosted addressing to avoid 307 redirects
-        config = Config(
-            region_name=REGION,
-            s3={"addressing_style": "virtual"},
-            signature_version="s3v4"
-        )
-        endpoint_url = f"https://s3.{REGION}.amazonaws.com"
-        s3 = boto3.client("s3", region_name=REGION, config=config, endpoint_url=endpoint_url)
-
-        key = f"reports/{uuid.uuid4().hex}_{file_name}"
-
-        params = {
-            "Bucket": BUCKET,
-            "Key": key,
-            "ContentType": content_type,
-            # 'ACL': 'public-read'  # optional - don't enable for prod unless intended
-        }
-
-        # Increase ExpiresIn for dev testing; set lower in prod (e.g. 300)
-        url = s3.generate_presigned_url(
-            ClientMethod="put_object",
-            Params=params,
-            ExpiresIn=900  # 15 minutes for testing
-        )
-        return JsonResponse({"url": url, "key": key})
-    except ClientError as e:
-        return JsonResponse({"error": str(e)}, status=500)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def presign_get_for_track(request, id):
-    from urllib.parse import urlparse, unquote
-    import boto3
-    from botocore.config import Config
-    import os
-
-    try:
-        report = IssueReport.objects.get(id=id)
-    except IssueReport.DoesNotExist:
-        return Response({"detail": "Not found"}, status=404)
-
-    # try to use image_key first
-    key = getattr(report, "image_key", None)
-
-    if not key and report.image_url:
-        parsed = urlparse(report.image_url)
-        key = unquote(parsed.path.lstrip("/"))
-        bucket = os.getenv("S3_BUCKET")
-        if bucket and key.startswith(bucket + "/"):
-            key = key[len(bucket) + 1:]
-
-    if not key:
-        return Response({"detail": "No image provided"}, status=404)
-
-    bucket = os.getenv("S3_BUCKET")
-    region = os.getenv("AWS_REGION", "ap-south-1")
-
-    config = Config(signature_version="s3v4", region_name=region)
-    s3 = boto3.client("s3", config=config)
-
-    url = s3.generate_presigned_url(
-        ClientMethod="get_object",
-        Params={"Bucket": bucket, "Key": key},
-        ExpiresIn=3600
-    )
-
-    return Response({"url": url})
+    lookup_field = "tracking_id"
+    lookup_url_kwarg = "tracking_id"

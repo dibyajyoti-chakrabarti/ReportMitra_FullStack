@@ -1,53 +1,80 @@
+# aadhaar/views.py
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import AadhaarDatabase
+
+from aadhaar.models import AadhaarDatabase
 from user_profile.models import UserProfile
-@api_view(['POST'])
+
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def verify_aadhaar(request):
-    aadhaar_number = request.data.get('aadhaar_number')
-    
-    if not aadhaar_number:
-        return Response({'error': 'Aadhaar number is required'}, status=status.HTTP_400_BAD_REQUEST)
-    
+    """
+    Link an Aadhaar number to the logged-in user's profile, if:
+    - The Aadhaar exists in AadhaarDatabase
+    - It isn't already linked to another user
+    """
+    aadhaar_number = (request.data.get("aadhaar_number") or "").strip()
+
+    # 1) Basic validation
+    if not aadhaar_number.isdigit() or len(aadhaar_number) != 12:
+        return Response(
+            {"verified": False, "error": "Please provide a valid 12-digit Aadhaar number."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # 2) Check existence in AadhaarDatabase
     try:
-        aadhaar_record = AadhaarDatabase.objects.get(aadhaar_number=aadhaar_number)
-        
-        # Get or create user profile and update with Aadhaar data
-        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-        
-        # Update profile with Aadhaar verification and data
-        user_profile.is_aadhar_verified = True
-        user_profile.aadhaar_number = aadhaar_number
-        
-        # Parse full name into first, middle, last
-        name_parts = aadhaar_record.full_name.split(' ')
-        user_profile.first_name = name_parts[0] if name_parts else ''
-        user_profile.middle_name = name_parts[1] if len(name_parts) > 2 else ''
-        user_profile.last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else name_parts[0] if name_parts else ''
-        
-        # Save address and date of birth from Aadhaar data
-        user_profile.address = aadhaar_record.address
-        user_profile.date_of_birth = aadhaar_record.date_of_birth
-        # Age will be auto-calculated in save() method
-        
-        user_profile.save()
-        
-        return Response({
-            'verified': True,
-            'aadhaar_data': {
-                'full_name': aadhaar_record.full_name,
-                'date_of_birth': aadhaar_record.date_of_birth,
-                'address': aadhaar_record.address,
-                'gender': aadhaar_record.gender
-            },
-            'profile_updated': True
-        })
-        
+        aadhaar = AadhaarDatabase.objects.get(aadhaar_number=aadhaar_number)
     except AadhaarDatabase.DoesNotExist:
-        return Response({
-            'verified': False,
-            'error': 'Aadhaar number not found in database'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"verified": False, "error": "Aadhaar number not found in the sandbox database."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    # 3) Get/create profile for this user
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    # 4) Ensure no one else has taken this Aadhaar
+    from user_profile.models import UserProfile as ProfileModel
+    taken_by_other = ProfileModel.objects.filter(aadhaar=aadhaar).exclude(user=request.user).exists()
+    if taken_by_other:
+        return Response(
+            {
+                "verified": False,
+                "error": "This Aadhaar number is already linked to another account.",
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # 5) Link + mark verified
+    profile.aadhaar = aadhaar
+    profile.is_aadhaar_verified = True
+    profile.save()
+
+    # 6) Response that matches Profile.jsx expectations
+    return Response(
+        {
+            "verified": True,
+            "aadhaar_number": aadhaar.aadhaar_number,
+            "aadhaar": {
+                "aadhaar_number": aadhaar.aadhaar_number,
+                "full_name": aadhaar.full_name,
+                "date_of_birth": aadhaar.date_of_birth,
+                "address": aadhaar.address,
+                "gender": aadhaar.gender,
+                "phone_number": aadhaar.phone_number,
+                "first_name": aadhaar.first_name,
+                "middle_name": aadhaar.middle_name,
+                "last_name": aadhaar.last_name,
+            },
+            "profile": {
+                "is_aadhaar_verified": profile.is_aadhaar_verified,
+                "created_at": profile.created_at,
+                "updated_at": profile.updated_at,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
