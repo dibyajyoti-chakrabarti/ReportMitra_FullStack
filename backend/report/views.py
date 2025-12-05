@@ -5,19 +5,6 @@ from .models import IssueReport
 from .serializers import IssueReportSerializer
 from user_profile.models import UserProfile
 
-#AWS
-import os
-import json
-import uuid
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponseBadRequest
-from botocore.exceptions import ClientError
-import boto3
-from botocore.config import Config
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-
 class IssueReportListCreateView(generics.ListCreateAPIView):
     serializer_class = IssueReportSerializer
     permission_classes = [IsAuthenticated]
@@ -26,19 +13,33 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
         return IssueReport.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Check if user has a profile
+        # Fetch profile + linked Aadhaar
         try:
-            user_profile = UserProfile.objects.get(user=self.request.user)
+            user_profile = UserProfile.objects.select_related("aadhaar").get(user=self.request.user)
         except UserProfile.DoesNotExist:
             raise serializers.ValidationError(
-                {'detail': 'Please complete your profile before submitting reports.'}
+                {"detail": "Please link and verify your Aadhaar before submitting reports."}
             )
 
+        # Ensure Aadhaar is linked and verified
+        if not getattr(user_profile, "aadhaar", None) or not getattr(user_profile, "is_aadhaar_verified", False):
+            raise serializers.ValidationError(
+                {"detail": "Please link and verify your Aadhaar before submitting reports."}
+            )
+
+        # Get name from Aadhaar full_name and split
+        full_name = user_profile.aadhaar.full_name or ""
+        name_parts = full_name.split()
+
+        reporter_first_name = name_parts[0] if name_parts else ""
+        reporter_middle_name = ""
+        reporter_last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+
         serializer.save(
-            user=self.request.user, 
-            reporter_first_name=user_profile.first_name,
-            reporter_middle_name=user_profile.middle_name,
-            reporter_last_name=user_profile.last_name
+            user=self.request.user,
+            reporter_first_name=reporter_first_name,
+            reporter_middle_name=reporter_middle_name,
+            reporter_last_name=reporter_last_name,
         )
 
     def create(self, request, *args, **kwargs):
@@ -46,112 +47,3 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
             return super().create(request, *args, **kwargs)
         except serializers.ValidationError as e:
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
-
-# class IssueReportDetailView(generics.RetrieveAPIView):
-#     serializer_class = IssueReportSerializer
-#     permission_classes = [IsAuthenticated]
-#     lookup_field = 'id'
-
-#     def get_queryset(self):
-#         return IssueReport.objects.filter(user=self.request.user)
-
-from rest_framework import generics
-from rest_framework.permissions import AllowAny  # Add this
-from .models import IssueReport
-from .serializers import IssueReportSerializer
-
-class PublicIssueReportDetailView(generics.RetrieveAPIView):
-    """Public view for tracking reports without authentication"""
-    serializer_class = IssueReportSerializer
-    permission_classes = [AllowAny]  # Allow anyone to access
-    lookup_field = 'id'
-    queryset = IssueReport.objects.all()  # No user filtering for public access
-
-    def get_serializer_class(self):
-        # You might want a different serializer for public views
-        # that excludes sensitive information
-        return IssueReportSerializer
-    
-@csrf_exempt
-def presign_s3(request):
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST only")
-    try:
-        payload = json.loads(request.body.decode("utf-8"))
-        file_name = payload.get("fileName")
-        content_type = payload.get("contentType", "application/octet-stream")
-        if not file_name:
-            return HttpResponseBadRequest(json.dumps({"error":"fileName required"}), content_type="application/json")
-
-        BUCKET = os.getenv("S3_BUCKET")
-        REGION = os.getenv("AWS_REGION", "ap-south-1")
-
-        # Force regional endpoint and virtual-hosted addressing to avoid 307 redirects
-        config = Config(
-            region_name=REGION,
-            s3={"addressing_style": "virtual"},
-            signature_version="s3v4"
-        )
-        endpoint_url = f"https://s3.{REGION}.amazonaws.com"
-        s3 = boto3.client("s3", region_name=REGION, config=config, endpoint_url=endpoint_url)
-
-        key = f"reports/{uuid.uuid4().hex}_{file_name}"
-
-        params = {
-            "Bucket": BUCKET,
-            "Key": key,
-            "ContentType": content_type,
-            # 'ACL': 'public-read'  # optional - don't enable for prod unless intended
-        }
-
-        # Increase ExpiresIn for dev testing; set lower in prod (e.g. 300)
-        url = s3.generate_presigned_url(
-            ClientMethod="put_object",
-            Params=params,
-            ExpiresIn=900  # 15 minutes for testing
-        )
-        return JsonResponse({"url": url, "key": key})
-    except ClientError as e:
-        return JsonResponse({"error": str(e)}, status=500)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def presign_get_for_track(request, id):
-    from urllib.parse import urlparse, unquote
-    import boto3
-    from botocore.config import Config
-    import os
-
-    try:
-        report = IssueReport.objects.get(id=id)
-    except IssueReport.DoesNotExist:
-        return Response({"detail": "Not found"}, status=404)
-
-    # try to use image_key first
-    key = getattr(report, "image_key", None)
-
-    if not key and report.image_url:
-        parsed = urlparse(report.image_url)
-        key = unquote(parsed.path.lstrip("/"))
-        bucket = os.getenv("S3_BUCKET")
-        if bucket and key.startswith(bucket + "/"):
-            key = key[len(bucket) + 1:]
-
-    if not key:
-        return Response({"detail": "No image provided"}, status=404)
-
-    bucket = os.getenv("S3_BUCKET")
-    region = os.getenv("AWS_REGION", "ap-south-1")
-
-    config = Config(signature_version="s3v4", region_name=region)
-    s3 = boto3.client("s3", config=config)
-
-    url = s3.generate_presigned_url(
-        ClientMethod="get_object",
-        Params={"Bucket": bucket, "Key": key},
-        ExpiresIn=3600
-    )
-
-    return Response({"url": url})
