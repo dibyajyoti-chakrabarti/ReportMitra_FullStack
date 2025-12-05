@@ -10,10 +10,10 @@ from user_profile.models import UserProfile
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
 import boto3
 import uuid
+
+from rest_framework.permissions import AllowAny
 
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
@@ -25,17 +25,15 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
         user = self.request.user
 
         # Get / create profile
-        from user_profile.models import UserProfile
-
         profile, _ = UserProfile.objects.get_or_create(user=user)
 
-        # 1️⃣ Block if Aadhaar not verified
+        # Block if Aadhaar not verified
         if not profile.is_aadhaar_verified or not profile.aadhaar:
             raise PermissionDenied(
                 "Aadhaar verification is required before creating a report."
             )
 
-        # 2️⃣ Just save with user; serializer generates tracking_id
+        # Just save report for this user; Aadhaar details stay in Aadhaar table
         serializer.save(user=user)
 
 
@@ -98,3 +96,14 @@ def presign_s3(request):
             {"detail": "Could not create upload URL"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+class PublicIssueReportDetailView(generics.RetrieveAPIView):
+    """
+    Public endpoint to fetch a single report by tracking_id.
+    No authentication required.
+    """
+    queryset = IssueReport.objects.all()
+    serializer_class = IssueReportSerializer
+    permission_classes = [AllowAny]
+    lookup_field = "tracking_id"
+    lookup_url_kwarg = "tracking_id"

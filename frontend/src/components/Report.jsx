@@ -181,7 +181,7 @@ function Report() {
 
       const result = await response.json();
       console.log("Report submit result:", result);
-      setApplicationId(result.id);
+      setApplicationId(result.tracking_id);
       setShowSuccessPopup(true);
 
       setFormData({
@@ -215,16 +215,38 @@ function Report() {
   };
 
   // Helper to safely read Aadhaar name fields
-  const aadhaar = userProfile?.aadhaar;
-  const firstNameDisplay = !userProfile
-    ? "Loading..."
-    : aadhaar?.first_name || "Not provided";
-  const middleNameDisplay = !userProfile
-    ? "Loading..."
-    : aadhaar?.middle_name || "Not provided";
-  const lastNameDisplay = !userProfile
-    ? "Loading..."
-    : aadhaar?.last_name || "Not provided";
+  const aadhaar = userProfile?.aadhaar || null;
+
+  let firstNameDisplay = "Not provided";
+  let middleNameDisplay = "Not provided";
+  let lastNameDisplay = "Not provided";
+
+  if (!userProfile) {
+    firstNameDisplay = middleNameDisplay = lastNameDisplay = "Loading...";
+  } else if (aadhaar) {
+    let firstName = aadhaar.first_name || "";
+    let middleName = aadhaar.middle_name || "";
+    let lastName = aadhaar.last_name || "";
+
+    // Fallback: if split names are missing but full_name exists
+    if ((!firstName || !lastName) && aadhaar.full_name) {
+      const parts = aadhaar.full_name.trim().split(/\s+/);
+      if (parts.length === 1) {
+        firstName = firstName || parts[0];
+      } else if (parts.length === 2) {
+        firstName = firstName || parts[0];
+        lastName = lastName || parts[1];
+      } else if (parts.length >= 3) {
+        firstName = firstName || parts[0];
+        lastName = lastName || parts[parts.length - 1];
+        middleName = middleName || parts.slice(1, -1).join(" ");
+      }
+    }
+
+    firstNameDisplay = firstName || "Not provided";
+    middleNameDisplay = middleName || "Not provided";
+    lastNameDisplay = lastName || "Not provided";
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
