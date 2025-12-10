@@ -80,9 +80,9 @@ export default function IssueDetails() {
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Tracking ID: </span> {issueID}
         </div>
-        <div className="text-base sm:text-lg lg:text-[18px]">
+        {/* <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Full Name: </span> {firstName} {midName} {lastName}
-        </div>
+        </div> */}
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Title: </span> {issueTitle}
         </div>
