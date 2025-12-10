@@ -21,8 +21,6 @@ class IssueReport(models.Model):
         related_name="reports",
     )
 
-    # Public tracking ID shown to citizens
-    tracking_id = models.CharField(max_length=8, unique=True, null=True, blank=True)
 
     # Core report fields
     issue_title = models.CharField(max_length=150, default="Issue Report")
@@ -38,8 +36,10 @@ class IssueReport(models.Model):
         max_length=20, choices=STATUS_CHOICES, default="pending"
     )
     updated_at = models.DateTimeField(auto_now=True)
-    tracking_id = models.CharField(max_length=8, unique=True, editable=False, blank=False)
-
+    tracking_id = models.CharField(max_length=8, unique=True, editable=False, blank=False,default="TEMP0001")
+    department = models.TextField(max_length=30,default="Manual")
+    confidence_score = models.FloatField(null = False,default=0.0)
+    allocated_to = models.TextField(max_length=10,blank=True)
     class Meta:
         ordering = ["-issue_date"]
 
