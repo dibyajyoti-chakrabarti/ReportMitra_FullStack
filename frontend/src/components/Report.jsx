@@ -6,6 +6,7 @@ import { useAuth } from "../AuthProvider";
 import Footer from "./Footer";
 import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
+import { classifyImage } from "../ai/classifyImage";
 
 const API_BASE = "http://localhost:8000";
 
@@ -106,6 +107,14 @@ function Report() {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
+  function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file); // produces "data:image/jpeg;base64,..."
+  });
+}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -147,19 +156,32 @@ function Report() {
           return;
         }
       }
+      let department = "Manual"
+      if (selectedFile) {
+        try {
+          const base64 = await fileToBase64(selectedFile);
+          department = await classifyImage(base64);
+          console.log("AI Department:", department);
+        } catch (err) {
+          console.error("Classification failed:", err);
+        }
+      }
+
 
       const headers =
         typeof getAuthHeaders === "function"
           ? await getAuthHeaders()
           : { "Content-Type": "application/json" };
 
-      const payload = {
-  issue_title: formData.issue_title,
-  location: formData.location,
-  issue_description: formData.issue_description,
-  image_url: imageUrl,
-  status: "PENDING", // or "pending" depending on your choices
-};
+      const payload =
+      {
+        issue_title: formData.issue_title,
+        location: formData.location,
+        issue_description: formData.issue_description,
+        image_url: imageUrl,
+        department: department,
+        status: "pending",
+      };
 
       const response = await fetch(`${API_BASE}/api/reports/`, {
         method: "POST",
@@ -189,6 +211,7 @@ function Report() {
         location: "",
         issue_description: "",
         image_url: "",
+        department:""
       });
       setSelectedFile(null);
       setPreview(null);

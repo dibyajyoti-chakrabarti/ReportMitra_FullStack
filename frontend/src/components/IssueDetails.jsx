@@ -1,20 +1,18 @@
-// src/components/IssueDetails.jsx
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {useAuth} from "../AuthProvider"
 
 export default function IssueDetails() {
   const [reportData] = useOutletContext();
   const [imgSrc, setImgSrc] = useState(null);
   const [loadingImg, setLoadingImg] = useState(false);
   const [imgError, setImgError] = useState("");
-
   const issueID = reportData?.tracking_id ?? "N/A";
-  const firstName = reportData?.reporter_first_name ?? "N/A";
-  const midName = reportData?.reporter_middle_name ?? "";
-  const lastName = reportData?.reporter_last_name ?? "N/A";
   const issueTitle = reportData?.issue_title ?? "N/A";
   const issueDesc = reportData?.issue_description ?? "N/A";
   const issueLocation = reportData?.location ?? "N/A";
+  const { getAuthHeaders } = useAuth();
+  const [fullName, setFullName] = useState("Loading...");
   const issueDate = reportData?.issue_date
     ? new Date(reportData.issue_date).toLocaleDateString()
     : "N/A";
@@ -72,6 +70,24 @@ export default function IssueDetails() {
       cancelled = true;
     };
   }, [reportData]);
+  useEffect(() => {
+    loadProfile();
+  }, []);
+  const loadProfile = async () => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile/me/`, {
+      method: "GET",
+      headers: headers,
+    });
+  
+    if (res.ok) {
+      const profile = await res.json();
+      const aadhaar = profile.aadhaar || {};
+      setFullName(aadhaar.full_name || "N/A");
+    } else {
+      setFullName("N/A");
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 rounded-xl shadow-sm">
@@ -81,7 +97,7 @@ export default function IssueDetails() {
           <span className="font-bold">Tracking ID: </span> {issueID}
         </div>
         <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Full Name: </span> {firstName} {midName} {lastName}
+          <span className="font-bold">Full Name: </span> {fullName}
         </div>
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Title: </span> {issueTitle}
