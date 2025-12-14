@@ -17,10 +17,10 @@ function IssueAction() {
   const escalated = reportData?.status === "in_progress" ? "Yes" : "No";
 
   return (
-    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 rounded-xl shadow-sm">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
 
       {/* Left Column */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center gap-3 p-4 lg:p-3 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed border-gray-400">
+<div className="bg-white border rounded-xl p-5 flex flex-col gap-3">
         <div className="text-base sm:text-lg lg:text-[17px]">
           <span className="font-bold">Tracking ID: </span> {trackingID}
         </div>
@@ -43,11 +43,11 @@ function IssueAction() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center p-4 lg:p-3">
+<div className="bg-white border rounded-xl p-5 flex flex-col">
         <p className="font-bold text-lg lg:text-[17px] mb-2 text-center">
           Comments from Department
         </p>
-        <div className="bg-gray-50 border border-gray-300 rounded-md p-3 text-base sm:text-lg lg:text-[17px] overflow-y-auto max-h-56 shadow-inner">
+        <div className="bg-gray-50 border rounded-md p-4 text-sm leading-relaxed sm:text-lg lg:text-[17px] overflow-y-auto max-h-56 shadow-inner">
           {comments}
         </div>
       </div>

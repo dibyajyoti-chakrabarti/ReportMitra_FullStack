@@ -1,5 +1,4 @@
 import Navbar from "./MiniNavbar";
-import report_bg from "../assets/reportbg.jpg";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Footer from './Footer'
@@ -40,21 +39,16 @@ function Track() {
     <Navbar />
 
     {/* MAIN CONTENT (grows to fill screen when short) */}
-    <main className="flex-grow relative flex justify-center py-8 md:py-12 lg:py-16">
-      
-      {/* Background image behind main */}
-      <img
-        src={report_bg}
-        alt=""
-        className="absolute inset-0 z-0 object-cover w-full h-full"
-      />
+<main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
 
       {/* White Container */}
       <div
-        className={`relative bg-white w-[90vw] md:w-[80vw] lg:w-[75vw]  shadow-lg z-10
-                    px-4 md:px-10 py-8 transition-all duration-300 ease-out
-                    ${reportData ? "min-h-[60vh]" : "min-h-[18vh]"}`}
-      >
+  className={`bg-white w-full max-w-6xl rounded-2xl shadow-md
+  px-4 sm:px-6 md:px-10 py-6 md:py-8
+  transition-all duration-300 ease-out
+  ${reportData ? "min-h-[60vh]" : "min-h-[16vh]"}`}
+>
+
 
         {/* Title */}
         <div className="text-center font-extrabold text-3xl sm:text-4xl md:text-5xl py-3">
@@ -75,7 +69,8 @@ function Track() {
         <hr className="my-4" />
 
         {/* Tracking Input */}
-        <div className="flex flex-col sm:flex-row justify-center items-center text-base sm:text-xl font-semibold gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+
           <label htmlFor="trackID" className="font-bold">
             Tracking ID:
           </label>
@@ -87,12 +82,15 @@ function Track() {
               value={trackingId}
               onChange={(e) => setTrackingId(e.target.value)}
               placeholder="Enter Tracking ID"
-              className="border px-2 py-1 text-gray-700 w-40 sm:w-52 md:w-60 rounded"
+className="border px-3 py-2 rounded-md text-gray-700
+w-48 sm:w-56 md:w-64 focus:outline-none focus:ring-2 focus:ring-black"
             />
 
             <button
               onClick={handleCheckReport}
-              className="text-sm sm:text-base bg-black text-white px-3 py-1 sm:py-2 rounded-3xl cursor-pointer ml-2 hover:scale-105 transition"
+              className="bg-black text-white px-5 py-2 rounded-xl text-sm font-semibold
+hover:bg-gray-900 transition"
+
             >
               CHECK
             </button>
@@ -120,7 +118,7 @@ function Track() {
           <div>
             {/* Tabs */}
             <nav className="flex flex-wrap gap-2 items-center justify-center font-bold my-2">
-              <div className="border-2 rounded-4xl p-1 flex flex-wrap justify-center">
+<div className="border rounded-xl p-1 flex justify-center gap-1">
 
                 <Link
                   to="details"
