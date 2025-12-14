@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {useAuth} from "../AuthProvider"
+import { useAuth } from "../AuthProvider";
 
 export default function IssueDetails() {
   const [reportData] = useOutletContext();
@@ -27,7 +27,8 @@ export default function IssueDetails() {
 
       setLoadingImg(true);
 
-      const backend = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000/api";
+      const backend =
+        import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000/api";
       const presignUrl = `${backend}/reports/${reportData.id}/presign-get/`;
 
       try {
@@ -79,7 +80,7 @@ export default function IssueDetails() {
       method: "GET",
       headers: headers,
     });
-  
+
     if (res.ok) {
       const profile = await res.json();
       const aadhaar = profile.aadhaar || {};
@@ -90,9 +91,12 @@ export default function IssueDetails() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row border-2 border-dashed border-gray-400 mt-3 rounded-xl shadow-sm">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
       {/* Left Column */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center gap-3 p-5 border-b-2 lg:border-b-0 lg:border-r-2 border-dashed border-gray-400">
+      <div
+        className="bg-white border rounded-xl p-5
+flex flex-col gap-3 justify-center min-h-[420px]"
+      >
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Tracking ID: </span> {issueID}
         </div>
@@ -102,7 +106,7 @@ export default function IssueDetails() {
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Title: </span> {issueTitle}
         </div>
-        <div className="text-base sm:text-lg lg:text-[18px] flex flex-col bg-gray-50 border border-gray-300 p-2 rounded-md overflow-y-auto max-h-40">
+        <div className="sm:text-lg lg:text-[18px] flex flex-col bg-gray-50 border rounded-md p-3 text-sm leading-relaxed overflow-y-auto max-h-40">
           <span className="font-bold">Issue Description: </span> {issueDesc}
         </div>
         <div className="text-base sm:text-lg lg:text-[18px]">
@@ -114,30 +118,73 @@ export default function IssueDetails() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5">
-        <p className="font-bold text-lg lg:text-[18px] mb-2 text-center">Issue Image</p>
+      <div
+        className="bg-white border rounded-xl p-5
+flex flex-col items-center justify-center min-h-[420px]"
+      >
+        <p className="font-bold text-lg lg:text-[18px] mb-2 text-center">
+          Issue Image
+        </p>
 
-        <div className="relative bg-gray-900 w-full max-w-sm aspect-[4/3] rounded-lg shadow-md overflow-hidden flex items-center justify-center text-white">
+        <div
+          className="w-full aspect-[4/3] border rounded-lg
+flex items-center justify-center bg-gray-100 relative overflow-hidden"
+        >
           {loadingImg && (
-            <div className="flex flex-col items-center">
-              <svg className="animate-spin h-8 w-8 mb-2 text-white" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center
+  bg-gray-200/80 backdrop-blur-sm"
+            >
+              <svg
+                className="animate-spin h-10 w-10 text-gray-800 mb-3"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
               </svg>
-              <div className="text-sm text-gray-200">Loading image...</div>
+              <span className="text-sm font-semibold text-gray-700">
+                Loading image…
+              </span>
             </div>
           )}
 
           {!loadingImg && imgSrc && (
-            <img src={imgSrc} alt={issueTitle} className="w-full h-full object-contain" loading="lazy" />
+            <img
+              src={imgSrc}
+              alt={issueTitle}
+              className="w-full h-full object-contain"
+              loading="lazy"
+            />
           )}
 
           {!loadingImg && !imgSrc && imgError && (
-            <div className="text-center p-4 text-sm text-gray-300">{imgError}</div>
+            <div
+              className="flex flex-col items-center justify-center
+text-sm text-gray-500"
+            >
+              {imgError}
+            </div>
           )}
 
           {!loadingImg && !imgSrc && !imgError && (
-            <div className="text-center p-4 text-sm text-gray-300">No image available</div>
+            <div
+              className="flex flex-col items-center justify-center
+text-sm text-gray-500"
+            >
+              No image available
+            </div>
           )}
         </div>
 

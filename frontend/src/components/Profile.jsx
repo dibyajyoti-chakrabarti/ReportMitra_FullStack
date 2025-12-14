@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
 import { useAuth } from '../AuthProvider';
 import Navbar from "./MiniNavbar";
-import report_bg from "../assets/reportbg.jpg";
 import Footer from "./Footer";
+import {
+  User,
+  ShieldCheck,
+  IdCard,
+  Phone,
+  MapPin,
+  Calendar,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
+
 
 function Profile() {
   const { getAuthHeaders, user } = useAuth();
@@ -11,14 +21,14 @@ function Profile() {
   const [verificationResult, setVerificationResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [profileData, setProfileData] = useState({
-    firstName: "Not provided",
-    midName: "Not provided", 
-    lastName: "Not provided",
-    age: "Not provided",
-    dateOfBirth: "Not provided",
-    ph: "Not provided",
-    addr: "Not provided",
-    lastUpdated: "Not provided",
+    firstName: "Fetching...",
+    midName: "Fetching...", 
+    lastName: "Fetching...",
+    age: "Fetching...",
+    dateOfBirth: "Fetching...",
+    ph: "Fetching...",
+    addr: "Fetching...",
+    lastUpdated: "Fetching...",
     isVerified: false
   });
 
@@ -102,7 +112,7 @@ function Profile() {
 
         setProfileData({
           firstName: firstName || "Not provided",
-          midName: middleName || "Not provided",
+          midName: middleName || "",
           lastName: lastName || "Not provided",
           age: ageDisplay,
           dateOfBirth: formattedDob,
@@ -194,45 +204,43 @@ function Profile() {
     <Navbar />
 
     {/* main content area with background */}
-    <main className="flex-grow relative flex justify-center py-10 md:py-14 lg:py-16">
-      <img
-        src={report_bg}
-        alt="background"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
-      />
+    <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
 
       {/* white card container (fluid height) */}
       <div
-        className="
-          relative bg-white w-[90vw] md:w-[80vw] lg:w-[75vw]
-           shadow-lg z-10
-          px-6 md:px-10 py-8
-          transition-all duration-300 ease-out
-        "
-      >
+  className="bg-white w-full max-w-6xl rounded-2xl shadow-md
+  px-4 sm:px-6 md:px-10 py-6 md:py-8"
+>
+
         {/* Title */}
-        <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-4">
-          Profile
-        </h1>
+        <h1 className="text-center font-bold text-3xl md:text-4xl mb-4">
+  Your Profile
+</h1>
+
 
         {/* Note Section */}
-        <div className="text-sm md:text-base leading-relaxed mb-6">
-          <p>
-            <b><u>Note:</u></b> To ensure authenticity and prevent misuse, all
-            users must complete Aadhaar Verification before submitting complaints.
-            Upon entering your Aadhaar Number, your basic details (Name, Age,
-            Phone Number) will be securely fetched from the Aadhaar database.
-          </p>
-        </div>
+        <div className="flex items-start gap-2 text-sm md:text-base
+bg-gray-50 border rounded-lg p-4 mb-6">
+  <AlertCircle className="w-5 h-5 mt-0.5 text-gray-600" />
+  <p>
+    <strong>Note:</strong> To ensure authenticity and prevent misuse, all users
+    must complete Aadhaar verification before submitting complaints. Your basic
+    details will be securely fetched from the Aadhaar database.
+  </p>
+</div>
+
 
         <hr className="my-4" />
 
         {/* Aadhaar Input Section */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
+        <div className="border rounded-xl p-5 mb-6">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
           <div className="flex flex-wrap justify-center items-center gap-3">
-            <label className="font-bold text-lg md:text-2xl whitespace-nowrap">
-              Aadhaar Number
-            </label>
+            <div className="flex items-center gap-2 font-semibold text-lg">
+  <IdCard className="w-5 h-5" />
+  Aadhaar Number
+</div>
+
 
             <input
               type="text"
@@ -258,21 +266,16 @@ function Profile() {
                 }
               `}
             >
-              {isVerifying ? 'VERIFYING...' : profileData.isVerified ? 'VERIFIED' : 'VERIFY'}
+              {isVerifying ? "Verifying..." : profileData.isVerified ? "Verified" : "Verify"}
+
             </button>
 
-            <span
-              className={`
-                px-3 py-1 border-2 rounded-full text-sm md:text-base font-semibold
-                ${
-                  profileData.isVerified
-                    ? 'border-green-700 bg-green-100 text-green-700 border-3'
-                    : 'border-red-900 bg-red-400 text-red-950'
-                }
-              `}
-            >
-              {verified}
-            </span>
+            {profileData.isVerified ? (
+  <CheckCircle className="w-7 h-7 text-green-700" />
+) : (
+  <AlertCircle className="w-7 h-7 text-red-600" />
+)}
+
           </div>
         </div>
 
@@ -288,14 +291,20 @@ function Profile() {
               : verificationResult.error || "Aadhaar verification failed"}
           </div>
         )}
+</div>
+        
 
         <hr className="my-4" />
 
         {/* Personal Details Section */}
-        <div className="font-bold flex flex-col items-center justify-center">
+<div className="mt-8">
+  <div className="flex items-center gap-2 mb-6">
+    <User className="w-6 h-6" />
+    <h2 className="text-2xl font-semibold">Personal Details</h2>
+  </div>
           <p className="text-2xl md:text-3xl mb-6">Personal Details</p>
 
-          <div className="flex flex-col gap-4 text-base md:text-xl w-full md:w-[80%]">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 text-base">
             <div className="flex justify-between">
               <span className="w-1/3">Full Name:</span>
               <span className="text-gray-500 text-right w-2/3">
@@ -313,10 +322,12 @@ function Profile() {
               <span className="text-gray-500 text-right w-2/3">{profileData.dateOfBirth}</span>
             </div>
 
-            <div className="flex justify-between">
-              <span className="w-1/3">Phone Number:</span>
-              <span className="text-gray-500 text-right w-2/3">{profileData.ph}</span>
-            </div>
+            <div className="flex items-center gap-2">
+  <Phone className="w-4 h-4 text-gray-500" />
+  <span className="font-medium">Phone:</span>
+  <span className="text-gray-600 ml-auto">{profileData.ph}</span>
+</div>
+
 
             <div className="flex justify-between">
               <span className="w-1/3">Address:</span>

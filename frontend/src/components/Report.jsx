@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import Navbar from "./MiniNavbar";
-import report_bg from "../assets/reportbg.jpg";
 import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
 import Footer from "./Footer";
 import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
 import { classifyImage } from "../ai/classifyImage";
+import { User, FileText, Image as ImageIcon, MapPin } from "lucide-react";
 
 const API_BASE = "http://localhost:8000";
 
@@ -67,14 +67,11 @@ function Report() {
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    const presignResp = await fetch(
-      `${API_BASE}/api/reports/s3/presign/`,
-      {
-        method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: file.name, contentType: file.type }),
-      }
-    );
+    const presignResp = await fetch(`${API_BASE}/api/reports/s3/presign/`, {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName: file.name, contentType: file.type }),
+    });
 
     if (!presignResp.ok) {
       const err = await presignResp.text();
@@ -108,13 +105,13 @@ function Report() {
     setFormData((p) => ({ ...p, [name]: value }));
   };
   function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file); // produces "data:image/jpeg;base64,..."
-  });
-}
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file); // produces "data:image/jpeg;base64,..."
+    });
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -156,7 +153,7 @@ function Report() {
           return;
         }
       }
-      let department = "Manual"
+      let department = "Manual";
       if (selectedFile) {
         try {
           const base64 = await fileToBase64(selectedFile);
@@ -167,14 +164,12 @@ function Report() {
         }
       }
 
-
       const headers =
         typeof getAuthHeaders === "function"
           ? await getAuthHeaders()
           : { "Content-Type": "application/json" };
 
-      const payload =
-      {
+      const payload = {
         issue_title: formData.issue_title,
         location: formData.location,
         issue_description: formData.issue_description,
@@ -211,7 +206,7 @@ function Report() {
         location: "",
         issue_description: "",
         image_url: "",
-        department:""
+        department: "",
       });
       setSelectedFile(null);
       setPreview(null);
@@ -333,17 +328,10 @@ function Report() {
         </div>
       )}
 
-      <main className="flex-grow relative flex justify-center py-8 md:py-12 lg:py-16">
-        <img
-          src={report_bg}
-          alt=""
-          className="absolute inset-0 object-cover w-full h-full -z-10"
-        />
-
+      <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
-          className={`relative bg-white w-[90vw] md:w-[80vw] rounded-xl shadow-lg z-10
-                      px-6 md:px-10 py-6 md:py-10 transition-all duration-300 ease-out`}
-          style={{ willChange: "height, padding" }}
+          className="bg-white w-full max-w-6xl rounded-2xl shadow-md
+px-4 sm:px-6 md:px-10 py-6 md:py-8"
         >
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
@@ -351,6 +339,13 @@ function Report() {
 
           <div className="flex-1 flex flex-col justify-center">
             {/* User details */}
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-gray-700" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Citizen Details
+              </h2>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               {[
                 {
@@ -390,10 +385,18 @@ function Report() {
 
             <hr className="my-4" />
 
+            {/* Issue Details Section Header */}
+            <div className="flex items-center gap-2 mb-4 mt-6">
+              <FileText className="w-5 h-5 text-gray-700" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Issue Details
+              </h2>
+            </div>
+
             {/* Issue details */}
-            <div className="flex flex-col md:flex-row gap-8 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-6">
               {/* Left */}
-              <div className="flex flex-col flex-1 font-bold space-y-2">
+              <div className="md:col-span-3 flex flex-col font-bold space-y-2">
                 <label>Issue Title</label>
                 <input
                   type="text"
@@ -412,59 +415,84 @@ function Report() {
                   onChange={handleInputChange}
                   placeholder="Describe the Issue in Detail"
                   required
-                  className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-40 md:h-44 lg:h-60 2xl:h-66"
+                  className="border px-3 py-2 rounded-md placeholder:text-gray-500
+resize-none h-44 lg:h-56"
                 />
               </div>
 
               {/* Right */}
-              <div className="flex flex-col flex-1 font-bold space-y-2">
+              <div className="md:col-span-2 flex flex-col font-bold space-y-3">
                 <label>Issue Image</label>
-                <div className="flex flex-wrap justify-between items-center gap-3">
-                  <a
-                    href="https://www.gov.wales/rural-grants-and-payments-geotagged-photo-guidance#121535"
-                    className="underline text-sm text-blue-700"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    NOTE: GEOTAGGED IMAGES ONLY
-                  </a>
+                <a
+                  href="https://www.precisely.com/glossary/geotagging/"
+                  className="underline text-sm text-blue-700 -mt-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  NOTE: GEOTAGGED IMAGES ONLY
+                </a>
+                
+                {/* Image Preview */}
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-xl
+h-44 lg:h-56
+flex flex-col items-center justify-center gap-2
+text-gray-500 overflow-hidden"
+                >
+                  {preview ? (
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="object-contain w-full h-full rounded-xl"
+                    />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-6 h-6 opacity-60" />
+                      <span className="text-xs text-gray-400">
+                        No image selected
+                      </span>
+                    </>
+                  )}
+                </div>
 
+                <div className="flex flex-col gap-2">
                   <label
                     htmlFor="fileInput"
-                    className="cursor-pointer bg-white border-3 px-3 py-2 rounded-lg shadow hover:scale-105 transition flex items-center gap-2 text-3xl"
+                    className="cursor-pointer bg-white border-2 border-gray-400 px-4 py-2.5 rounded-md
+  flex items-center justify-center gap-2 text-sm font-semibold
+  hover:bg-gray-50 hover:border-gray-400 transition"
                   >
-                    <img src={folder} alt="" className="h-7" />
+                    <img src={folder} alt="" className="h-4 w-4" />
                     Choose File
                   </label>
+
                   <input
                     id="fileInput"
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
+                    className="hidden"
                   />
-                </div>
-                <div className="w-full bg-black h-40 lg:h-55 flex items-center justify-center rounded-md shadow 2xl:h-70 xl:h-64">
-                  {preview ? (
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="object-contain w-full h-full rounded-md"
-                    />
-                  ) : (
-                    <span className="text-white text-sm">
-                      No Image Selected
+                  
+                  {selectedFile && (
+                    <span className="text-xs text-gray-600 text-center truncate">
+                      {selectedFile.name}
                     </span>
                   )}
                 </div>
               </div>
             </div>
 
-            <hr className="my-4" />
-
             {/* Bottom section */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div
+              className="flex flex-col md:flex-row justify-between items-center
+border-t pt-6 mt-6 gap-4"
+            >
               <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-2 font-bold">
-                <label className="whitespace-nowrap">Issue Location:</label>
+                <label className="whitespace-nowrap flex items-center gap-1">
+                  <MapPin className="w-4 h-4 text-gray-600" />
+                  Issue Location
+                </label>
                 <input
                   type="text"
                   name="location"

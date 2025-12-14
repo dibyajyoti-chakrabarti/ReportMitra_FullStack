@@ -2,8 +2,7 @@
 import React from "react";
 import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
-import PostCard from "./PostCard"; // make sure this file exists and exports default
-import report_bg from "../assets/reportbg.jpg"; // optional; use same bg used elsewhere
+import PostCard from "./PostCard";
 import before1 from "../assets/before_sample.jpeg"
 import after1 from "../assets/after_sample.jpeg"
 
@@ -28,18 +27,15 @@ function Community() {
       <Navbar />
 
       {/* main area - background only covers this main */}
-      <main className="flex-grow relative flex justify-center py-8 md:py-12 lg:py-16">
-        <img
-          src={report_bg}
-          alt="background pattern"
-          className="absolute inset-0 object-cover w-full h-full -z-10"
-        />
+<main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
 
         {/* white container - not rounded as you asked earlier */}
-        <div className="relative bg-white w-[92vw] md:w-[84vw] lg:w-[75vw] shadow-lg z-10 px-6 md:px-12 py-10">
-          <h1 className="text-4xl md:text-5xl text-center font-extrabold mb-8">
-            Community Updates
-          </h1>
+<div className="bg-white w-full max-w-6xl rounded-2xl shadow-md
+px-4 sm:px-6 md:px-10 py-6 md:py-8">
+          <h1 className="text-3xl md:text-4xl text-center font-bold mb-8">
+  Community Updates
+</h1>
+
 
           {/* posts list */}
           <div className="space-y-10">
