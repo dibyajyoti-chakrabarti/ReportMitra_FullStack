@@ -458,7 +458,7 @@ text-gray-500 overflow-hidden"
                 <div className="flex flex-col gap-2">
                   <label
                     htmlFor="fileInput"
-                    className="cursor-pointer bg-white border-2 border-gray-300 px-4 py-2.5 rounded-md
+                    className="cursor-pointer bg-white border-2 border-gray-400 px-4 py-2.5 rounded-md
   flex items-center justify-center gap-2 text-sm font-semibold
   hover:bg-gray-50 hover:border-gray-400 transition"
                   >
