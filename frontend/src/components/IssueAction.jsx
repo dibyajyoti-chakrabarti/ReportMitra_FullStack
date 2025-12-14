@@ -2,14 +2,14 @@ import { useOutletContext } from "react-router-dom";
 
 function IssueAction() {
   const [reportData] = useOutletContext();
-  const trackingID = reportData?.tracking_id || "DEFAULT_VAL";
+  const trackingID = reportData?.tracking_id || "Fetching Data...";
   const status = reportData?.status
     ? reportData.status.replace("_", " ").toUpperCase()
-    : "DEFAULT_VAL";
-  const dept = "Public Works Department";
+    : "Fetching Data...";
+  const dept = reportData?.department || "Fetching Data...";
   const ackDate = reportData?.issue_date
     ? new Date(reportData.issue_date).toLocaleDateString()
-    : "DEFAULT_VAL";
+    : "Fetching Data...";
   const resolutionDate = "Pending";
   const comments = `Report is currently ${
     reportData?.status || "pending"

@@ -107,7 +107,7 @@ const Landing = () => {
                 className="relative w-full hover:scale-105 transition-transform cursor-pointer"
               >
                 {/* rounded corners kept for visual appeal */}
-                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
+                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl "></div>
                 <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
                   <img
                     src={report}
@@ -132,7 +132,7 @@ const Landing = () => {
                   <img
                     src={report}
                     alt="Report"
-                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3"
+                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
                   />
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
                     Report Issues
