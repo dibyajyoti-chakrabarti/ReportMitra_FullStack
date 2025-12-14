@@ -8,7 +8,7 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
-import DebugToken from "./Debug";
+// import DebugToken from "./Debug";
 
 const Landing = () => {
   const { login, isAuthenticated } = useAuth();
@@ -20,7 +20,7 @@ const Landing = () => {
   return (
     <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
       <Navbar />
-      <DebugToken />
+      {/* <DebugToken /> */}
 
       {/* Background: fixed so it stays visible while page grows */}
       <div
