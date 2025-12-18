@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from '../AuthProvider';
+import { useAuth } from "../AuthProvider";
 import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
 import {
@@ -10,26 +10,25 @@ import {
   MapPin,
   Calendar,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
-
 
 function Profile() {
   const { getAuthHeaders, user } = useAuth();
-  
-  const [aadhaarNumber, setAadhaarNumber] = useState('');
+
+  const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [verificationResult, setVerificationResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: "Fetching...",
-    midName: "Fetching...", 
+    midName: "Fetching...",
     lastName: "Fetching...",
     age: "Fetching...",
     dateOfBirth: "Fetching...",
     ph: "Fetching...",
     addr: "Fetching...",
     lastUpdated: "Fetching...",
-    isVerified: false
+    isVerified: false,
   });
 
   // helper: calculate age from DOB string (YYYY-MM-DD)
@@ -55,10 +54,13 @@ function Profile() {
   const loadProfileData = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profile/me/`, {
-        method: 'GET',
-        headers: headers,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/profile/me/`,
+        {
+          method: "GET",
+          headers: headers,
+        }
+      );
 
       if (response.ok) {
         const profile = await response.json();
@@ -67,15 +69,16 @@ function Profile() {
 
         const rawDob = aadhaar?.date_of_birth || null;
         const formattedDob = rawDob
-          ? new Date(rawDob).toLocaleDateString('en-IN', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
+          ? new Date(rawDob).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
             })
           : "Not provided";
 
         const ageNumber = calculateAge(rawDob);
-        const ageDisplay = ageNumber !== null ? `${ageNumber} years` : "Not provided";
+        const ageDisplay =
+          ageNumber !== null ? `${ageNumber} years` : "Not provided";
 
         const phone = aadhaar?.phone_number || "Not provided";
         const address = aadhaar?.address || "Not provided";
@@ -99,12 +102,13 @@ function Profile() {
           }
         }
 
-        const createdOrUpdated = profile.updated_at || profile.created_at || null;
+        const createdOrUpdated =
+          profile.updated_at || profile.created_at || null;
         const formattedUpdated = createdOrUpdated
-          ? new Date(createdOrUpdated).toLocaleDateString('en-IN', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
+          ? new Date(createdOrUpdated).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
             })
           : "Not provided";
 
@@ -129,7 +133,7 @@ function Profile() {
         }
       }
     } catch (error) {
-      console.error('Failed to load profile:', error);
+      console.error("Failed to load profile:", error);
     }
   };
 
@@ -148,26 +152,29 @@ function Profile() {
     setIsVerifying(true);
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/aadhaar/verify/`, {
-        method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ aadhaar_number: aadhaarNumber })
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/aadhaar/verify/`,
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ aadhaar_number: aadhaarNumber }),
+        }
+      );
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         console.error("Non-JSON response from server:", text);
-        throw new Error('Server error - please try again later');
+        throw new Error("Server error - please try again later");
       }
 
       const result = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(result.error || result.detail || 'Verification failed');
+        throw new Error(result.error || result.detail || "Verification failed");
       }
 
       setVerificationResult(result);
@@ -175,15 +182,19 @@ function Profile() {
       if (result.verified) {
         // Reload profile data to get updated information from backend
         await loadProfileData();
-        alert("Aadhaar verification successful! Your profile has been updated.");
+        alert(
+          "Aadhaar verification successful! Your profile has been updated."
+        );
       } else {
-        alert("Aadhaar verification failed. Please check the number and try again.");
+        alert(
+          "Aadhaar verification failed. Please check the number and try again."
+        );
       }
     } catch (error) {
-      console.error('Verification failed:', error);
-      setVerificationResult({ 
-        verified: false, 
-        error: error.message || 'Verification failed' 
+      console.error("Verification failed:", error);
+      setVerificationResult({
+        verified: false,
+        error: error.message || "Verification failed",
       });
       alert(`Verification failed: ${error.message}`);
     } finally {
@@ -193,182 +204,188 @@ function Profile() {
 
   const handleAadhaarChange = (e) => {
     // Only allow numbers and limit to 12 digits
-    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    const value = e.target.value.replace(/\D/g, "").slice(0, 12);
     setAadhaarNumber(value);
   };
 
   const verified = profileData.isVerified ? "✓" : "Not Verified";
 
   return (
-  <div className="min-h-screen flex flex-col">
-    <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
 
-    {/* main content area with background */}
-    <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
-
-      {/* white card container (fluid height) */}
-      <div
-  className="bg-white w-full max-w-6xl rounded-2xl shadow-md
+      {/* main content area with background */}
+      <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
+        {/* white card container (fluid height) */}
+        <div
+          className="bg-white w-full max-w-6xl rounded-2xl shadow-md
   px-4 sm:px-6 md:px-10 py-6 md:py-8"
->
+        >
+          {/* Title */}
+          <h1 className="text-center font-bold text-3xl md:text-4xl mb-4">
+            Your Profile
+          </h1>
 
-        {/* Title */}
-        <h1 className="text-center font-bold text-3xl md:text-4xl mb-4">
-  Your Profile
-</h1>
+          {/* Note Section */}
+          <div
+            className="flex items-start gap-2 text-sm md:text-base
+bg-gray-50 border rounded-lg p-4 mb-6"
+          >
+            <AlertCircle className="w-5 h-5 mt-0.5 text-gray-600" />
+            <p>
+              <strong>Note:</strong> To ensure authenticity and prevent misuse,
+              all users must complete Aadhaar verification before submitting
+              complaints. Your basic details will be securely fetched from the
+              Aadhaar database.
+            </p>
+          </div>
 
+          <hr className="my-4" />
 
-        {/* Note Section */}
-        <div className="flex items-start gap-2 text-sm md:text-base
-bg-gray-50 border rounded-lg p-4 mb-6">
-  <AlertCircle className="w-5 h-5 mt-0.5 text-gray-600" />
-  <p>
-    <strong>Note:</strong> To ensure authenticity and prevent misuse, all users
-    must complete Aadhaar verification before submitting complaints. Your basic
-    details will be securely fetched from the Aadhaar database.
-  </p>
-</div>
+          {/* Aadhaar Input Section */}
+          <div className="border rounded-xl p-5 mb-6">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
+              <div className="flex flex-wrap justify-center items-center gap-3">
+                <div className="flex items-center gap-2 font-semibold text-lg">
+                  <IdCard className="w-5 h-5" />
+                  Aadhaar Number
+                </div>
 
+                <input
+                  type="text"
+                  value={aadhaarNumber}
+                  onChange={handleAadhaarChange}
+                  className="border px-3 py-2 rounded-md text-gray-700 w-60 md:w-72"
+                  placeholder="Enter 12-digit Aadhaar"
+                  maxLength={12}
+                  disabled={profileData.isVerified}
+                />
 
-        <hr className="my-4" />
-
-        {/* Aadhaar Input Section */}
-        <div className="border rounded-xl p-5 mb-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
-          <div className="flex flex-wrap justify-center items-center gap-3">
-            <div className="flex items-center gap-2 font-semibold text-lg">
-  <IdCard className="w-5 h-5" />
-  Aadhaar Number
-</div>
-
-
-            <input
-              type="text"
-              value={aadhaarNumber}
-              onChange={handleAadhaarChange}
-              className="border px-3 py-2 rounded-md text-gray-700 w-60 md:w-72"
-              placeholder="Enter 12-digit Aadhaar"
-              maxLength={12}
-              disabled={profileData.isVerified}
-            />
-
-            <button
-              onClick={verifyAadhaar}
-              disabled={isVerifying || profileData.isVerified}
-              className={`
+                <button
+                  onClick={verifyAadhaar}
+                  disabled={isVerifying || profileData.isVerified}
+                  className={`
                 text-sm md:text-base px-4 py-2 rounded-2xl cursor-pointer transition
                 ${
                   profileData.isVerified
-                    ? 'bg-green-700 text-white cursor-not-allowed'
+                    ? "bg-green-700 text-white cursor-not-allowed"
                     : isVerifying
-                    ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-black text-white hover:scale-105'
+                    ? "bg-gray-400 text-white cursor-not-allowed"
+                    : "bg-black text-white hover:scale-105"
                 }
               `}
-            >
-              {isVerifying ? "Verifying..." : profileData.isVerified ? "Verified" : "Verify"}
+                >
+                  {isVerifying
+                    ? "Verifying..."
+                    : profileData.isVerified
+                    ? "Verified"
+                    : "Verify"}
+                </button>
 
-            </button>
-
-            {profileData.isVerified ? (
-  <CheckCircle className="w-7 h-7 text-green-700" />
-) : (
-  <AlertCircle className="w-7 h-7 text-red-600" />
-)}
-
-          </div>
-        </div>
-
-        {/* Verification Status */}
-        {verificationResult && (
-          <div
-            className={`text-center mb-4 text-sm ${
-              verificationResult.verified ? 'text-green-700' : 'text-red-600'
-            }`}
-          >
-            {verificationResult.verified
-              ? "✓ Aadhaar verified successfully! Your profile has been updated."
-              : verificationResult.error || "Aadhaar verification failed"}
-          </div>
-        )}
-</div>
-        
-
-        <hr className="my-4" />
-
-        {/* Personal Details Section */}
-<div className="mt-8">
-  <div className="flex items-center gap-2 mb-6">
-    <User className="w-6 h-6" />
-    <h2 className="text-2xl font-semibold">Personal Details</h2>
-  </div>
-          <p className="text-2xl md:text-3xl mb-6">Personal Details</p>
-
-<div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 text-base">
-            <div className="flex justify-between">
-              <span className="w-1/3">Full Name:</span>
-              <span className="text-gray-500 text-right w-2/3">
-                {profileData.firstName} {profileData.midName} {profileData.lastName}
-              </span>
+                {profileData.isVerified ? (
+                  <CheckCircle className="w-7 h-7 text-green-700" />
+                ) : (
+                  <AlertCircle className="w-7 h-7 text-red-600" />
+                )}
+              </div>
             </div>
 
-            <div className="flex justify-between">
-              <span className="w-1/3">Age:</span>
-              <span className="text-gray-500 text-right w-2/3">{profileData.age}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="w-1/3">Date of Birth:</span>
-              <span className="text-gray-500 text-right w-2/3">{profileData.dateOfBirth}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-  <Phone className="w-4 h-4 text-gray-500" />
-  <span className="font-medium">Phone:</span>
-  <span className="text-gray-600 ml-auto">{profileData.ph}</span>
-</div>
-
-
-            <div className="flex justify-between">
-              <span className="w-1/3">Address:</span>
-              <span className="text-gray-500 text-right w-2/3 whitespace-pre-line">
-                {profileData.addr}
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="w-1/3">Last Updated:</span>
-              <span className="text-gray-500 text-right w-2/3">{profileData.lastUpdated}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="w-1/3">Aadhaar Status:</span>
-              <span
-                className={`text-right w-2/3 font-semibold ${
-                  profileData.isVerified ? 'text-green-700' : 'text-red-600'
+            {/* Verification Status */}
+            {verificationResult && (
+              <div
+                className={`text-center mb-4 text-sm ${
+                  verificationResult.verified
+                    ? "text-green-700"
+                    : "text-red-600"
                 }`}
               >
-                {verified}
-              </span>
+                {verificationResult.verified
+                  ? "✓ Aadhaar verified successfully! Your profile has been updated."
+                  : verificationResult.error || "Aadhaar verification failed"}
+              </div>
+            )}
+          </div>
+
+          <hr className="my-4" />
+
+          {/* Personal Details Section */}
+          <div className="mt-8">
+            <div className="flex items-center gap-2 mb-6">
+              <User className="w-6 h-6" />
+              <h2 className="text-2xl font-semibold">Personal Details</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 text-base">
+              <div className="flex justify-between">
+                <span className="w-1/3">Full Name:</span>
+                <span className="text-gray-500 text-right w-2/3">
+                  {profileData.firstName} {profileData.midName}{" "}
+                  {profileData.lastName}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="w-1/3">Age:</span>
+                <span className="text-gray-500 text-right w-2/3">
+                  {profileData.age}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="w-1/3">Date of Birth:</span>
+                <span className="text-gray-500 text-right w-2/3">
+                  {profileData.dateOfBirth}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-gray-500" />
+                <span className="font-medium">Phone:</span>
+                <span className="text-gray-600 ml-auto">{profileData.ph}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="w-1/3">Address:</span>
+                <span className="text-gray-500 text-right w-2/3 whitespace-pre-line">
+                  {profileData.addr}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="w-1/3">Last Updated:</span>
+                <span className="text-gray-500 text-right w-2/3">
+                  {profileData.lastUpdated}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="w-1/3">Aadhaar Status:</span>
+                <span
+                  className={`text-right w-2/3 font-semibold ${
+                    profileData.isVerified ? "text-green-700" : "text-red-600"
+                  }`}
+                >
+                  {verified}
+                </span>
+              </div>
             </div>
           </div>
+
+          {/* Verified Message */}
+          {profileData.isVerified && (
+            <div className="mt-8 p-4 bg-green-100 border-2 border-green-700 rounded-lg">
+              <p className="text-green-700 text-center">
+                <strong>Your profile is verified!</strong> <br />
+                You can now submit reports.
+              </p>
+            </div>
+          )}
         </div>
+      </main>
 
-        {/* Verified Message */}
-        {profileData.isVerified && (
-          <div className="mt-8 p-4 bg-green-100 border-2 border-green-700 rounded-lg">
-            <p className="text-green-700 text-center">
-              <strong>Your profile is verified!</strong> <br />You can now submit reports.
-            </p>
-          </div>
-        )}
-      </div>
-    </main>
-
-    <Footer />
-  </div>
-);
-
+      <Footer />
+    </div>
+  );
 }
 
 export default Profile;

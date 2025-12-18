@@ -50,9 +50,9 @@ function IssueAction() {
 
   return (
     <section
-      className="mt-6 bg-white border-t-4 border-black
+      className="mt-6 bg-white border-t-1 border-black
     rounded-2xl shadow-sm px-5 sm:px-8 py-6 sm:py-8
-    max-w-4xl mx-auto border-b-4"
+    max-w-4xl mx-auto border-b-1"
     >
       {/* Header */}
       <div className="mb-6">
