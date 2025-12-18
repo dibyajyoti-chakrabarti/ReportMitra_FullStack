@@ -1,10 +1,6 @@
 # report/models.py
 from django.db import models
 from django.conf import settings
-import random
-import string
-
-
 
 class IssueReport(models.Model):
     STATUS_CHOICES = [
@@ -27,8 +23,7 @@ class IssueReport(models.Model):
     location = models.CharField(max_length=150)
     issue_description = models.TextField(max_length=500)
     image_url = models.CharField(max_length=500, blank=True, null=True)
-    # If you later re-add an image_key column, just uncomment:
-    # image_key = models.CharField(max_length=512, blank=True, null=True)
+    completion_url = models.CharField(max_length=1000, null=True, blank=True)
 
     # Timestamps + status
     issue_date = models.DateTimeField(auto_now_add=True)

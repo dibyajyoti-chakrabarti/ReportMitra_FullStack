@@ -1,21 +1,18 @@
 # report/views.py
 from rest_framework import generics, permissions, status
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import CursorPagination
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-
+from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from user_profile.models import UserProfile
 from .models import IssueReport
 from .serializers import IssueReportSerializer
-from user_profile.models import UserProfile
-from rest_framework.permissions import AllowAny  # Add this
-
+from urllib.parse import urlparse, unquote
 from django.conf import settings
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 import boto3
 import uuid
-
-from rest_framework.permissions import AllowAny
-from urllib.parse import urlparse, unquote
 
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
@@ -99,70 +96,81 @@ def presign_s3(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     
+from urllib.parse import urlparse, unquote
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.conf import settings
+import boto3
+
+
 @api_view(["GET"])
-@permission_classes([AllowAny])  # tracking is public
+@permission_classes([AllowAny])
 def presign_get_for_track(request, id):
-    """
-    Given a report ID, return a presigned GET URL for its S3 image.
-    Used by the Track -> IssueDetails page.
-    """
-    from .models import IssueReport  # local import to avoid circulars
+    from .models import IssueReport
 
     try:
         report = IssueReport.objects.get(pk=id)
     except IssueReport.DoesNotExist:
-        return Response(
-            {"detail": "Report not found"}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"detail": "Report not found"}, status=404)
 
-    if not report.image_url:
-        return Response(
-            {"detail": "No image for this report"}, status=status.HTTP_404_NOT_FOUND
-        )
+    bucket_name = settings.REPORT_IMAGES_BUCKET
+    region_name = settings.AWS_REGION
 
-    # Bucket + region from settings / env
-    bucket_name = getattr(
-        settings,
-        "REPORT_IMAGES_BUCKET",
-        getattr(settings, "AWS_STORAGE_BUCKET_NAME", None),
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=region_name,
     )
-    if not bucket_name:
-        return Response(
-            {"detail": "S3 bucket name not configured on server"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
-    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
+    before_url = None
+    after_url = None
 
-    # Derive the object key from the stored image_url
-    parsed = urlparse(report.image_url)
-    key = unquote(parsed.path.lstrip("/"))  # strip leading '/' and decode %2F etc.
+    # ---------------- BEFORE IMAGE ----------------
+    if report.image_url:
+        try:
+            key = unquote(urlparse(report.image_url).path.lstrip("/"))
 
-    # If path is like 'bucket-name/reports/..', strip the leading 'bucket-name/'
-    if key.startswith(bucket_name + "/"):
-        key = key[len(bucket_name) + 1 :]
+            # Remove bucket name if present in path
+            if key.startswith(bucket_name + "/"):
+                key = key[len(bucket_name) + 1:]
 
-    try:
-        s3_client = boto3.client(
-            "s3",
-            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
-            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
-            region_name=region_name,
-        )
+            before_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": bucket_name,
+                    "Key": key,
+                },
+                ExpiresIn=3600,
+            )
+        except Exception:
+            before_url = None
 
-        presigned_get_url = s3_client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": key},
-            ExpiresIn=3600,  # 1 hour
-        )
+    # ---------------- AFTER IMAGE ----------------
+    if report.completion_url:
+        try:
+            after_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": bucket_name,
+                    "Key": report.completion_url,
+                },
+                ExpiresIn=3600,
+            )
+        except Exception:
+            after_url = None
 
-        return Response({"url": presigned_get_url})
-    except Exception as e:
-        print("S3 presign-get error:", e)
-        return Response(
-            {"detail": "Could not create image view URL"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    # ---------------- RESPONSE (BACKWARD COMPATIBLE) ----------------
+    return Response({
+        # OLD CONTRACT (IssueDetails.jsx)
+        "url": before_url,
+
+        # NEW CONTRACT (Community PostCard.jsx)
+        "before": before_url,
+        "after": after_url,
+    })
+
 
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
@@ -175,3 +183,18 @@ class PublicIssueReportDetailView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     lookup_field = "tracking_id"
     lookup_url_kwarg = "tracking_id"
+
+class CommunityCursorPagination(CursorPagination):
+    page_size = 6
+    ordering = "-updated_at"   # latest first
+
+
+class CommunityResolvedIssuesView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = IssueReportSerializer
+    pagination_class = CommunityCursorPagination
+
+    def get_queryset(self):
+        return IssueReport.objects.filter(
+            status="resolved"
+        ).order_by("-updated_at")
