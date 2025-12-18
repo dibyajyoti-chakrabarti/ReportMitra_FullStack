@@ -51,7 +51,7 @@ function IssueAction() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
       {/* Left Column */}
-      <div className="bg-white border rounded-xl p-5 flex flex-col gap-3">
+      <div className="bg-white border rounded-xl p-5 flex flex-col justify-center gap-10">
         <div className="text-base sm:text-lg lg:text-[17px]">
           <span className="font-bold">Tracking ID: </span> {trackingID}
         </div>
