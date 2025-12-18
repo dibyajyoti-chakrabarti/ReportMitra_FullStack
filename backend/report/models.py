@@ -1,9 +1,6 @@
 # report/models.py
 from django.db import models
 from django.conf import settings
-import random
-import string
-
 
 class IssueReport(models.Model):
     STATUS_CHOICES = [

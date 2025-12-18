@@ -96,6 +96,14 @@ def presign_s3(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     
+from urllib.parse import urlparse, unquote
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.conf import settings
+import boto3
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def presign_get_for_track(request, id):
@@ -116,29 +124,53 @@ def presign_get_for_track(request, id):
         region_name=region_name,
     )
 
-    urls = {}
+    before_url = None
+    after_url = None
 
-    # BEFORE image
+    # ---------------- BEFORE IMAGE ----------------
     if report.image_url:
-        key = unquote(urlparse(report.image_url).path.lstrip("/"))
-        if key.startswith(bucket_name + "/"):
-            key = key[len(bucket_name) + 1:]
+        try:
+            key = unquote(urlparse(report.image_url).path.lstrip("/"))
 
-        urls["before"] = s3_client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": key},
-            ExpiresIn=3600,
-        )
+            # Remove bucket name if present in path
+            if key.startswith(bucket_name + "/"):
+                key = key[len(bucket_name) + 1:]
 
-    # AFTER image
+            before_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": bucket_name,
+                    "Key": key,
+                },
+                ExpiresIn=3600,
+            )
+        except Exception:
+            before_url = None
+
+    # ---------------- AFTER IMAGE ----------------
     if report.completion_url:
-        urls["after"] = s3_client.generate_presigned_url(
-            "get_object",
-            Params={"Bucket": bucket_name, "Key": report.completion_url},
-            ExpiresIn=3600,
-        )
+        try:
+            after_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": bucket_name,
+                    "Key": report.completion_url,
+                },
+                ExpiresIn=3600,
+            )
+        except Exception:
+            after_url = None
 
-    return Response(urls)
+    # ---------------- RESPONSE (BACKWARD COMPATIBLE) ----------------
+    return Response({
+        # OLD CONTRACT (IssueDetails.jsx)
+        "url": before_url,
+
+        # NEW CONTRACT (Community PostCard.jsx)
+        "before": before_url,
+        "after": after_url,
+    })
+
 
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):

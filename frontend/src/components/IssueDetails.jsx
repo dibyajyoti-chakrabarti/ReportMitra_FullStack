@@ -106,9 +106,14 @@ flex flex-col gap-3 justify-center min-h-[420px]"
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Title: </span> {issueTitle}
         </div>
-        <div className="sm:text-lg lg:text-[18px] flex flex-col bg-gray-50 border rounded-md p-3 text-sm leading-relaxed overflow-y-auto max-h-40">
-          <span className="font-bold">Issue Description: </span> {issueDesc}
+        <div className="sm:text-lg lg:text-[18px]
+          flex flex-col bg-gray-50 border rounded-md p-3
+          text-sm leading-relaxed
+          overflow-y-auto overflow-x-hidden break-words max-h-40">
+            <span className="font-bold">Issue Description: </span>
+            {issueDesc}
         </div>
+
         <div className="text-base sm:text-lg lg:text-[18px]">
           <span className="font-bold">Issue Location: </span> {issueLocation}
         </div>
