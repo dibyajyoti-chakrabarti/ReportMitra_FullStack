@@ -11,6 +11,7 @@ notes.txt
 *.so
 
 # Distribution / packaging
+*/migrations
 .Python
 build/
 develop-eggs/

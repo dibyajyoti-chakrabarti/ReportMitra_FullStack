@@ -1,21 +1,18 @@
 # report/views.py
 from rest_framework import generics, permissions, status
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import CursorPagination
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-
+from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from user_profile.models import UserProfile
 from .models import IssueReport
 from .serializers import IssueReportSerializer
-from user_profile.models import UserProfile
-from rest_framework.permissions import AllowAny  # Add this
-
+from urllib.parse import urlparse, unquote
 from django.conf import settings
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
 import boto3
 import uuid
-
-from rest_framework.permissions import AllowAny
-from urllib.parse import urlparse, unquote
 
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
@@ -175,3 +172,18 @@ class PublicIssueReportDetailView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     lookup_field = "tracking_id"
     lookup_url_kwarg = "tracking_id"
+
+class CommunityCursorPagination(CursorPagination):
+    page_size = 6
+    ordering = "-updated_at"   # latest first
+
+
+class CommunityResolvedIssuesView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = IssueReportSerializer
+    pagination_class = CommunityCursorPagination
+
+    def get_queryset(self):
+        return IssueReport.objects.filter(
+            status="resolved"
+        ).order_by("-updated_at")
