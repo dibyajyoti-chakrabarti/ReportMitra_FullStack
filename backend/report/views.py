@@ -97,69 +97,48 @@ def presign_s3(request):
         )
     
 @api_view(["GET"])
-@permission_classes([AllowAny])  # tracking is public
+@permission_classes([AllowAny])
 def presign_get_for_track(request, id):
-    """
-    Given a report ID, return a presigned GET URL for its S3 image.
-    Used by the Track -> IssueDetails page.
-    """
-    from .models import IssueReport  # local import to avoid circulars
+    from .models import IssueReport
 
     try:
         report = IssueReport.objects.get(pk=id)
     except IssueReport.DoesNotExist:
-        return Response(
-            {"detail": "Report not found"}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"detail": "Report not found"}, status=404)
 
-    if not report.image_url:
-        return Response(
-            {"detail": "No image for this report"}, status=status.HTTP_404_NOT_FOUND
-        )
+    bucket_name = settings.REPORT_IMAGES_BUCKET
+    region_name = settings.AWS_REGION
 
-    # Bucket + region from settings / env
-    bucket_name = getattr(
-        settings,
-        "REPORT_IMAGES_BUCKET",
-        getattr(settings, "AWS_STORAGE_BUCKET_NAME", None),
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=region_name,
     )
-    if not bucket_name:
-        return Response(
-            {"detail": "S3 bucket name not configured on server"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
 
-    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
+    urls = {}
 
-    # Derive the object key from the stored image_url
-    parsed = urlparse(report.image_url)
-    key = unquote(parsed.path.lstrip("/"))  # strip leading '/' and decode %2F etc.
+    # BEFORE image
+    if report.image_url:
+        key = unquote(urlparse(report.image_url).path.lstrip("/"))
+        if key.startswith(bucket_name + "/"):
+            key = key[len(bucket_name) + 1:]
 
-    # If path is like 'bucket-name/reports/..', strip the leading 'bucket-name/'
-    if key.startswith(bucket_name + "/"):
-        key = key[len(bucket_name) + 1 :]
-
-    try:
-        s3_client = boto3.client(
-            "s3",
-            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
-            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
-            region_name=region_name,
-        )
-
-        presigned_get_url = s3_client.generate_presigned_url(
+        urls["before"] = s3_client.generate_presigned_url(
             "get_object",
             Params={"Bucket": bucket_name, "Key": key},
-            ExpiresIn=3600,  # 1 hour
+            ExpiresIn=3600,
         )
 
-        return Response({"url": presigned_get_url})
-    except Exception as e:
-        print("S3 presign-get error:", e)
-        return Response(
-            {"detail": "Could not create image view URL"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    # AFTER image
+    if report.completion_url:
+        urls["after"] = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": report.completion_url},
+            ExpiresIn=3600,
         )
+
+    return Response(urls)
 
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
