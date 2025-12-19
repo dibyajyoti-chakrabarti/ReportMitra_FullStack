@@ -46,6 +46,9 @@ const Navbar = () => {
               <Link to="/track" className="hover:underline transition">
                 Track
               </Link>
+              <Link to="/history" className="hover:underline transition">
+                History
+              </Link>
               <Link to="/profile" className="hover:underline transition">
                 Profile
               </Link>
@@ -108,6 +111,13 @@ const Navbar = () => {
               className="hover:underline"
             >
               Track
+            </Link>
+            <Link
+              to="/history"
+              onClick={() => setMenuOpen(false)}
+              className="hover:underline"
+            >
+              History
             </Link>
             <Link
               to="/profile"

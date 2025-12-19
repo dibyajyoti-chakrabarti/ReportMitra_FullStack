@@ -13,6 +13,7 @@ import Community from "./components/Community";
 import ProtectedRoute from "./components/ProtectedRoute";
 import IssueDetails from "./components/IssueDetails";
 import IssueAction from "./components/IssueAction";
+import History from "./components/History";
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
           }
         />
         <Route path="/community" element={<Community />} />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </AuthProvider>
   );

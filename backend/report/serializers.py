@@ -38,3 +38,13 @@ class IssueReportSerializer(serializers.ModelSerializer):
             validated_data["tracking_id"] = self._generate_unique_tracking_id()
 
         return super().create(validated_data)
+
+class IssueHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IssueReport
+        fields = (
+            "tracking_id",
+            "issue_title",
+            "location",
+            "status",
+        )

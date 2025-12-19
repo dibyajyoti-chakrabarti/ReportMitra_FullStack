@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+from .serializers import IssueHistorySerializer
 from user_profile.models import UserProfile
 from .models import IssueReport
 from .serializers import IssueReportSerializer
@@ -198,3 +199,12 @@ class CommunityResolvedIssuesView(ListAPIView):
         return IssueReport.objects.filter(
             status="resolved"
         ).order_by("-updated_at")
+    
+class UserIssueHistoryView(generics.ListAPIView):
+    serializer_class = IssueHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return IssueReport.objects.filter(
+            user=self.request.user
+        ).order_by("-issue_date")
