@@ -509,7 +509,6 @@ function LocationPicker({ onSelect }) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  NOTE: GEOTAGGED IMAGES ONLY
                 </a>
                 
                 {/* Image Preview */}
