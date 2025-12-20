@@ -412,7 +412,7 @@ function LocationPicker({ onSelect }) {
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
           className="bg-white w-full max-w-6xl rounded-2xl shadow-md
-px-4 sm:px-6 md:px-10 py-6 md:py-8"
+          px-4 sm:px-6 md:px-10 py-6 md:py-8"
         >
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
@@ -496,8 +496,7 @@ px-4 sm:px-6 md:px-10 py-6 md:py-8"
                   onChange={handleInputChange}
                   placeholder="Describe the Issue in Detail"
                   required
-                  className="border px-3 py-2 rounded-md placeholder:text-gray-500
-resize-none h-44 lg:h-56"
+                  className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
                 />
               </div>
 
@@ -516,9 +515,9 @@ resize-none h-44 lg:h-56"
                 {/* Image Preview */}
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
-h-44 lg:h-56
-flex flex-col items-center justify-center gap-2
-text-gray-500 overflow-hidden"
+                  h-44 lg:h-56
+                  flex flex-col items-center justify-center gap-2
+                  text-gray-500 overflow-hidden"
                 >
                   {preview ? (
                     <img
