@@ -55,26 +55,40 @@ const History = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="max-w-5xl mx-auto mt-28 px-4 pb-16 border-r-2 border-l-2">
-        <h1 className="text-3xl font-bold mb-6">My Report History</h1>
 
-        {issues.length === 0 ? (
-          <p className="text-gray-600">You haven’t reported any issues yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {issues.map((issue) => (
-              <div
-                key={issue.tracking_id}
-                className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
-              >
-                {/* Left */}
-                <div>
-                  <div className="flex items-center gap-2">
+      {/* MAIN CONTENT */}
+      <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
+        {/* White Container */}
+        <div
+          className="bg-white w-full max-w-6xl rounded-2xl shadow-md
+        px-4 sm:px-6 md:px-10 py-6 md:py-8"
+        >
+          {/* Title */}
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-6">
+            My Report History
+          </h1>
+
+          {issues.length === 0 ? (
+            <p className="text-gray-600">
+              You haven’t reported any issues yet.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {issues.map((issue) => (
+                <div
+                  key={issue.tracking_id}
+                  className="border rounded-xl p-4
+                flex flex-col md:flex-row md:items-center md:justify-between gap-4
+                hover:shadow-sm transition"
+                >
+                  {/* LEFT */}
+                  <div className="space-y-1">
                     <span
                       onClick={() => copyTrackingId(issue.tracking_id)}
-                      className="font-mono text-sm cursor-pointer text-blue-600 hover:underline flex items-center gap-1"
+                      className="font-mono text-sm cursor-pointer text-blue-600
+                    hover:underline flex items-center gap-1 w-fit"
                     >
                       {issue.tracking_id}
                       {copiedId === issue.tracking_id ? (
@@ -83,15 +97,20 @@ const History = () => {
                         <Clipboard size={14} />
                       )}
                     </span>
+
+                    <div className="font-semibold text-base">
+                      {issue.issue_title}
+                    </div>
+
+                    <div className="text-sm text-gray-600">
+                      {issue.location}
+                    </div>
                   </div>
 
-                  <div className="font-semibold">{issue.issue_title}</div>
-                  <div className="text-sm text-gray-600">{issue.location}</div>
-                </div>
-
-                {/* Right */}
-                <span
-                  className={`px-3 py-1 text-sm rounded-full font-semibold self-start md:self-center
+                  {/* RIGHT (STATUS) */}
+                  <span
+                    className={`px-4 py-1.5 text-sm rounded-full font-semibold
+                  self-start md:self-center
                   ${
                     issue.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
@@ -101,14 +120,15 @@ const History = () => {
                       ? "bg-green-100 text-green-800"
                       : "bg-gray-200 text-gray-700"
                   }`}
-                >
-                  {issue.status.replace("_", " ")}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+                  >
+                    {issue.status.replace("_", " ")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
