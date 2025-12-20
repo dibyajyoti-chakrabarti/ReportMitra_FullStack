@@ -566,33 +566,35 @@ function LocationPicker({ onSelect }) {
             {/* Bottom section */}
             <div
               className="flex flex-col md:flex-row justify-between items-center
-border-t pt-6 mt-6 gap-4"
+              border-t pt-6 mt-6 gap-4"
             >
-              <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-2 font-bold">
-                <label className="whitespace-nowrap flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-gray-600" />
-                  Issue Location
-                </label>
-                  <div className="flex gap-2 w-full">
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      readOnly
-                      required
-                      placeholder="Choose location from map"
-                      className="border px-3 py-2 rounded-md w-full
-                      bg-gray-100 text-gray-600 cursor-not-allowed"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowMap(true)}
-                      className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
-                    >
-                      Choose
-                    </button>
-                  </div>
-              </div>
+              <div className="flex flex-col gap-2 font-bold w-full md:max-w-[60%]">
+  <label className="whitespace-nowrap flex items-center gap-1">
+    <MapPin className="w-4 h-4 text-gray-600" />
+    Issue Location
+  </label>
+
+  <div className="flex gap-2 w-full">
+    <input
+      type="text"
+      name="location"
+      value={formData.location}
+      readOnly
+      required
+      placeholder="Choose location from map"
+      className="border px-3 py-2 rounded-md w-full
+      bg-gray-100 text-gray-600 cursor-not-allowed"
+    />
+    <button
+      type="button"
+      onClick={() => setShowMap(true)}
+      className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
+    >
+      Choose
+    </button>
+  </div>
+</div>
+
 
               <button
                 onClick={handleSubmit}
