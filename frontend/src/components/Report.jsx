@@ -7,6 +7,9 @@ import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
 import { classifyImage } from "../ai/classifyImage";
 import { User, FileText, Image as ImageIcon, MapPin } from "lucide-react";
+import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
 
 const API_BASE = "http://localhost:8000";
 
@@ -19,6 +22,7 @@ function Report() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
+  const [showMap, setShowMap] = useState(false);
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
@@ -47,91 +51,6 @@ function Report() {
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
 
-async function reverseGeocode(lat, lng) {
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?` +
-        `format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-      {
-        headers: {
-          "Accept": "application/json",
-          "User-Agent": "ReportMitra/1.0 (contact@reportmitra.app)",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Reverse geocoding failed");
-    }
-
-    const data = await response.json();
-
-    return data.display_name || "Address not available";
-  } catch (err) {
-    console.error("Reverse geocode error:", err);
-    return "Unable to fetch address";
-  }
-}
-
-
-
-useEffect(() => {
-  if (!navigator.geolocation) {
-    console.error("Geolocation not supported");
-    alert("Geolocation is not supported by your browser.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-
-      console.log("📍 Location fetched:", latitude, longitude);
-
-      (async () => {
-        const address = await reverseGeocode(latitude, longitude);
-
-        console.log("📍 Resolved address:", address);
-
-        setFormData((prev) => ({
-          ...prev,
-          location: address,
-        }));
-
-  setLocationPermissionGranted(true);
-})();
-
-
-      setLocationPermissionGranted(true);
-    },
-    (error) => {
-      // console.error(" Location error:", error);
-
-      switch (error.code) {
-        case 1:
-          alert(
-            "Location permission denied. Please enable location access in your browser settings and reload the page."
-          );
-          break;
-        case 2:
-          alert("Location unavailable. Please check GPS or network.");
-          break;
-        case 3:
-          alert("Location request timed out. Please reload and try again.");
-          break;
-        default:
-          alert("Failed to fetch location.");
-      }
-
-      setLocationPermissionGranted(false);
-    },
-    {
-      enableHighAccuracy: false,
-      timeout: 15000,
-      maximumAge: 0,
-    }
-  );
-}, []);
 
 
   const handleFileChange = (e) => {
@@ -360,6 +279,41 @@ useEffect(() => {
     lastNameDisplay = lastName || "Not provided";
   }
 
+const markerIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function LocationPicker({ onSelect }) {
+  const [position, setPosition] = useState(null);
+
+  useMapEvents({
+    click: async (e) => {
+      const { lat, lng } = e.latlng;
+      setPosition([lat, lng]);
+
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+          {
+            headers: {
+              "User-Agent": "ReportMitra/1.0",
+            },
+          }
+        );
+        const data = await res.json();
+        onSelect(data.display_name || `${lat}, ${lng}`);
+      } catch {
+        onSelect(`${lat}, ${lng}`);
+      }
+    },
+  });
+
+  return position ? <Marker position={position} icon={markerIcon} /> : null;
+}
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -421,11 +375,44 @@ useEffect(() => {
           </div>
         </div>
       )}
+      {showMap && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white rounded-xl w-full max-w-3xl p-4">
+      <h2 className="text-xl font-bold mb-3 text-center">
+        Choose Issue Location
+      </h2>
+
+      <div className="h-[400px] rounded-lg overflow-hidden">
+        <MapContainer
+          center={[20.5937, 78.9629]} // India center
+          zoom={5}
+          className="h-full w-full"
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <LocationPicker
+            onSelect={(address) => {
+              setFormData((p) => ({ ...p, location: address }));
+              setLocationPermissionGranted(true);
+              setShowMap(false);
+            }}
+          />
+        </MapContainer>
+      </div>
+
+      <button
+        onClick={() => setShowMap(false)}
+        className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
 
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
           className="bg-white w-full max-w-6xl rounded-2xl shadow-md
-px-4 sm:px-6 md:px-10 py-6 md:py-8"
+          px-4 sm:px-6 md:px-10 py-6 md:py-8"
         >
           <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
             Issue a Report
@@ -509,8 +496,7 @@ px-4 sm:px-6 md:px-10 py-6 md:py-8"
                   onChange={handleInputChange}
                   placeholder="Describe the Issue in Detail"
                   required
-                  className="border px-3 py-2 rounded-md placeholder:text-gray-500
-resize-none h-44 lg:h-56"
+                  className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
                 />
               </div>
 
@@ -529,9 +515,9 @@ resize-none h-44 lg:h-56"
                 {/* Image Preview */}
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
-h-44 lg:h-56
-flex flex-col items-center justify-center gap-2
-text-gray-500 overflow-hidden"
+                  h-44 lg:h-56
+                  flex flex-col items-center justify-center gap-2
+                  text-gray-500 overflow-hidden"
                 >
                   {preview ? (
                     <img
@@ -580,24 +566,35 @@ text-gray-500 overflow-hidden"
             {/* Bottom section */}
             <div
               className="flex flex-col md:flex-row justify-between items-center
-border-t pt-6 mt-6 gap-4"
+              border-t pt-6 mt-6 gap-4"
             >
-              <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto gap-2 font-bold">
-                <label className="whitespace-nowrap flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-gray-600" />
-                  Issue Location
-                </label>
-                <input
-  type="text"
-  name="location"
-  value={formData.location}
-  readOnly
-  required
-  className={`border px-3 py-2 rounded-md w-full md:w-57 2xl:w-108
-    bg-gray-100 text-gray-600 cursor-not-allowed`}
- />
+              <div className="flex flex-col gap-2 font-bold w-full md:max-w-[60%]">
+  <label className="whitespace-nowrap flex items-center gap-1">
+    <MapPin className="w-4 h-4 text-gray-600" />
+    Issue Location
+  </label>
 
-              </div>
+  <div className="flex gap-2 w-full">
+    <input
+      type="text"
+      name="location"
+      value={formData.location}
+      readOnly
+      required
+      placeholder="Choose location from map"
+      className="border px-3 py-2 rounded-md w-full
+      bg-gray-100 text-gray-600 cursor-not-allowed"
+    />
+    <button
+      type="button"
+      onClick={() => setShowMap(true)}
+      className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
+    >
+      Choose
+    </button>
+  </div>
+</div>
+
 
               <button
                 onClick={handleSubmit}
