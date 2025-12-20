@@ -14,17 +14,17 @@ function Report() {
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [applicationId, setApplicationId] = useState(null);
+  const { user, getAuthHeaders } = useAuth();
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
     issue_description: "",
     image_url: "",
   });
-
-  const [userProfile, setUserProfile] = useState(null);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [applicationId, setApplicationId] = useState(null);
-  const { user, getAuthHeaders } = useAuth();
 
   // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
@@ -46,6 +46,93 @@ function Report() {
     };
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
+
+async function reverseGeocode(lat, lng) {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?` +
+        `format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+      {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "ReportMitra/1.0 (contact@reportmitra.app)",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Reverse geocoding failed");
+    }
+
+    const data = await response.json();
+
+    return data.display_name || "Address not available";
+  } catch (err) {
+    console.error("Reverse geocode error:", err);
+    return "Unable to fetch address";
+  }
+}
+
+
+
+useEffect(() => {
+  if (!navigator.geolocation) {
+    console.error("Geolocation not supported");
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+
+      console.log("📍 Location fetched:", latitude, longitude);
+
+      (async () => {
+        const address = await reverseGeocode(latitude, longitude);
+
+        console.log("📍 Resolved address:", address);
+
+        setFormData((prev) => ({
+          ...prev,
+          location: address,
+        }));
+
+  setLocationPermissionGranted(true);
+})();
+
+
+      setLocationPermissionGranted(true);
+    },
+    (error) => {
+      // console.error(" Location error:", error);
+
+      switch (error.code) {
+        case 1:
+          alert(
+            "Location permission denied. Please enable location access in your browser settings and reload the page."
+          );
+          break;
+        case 2:
+          alert("Location unavailable. Please check GPS or network.");
+          break;
+        case 3:
+          alert("Location request timed out. Please reload and try again.");
+          break;
+        default:
+          alert("Failed to fetch location.");
+      }
+
+      setLocationPermissionGranted(false);
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 0,
+    }
+  );
+}, []);
+
 
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -138,6 +225,13 @@ function Report() {
         setIsSubmitting(false);
         return;
       }
+
+      if (!locationPermissionGranted || !formData.location) {
+        alert("Location permission is mandatory to submit a report.");
+        setIsSubmitting(false);
+        return;
+      }
+
 
       let imageUrl = formData.image_url || "";
 
@@ -494,14 +588,15 @@ border-t pt-6 mt-6 gap-4"
                   Issue Location
                 </label>
                 <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="Enter issue location"
-                  required
-                  className="border px-3 py-2 rounded-md w-full md:w-57 placeholder:text-gray-500 2xl:w-108"
-                />
+  type="text"
+  name="location"
+  value={formData.location}
+  readOnly
+  required
+  className={`border px-3 py-2 rounded-md w-full md:w-57 2xl:w-108
+    bg-gray-100 text-gray-600 cursor-not-allowed`}
+ />
+
               </div>
 
               <button

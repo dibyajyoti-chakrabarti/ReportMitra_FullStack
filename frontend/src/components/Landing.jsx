@@ -20,7 +20,7 @@ const Landing = () => {
   return (
     <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
       <Navbar />
-      <DebugToken />
+      {/* <DebugToken /> */}
 
       {/* Background: fixed so it stays visible while page grows */}
       <div
