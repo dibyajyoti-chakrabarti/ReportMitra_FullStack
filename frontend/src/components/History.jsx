@@ -1,0 +1,116 @@
+import { useEffect, useState } from "react";
+import { useAuth } from "../AuthProvider";
+import { Clipboard, Check } from "lucide-react";
+import Navbar from "./MiniNavbar";
+
+const History = () => {
+  const [issues, setIssues] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const { getAuthHeaders, isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated || isLoading) return;
+
+    const fetchHistory = async () => {
+      try {
+        const headers = await getAuthHeaders();
+        console.log("HISTORY HEADERS:", headers);
+
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/reports/history/`,
+          { headers }
+        );
+
+        console.log("HISTORY STATUS:", res.status);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        setIssues(data);
+      } catch (err) {
+        console.error("Failed to load history", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [isAuthenticated, isLoading]);
+
+  const copyTrackingId = async (id) => {
+    await navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  if (loading) {
+    return (
+      <div className="mt-32 text-center text-lg font-semibold">
+        Loading history…
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-5xl mx-auto mt-28 px-4 pb-16 border-r-2 border-l-2">
+        <h1 className="text-3xl font-bold mb-6">My Report History</h1>
+
+        {issues.length === 0 ? (
+          <p className="text-gray-600">You haven’t reported any issues yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {issues.map((issue) => (
+              <div
+                key={issue.tracking_id}
+                className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+              >
+                {/* Left */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      onClick={() => copyTrackingId(issue.tracking_id)}
+                      className="font-mono text-sm cursor-pointer text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      {issue.tracking_id}
+                      {copiedId === issue.tracking_id ? (
+                        <Check size={14} />
+                      ) : (
+                        <Clipboard size={14} />
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="font-semibold">{issue.issue_title}</div>
+                  <div className="text-sm text-gray-600">{issue.location}</div>
+                </div>
+
+                {/* Right */}
+                <span
+                  className={`px-3 py-1 text-sm rounded-full font-semibold self-start md:self-center
+                  ${
+                    issue.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : issue.status === "in_progress"
+                      ? "bg-blue-100 text-blue-800"
+                      : issue.status === "resolved"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {issue.status.replace("_", " ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default History;

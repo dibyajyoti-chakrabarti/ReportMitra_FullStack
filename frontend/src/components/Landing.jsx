@@ -8,7 +8,7 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
-// import DebugToken from "./Debug";
+import DebugToken from "./Debug";
 
 const Landing = () => {
   const { login, isAuthenticated } = useAuth();

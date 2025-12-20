@@ -49,56 +49,80 @@ function IssueAction() {
   }, [reportData?.id]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-      {/* Left Column */}
-      <div className="bg-white border rounded-xl p-5 flex flex-col justify-center gap-10">
-        <div className="text-base sm:text-lg lg:text-[17px]">
-          <span className="font-bold">Tracking ID: </span> {trackingID}
+    <section
+      className="mt-6 bg-white border-t-1 border-black
+    rounded-2xl shadow-sm px-5 sm:px-8 py-6 sm:py-8
+    max-w-4xl mx-auto border-b-1"
+    >
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-extrabold">
+          Action Taken Report
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Tracking ID: <span className="font-semibold">{trackingID}</span>
+        </p>
+      </div>
+
+      <hr className="mb-6" />
+
+      {/* Status & Meta */}
+      <div className="space-y-3 text-base sm:text-lg">
+        <div>
+          <span className="font-semibold">Current Status:</span>{" "}
+          <span className="uppercase">{status}</span>
         </div>
-        <div className="text-base sm:text-lg lg:text-[17px]">
-          <span className="font-bold">Current Status: </span> {status}
+
+        <div>
+          <span className="font-semibold">Department:</span> {dept}
         </div>
-        <div className="text-base sm:text-lg lg:text-[17px]">
-          <span className="font-bold">Department: </span> {dept}
+
+        <div>
+          <span className="font-semibold">Date of Acknowledgement:</span>{" "}
+          {ackDate}
         </div>
-        <div className="text-base sm:text-lg lg:text-[17px]">
-          <span className="font-bold">Date of Acknowledgement: </span> {ackDate}
-        </div>
-        <div className="text-base sm:text-lg lg:text-[17px]">
-          <span className="font-bold">Date of Resolution: </span>{" "}
+
+        <div>
+          <span className="font-semibold">Date of Resolution:</span>{" "}
           {resolutionDate}
         </div>
       </div>
 
-      {/* Right Column */}
-      <div className="bg-white border rounded-xl p-5 flex flex-col">
-        <p className="font-bold text-lg lg:text-[17px] mb-2 text-center">
-          Completion Image
-        </p>
+      <hr className="my-6" />
+
+      {/* Completion Image */}
+      <div>
+        <h3 className="font-bold text-lg mb-3 text-center">
+          Completion Evidence
+        </h3>
 
         <div
-          className="bg-gray-50 border rounded-md p-4
-          flex items-center justify-center
-          aspect-[4/3] shadow-inner"
+          className="w-full max-h-[480px] border rounded-xl
+        bg-gray-100 flex items-center justify-center
+        overflow-hidden relative"
         >
-          {loadingImage ? (
-            <span className="text-gray-500 text-sm">
+          {loadingImage && (
+            <span className="text-sm text-gray-600">
               Loading completion image…
             </span>
-          ) : afterImageUrl ? (
+          )}
+
+          {!loadingImage && afterImageUrl && (
             <img
               src={afterImageUrl}
               alt="Completion"
-              className="w-full h-full object-contain rounded-md"
+              className="w-full h-full object-contain"
             />
-          ) : (
-            <span className="text-gray-500 text-sm">
+          )}
+
+          {!loadingImage && !afterImageUrl && (
+            <span className="text-sm text-gray-500">
               No completion image available
             </span>
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

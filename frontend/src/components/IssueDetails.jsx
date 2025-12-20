@@ -91,55 +91,63 @@ export default function IssueDetails() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-      {/* Left Column */}
-      <div
-        className="bg-white border rounded-xl p-5
-flex flex-col gap-3 justify-center min-h-[420px]"
-      >
-        <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Tracking ID: </span> {issueID}
-        </div>
-        <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Full Name: </span> {fullName}
-        </div>
-        <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Issue Title: </span> {issueTitle}
-        </div>
-        <div className="sm:text-lg lg:text-[18px]
-          flex flex-col bg-gray-50 border rounded-md p-3
-          text-sm leading-relaxed
-          overflow-y-auto overflow-x-hidden break-words max-h-40">
-            <span className="font-bold">Issue Description: </span>
-            {issueDesc}
-        </div>
+    <section
+      className="mt-6 bg-white border-t-1 border-black
+    rounded-2xl shadow-sm px-5 sm:px-8 py-6 sm:py-8
+    max-w-4xl mx-auto border-b-1"
+    >
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl sm:text-3xl font-extrabold">Issue Report</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Tracking ID: <span className="font-semibold">{issueID}</span>
+        </p>
+      </div>
 
-        <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Issue Location: </span> {issueLocation}
+      <hr className="mb-6" />
+
+      {/* Metadata */}
+      <div className="space-y-3 text-base sm:text-lg">
+        <div>
+          <span className="font-semibold">Full Name:</span> {fullName}
         </div>
-        <div className="text-base sm:text-lg lg:text-[18px]">
-          <span className="font-bold">Issue Date: </span> {issueDate}
+        <div>
+          <span className="font-semibold">Issue Title:</span> {issueTitle}
+        </div>
+        <div>
+          <span className="font-semibold">Location:</span> {issueLocation}
+        </div>
+        <div>
+          <span className="font-semibold">Reported On:</span> {issueDate}
         </div>
       </div>
 
-      {/* Right Column */}
-      <div
-        className="bg-white border rounded-xl p-5
-flex flex-col items-center justify-center min-h-[420px]"
-      >
-        <p className="font-bold text-lg lg:text-[18px] mb-2 text-center">
-          Issue Image
-        </p>
+      <hr className="my-6" />
+
+      {/* Description */}
+      <div>
+        <h3 className="font-bold text-lg mb-2">Issue Description</h3>
+        <div
+          className="bg-gray-50 border rounded-lg p-4
+        text-sm sm:text-base leading-relaxed break-words"
+        >
+          {issueDesc}
+        </div>
+      </div>
+
+      <hr className="my-6" />
+
+      {/* Image Section */}
+      <div>
+        <h3 className="font-bold text-lg mb-3 text-center">Issue Image</h3>
 
         <div
-          className="w-full aspect-[4/3] border rounded-lg
-flex items-center justify-center bg-gray-100 relative overflow-hidden"
+          className="w-full max-h-[480px] border rounded-xl
+        bg-gray-100 flex items-center justify-center
+        overflow-hidden relative"
         >
           {loadingImg && (
-            <div
-              className="absolute inset-0 flex flex-col items-center justify-center
-  bg-gray-200/80 backdrop-blur-sm"
-            >
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-200/80">
               <svg
                 className="animate-spin h-10 w-10 text-gray-800 mb-3"
                 viewBox="0 0 24 24"
@@ -159,9 +167,7 @@ flex items-center justify-center bg-gray-100 relative overflow-hidden"
                   d="M4 12a8 8 0 018-8v8z"
                 />
               </svg>
-              <span className="text-sm font-semibold text-gray-700">
-                Loading image…
-              </span>
+              <span className="text-sm font-semibold">Loading image…</span>
             </div>
           )}
 
@@ -170,52 +176,37 @@ flex items-center justify-center bg-gray-100 relative overflow-hidden"
               src={imgSrc}
               alt={issueTitle}
               className="w-full h-full object-contain"
-              loading="lazy"
             />
           )}
 
-          {!loadingImg && !imgSrc && imgError && (
-            <div
-              className="flex flex-col items-center justify-center
-text-sm text-gray-500"
-            >
-              {imgError}
-            </div>
-          )}
-
-          {!loadingImg && !imgSrc && !imgError && (
-            <div
-              className="flex flex-col items-center justify-center
-text-sm text-gray-500"
-            >
-              No image available
-            </div>
+          {!loadingImg && !imgSrc && (
+            <span className="text-sm text-gray-500">
+              {imgError || "No image available"}
+            </span>
           )}
         </div>
 
-        {/* optional actions */}
-        <div className="mt-3 flex gap-2">
-          {imgSrc ? (
-            <>
-              <a
-                href={imgSrc}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1 bg-white text-black rounded shadow-sm text-sm"
-              >
-                Open Image
-              </a>
-              <a
-                href={imgSrc}
-                download
-                className="px-3 py-1 bg-gray-700 text-white rounded shadow-sm text-sm"
-              >
-                Download
-              </a>
-            </>
-          ) : null}
-        </div>
+        {/* Image Actions */}
+        {imgSrc && (
+          <div className="flex justify-center gap-3 mt-4">
+            <a
+              href={imgSrc}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100"
+            >
+              Open Image
+            </a>
+            <a
+              href={imgSrc}
+              download
+              className="px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-900"
+            >
+              Download
+            </a>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -11,7 +11,7 @@ export async function classifyImage(imageUrl) {
         1. Public Works Department (PWD)
         Handles: Road damage, potholes, footpaths, bridges, flyovers, culverts, storm-water structures.
 
-        2. Water Supply Department / Jal Board
+        2. Water Board
         Handles: Drinking water supply, water pipelines, leakages, bursts, tanker requirements.
 
         3. Sewerage & Drainage Department
