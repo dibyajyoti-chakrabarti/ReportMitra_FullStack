@@ -17,12 +17,13 @@ function Report() {
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
   const [showMap, setShowMap] = useState(false);
+  const [tempLocation, setTempLocation] = useState(null);
+  const [tempPosition, setTempPosition] = useState(null);
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
@@ -172,13 +173,6 @@ function Report() {
         return;
       }
 
-      if (!locationPermissionGranted || !formData.location) {
-        alert("Location permission is mandatory to submit a report.");
-        setIsSubmitting(false);
-        return;
-      }
-
-
       let imageUrl = formData.image_url || "";
 
       if (selectedFile) {
@@ -318,33 +312,17 @@ const markerIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-function LocationPicker({ onSelect }) {
-  const [position, setPosition] = useState(null);
-
+function LocationPicker({ onSelect, position }) {
   useMapEvents({
     click: async (e) => {
       const { lat, lng } = e.latlng;
-      setPosition([lat, lng]);
-
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-          {
-            headers: {
-              "User-Agent": "ReportMitra/1.0",
-            },
-          }
-        );
-        const data = await res.json();
-        onSelect(data.display_name || `${lat}, ${lng}`);
-      } catch {
-        onSelect(`${lat}, ${lng}`);
-      }
+      onSelect(lat, lng);
     },
   });
 
   return position ? <Marker position={position} icon={markerIcon} /> : null;
 }
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -422,21 +400,51 @@ function LocationPicker({ onSelect }) {
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationPicker
-            onSelect={(address) => {
-              setFormData((p) => ({ ...p, location: address }));
-              setLocationPermissionGranted(true);
-              setShowMap(false);
-            }}
-          />
+  position={tempPosition}
+  onSelect={async (lat, lng) => {
+    setTempPosition([lat, lng]);
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+        { headers: { "User-Agent": "ReportMitra/1.0" } }
+      );
+      const data = await res.json();
+      setTempLocation(data.display_name || `${lat}, ${lng}`);
+    } catch {
+      setTempLocation(`${lat}, ${lng}`);
+    }
+  }}
+/>
+
         </MapContainer>
       </div>
+      
+{tempLocation && (
+  <button
+    onClick={() => {
+      setFormData((p) => ({ ...p, location: tempLocation }));
+      setTempLocation(null);
+      setTempPosition(null);
+      setShowMap(false);
+    }}
+    className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
+  >
+    Confirm Location
+  </button>
+)}
 
-      <button
-        onClick={() => setShowMap(false)}
-        className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
-      >
-        Cancel
-      </button>
+
+<button
+  onClick={() => {
+    setTempLocation(null);
+    setTempPosition(null);
+    setShowMap(false);
+  }}
+  className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
+>
+  Cancel
+</button>
     </div>
   </div>
 )}
