@@ -17,17 +17,24 @@ function Report() {
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
   const [showMap, setShowMap] = useState(false);
+  const [tempLocation, setTempLocation] = useState(null);
+  const [tempPosition, setTempPosition] = useState(null);
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
     issue_description: "",
     image_url: "",
+    location: "",
+  });
+  const [errors, setErrors] = useState({
+  issue_title: "",
+  issue_description: "",
+  image: "",
   });
 
   // --- Load profile (Aadhaar-backed) ---
@@ -51,14 +58,13 @@ function Report() {
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
 
-
-
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
       setFormData((p) => ({ ...p, image_url: "" }));
+      setErrors((p) => ({ ...p, image: "" }));
     } else {
       if (preview) {
         URL.revokeObjectURL(preview);
@@ -107,20 +113,45 @@ function Report() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+  const { name, value } = e.target;
+  setFormData((p) => ({ ...p, [name]: value }));
+  setErrors((p) => ({ ...p, [name]: "" }));
   };
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file); // produces "data:image/jpeg;base64,..."
-    });
-  }
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({ issue_title: "", issue_description: "", image: "", location: ""});
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    let hasError = false;
+    if (!formData.issue_title.trim()) {
+      setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
+      hasError = true;
+    }
+    if (!formData.issue_description.trim()) {
+      setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+      hasError = true;
+    }
+    if (!selectedFile) {
+      setErrors((p) => ({ ...p, image: "Issue image is required" }));
+      hasError = true;
+    }
+    if (!formData.location) {
+      setErrors((p) => ({ ...p, location: "Please choose the issue location" }));
+      hasError = true;
+    }
+    if (hasError) {
+      setIsSubmitting(false);
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -144,13 +175,6 @@ function Report() {
         setIsSubmitting(false);
         return;
       }
-
-      if (!locationPermissionGranted || !formData.location) {
-        alert("Location permission is mandatory to submit a report.");
-        setIsSubmitting(false);
-        return;
-      }
-
 
       let imageUrl = formData.image_url || "";
 
@@ -227,7 +251,12 @@ function Report() {
       if (fileInput) fileInput.value = "";
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Error: " + (err.message || "Unknown error"));
+      if (err.message?.includes("issue_title")) {
+        setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
+      }
+      if (err.message?.includes("issue_description")) {
+        setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -245,9 +274,7 @@ function Report() {
     alert("Application ID copied to clipboard!");
   };
 
-  // Helper to safely read Aadhaar name fields
   const aadhaar = userProfile?.aadhaar || null;
-
   let firstNameDisplay = "Not provided";
   let middleNameDisplay = "Not provided";
   let lastNameDisplay = "Not provided";
@@ -279,40 +306,24 @@ function Report() {
     lastNameDisplay = lastName || "Not provided";
   }
 
-const markerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-function LocationPicker({ onSelect }) {
-  const [position, setPosition] = useState(null);
-
-  useMapEvents({
-    click: async (e) => {
-      const { lat, lng } = e.latlng;
-      setPosition([lat, lng]);
-
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-          {
-            headers: {
-              "User-Agent": "ReportMitra/1.0",
-            },
-          }
-        );
-        const data = await res.json();
-        onSelect(data.display_name || `${lat}, ${lng}`);
-      } catch {
-        onSelect(`${lat}, ${lng}`);
-      }
-    },
+  const markerIcon = new L.Icon({
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
   });
 
-  return position ? <Marker position={position} icon={markerIcon} /> : null;
-}
+  function LocationPicker({ onSelect, position }) {
+    useMapEvents({
+      click: async (e) => {
+        const { lat, lng } = e.latlng;
+        onSelect(lat, lng);
+      },
+    });
+
+    return position ? <Marker position={position} icon={markerIcon} /> : null;
+  }
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -376,38 +387,68 @@ function LocationPicker({ onSelect }) {
         </div>
       )}
       {showMap && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white rounded-xl w-full max-w-3xl p-4">
-      <h2 className="text-xl font-bold mb-3 text-center">
-        Choose Issue Location
-      </h2>
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl w-full max-w-3xl p-4">
+          <h2 className="text-xl font-bold mb-3 text-center">
+            Choose Issue Location
+          </h2>
 
-      <div className="h-[400px] rounded-lg overflow-hidden">
-        <MapContainer
-          center={[20.5937, 78.9629]} // India center
-          zoom={5}
-          className="h-full w-full"
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LocationPicker
-            onSelect={(address) => {
-              setFormData((p) => ({ ...p, location: address }));
-              setLocationPermissionGranted(true);
+          <div className="h-[400px] rounded-lg overflow-hidden">
+            <MapContainer
+              center={[20.5937, 78.9629]} // India center
+              zoom={5}
+              className="h-full w-full"
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <LocationPicker
+                position={tempPosition}
+                onSelect={async (lat, lng) => {
+                  setTempPosition([lat, lng]);
+
+                  try {
+                    const res = await fetch(
+                      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+                      { headers: { "User-Agent": "ReportMitra/1.0" } }
+                    );
+                    const data = await res.json();
+                    setTempLocation(data.display_name || `${lat}, ${lng}`);
+                  } catch {
+                    setTempLocation(`${lat}, ${lng}`);
+                  }
+                }}
+              />
+            </MapContainer>
+          </div>
+      
+        {tempLocation && (
+          <button
+            onClick={() => {
+              setFormData((p) => ({ ...p, location: tempLocation }));
+              setErrors((p) => ({ ...p, location: "" }));
+              setTempLocation(null);
+              setTempPosition(null);
               setShowMap(false);
             }}
-          />
-        </MapContainer>
-      </div>
+            className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
+          >
+            Confirm Location
+          </button>
+        )}
 
-      <button
-        onClick={() => setShowMap(false)}
-        className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
-      >
-        Cancel
-      </button>
-    </div>
-  </div>
-)}
+
+        <button
+          onClick={() => {
+            setTempLocation(null);
+            setTempPosition(null);
+            setShowMap(false);
+          }}
+          className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
+        >
+          Cancel
+        </button>
+            </div>
+          </div>
+        )}
 
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
@@ -488,6 +529,11 @@ function LocationPicker({ onSelect }) {
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500"
                   required
                 />
+                {errors.issue_title && (
+                  <p className="text-red-600 text-sm font-normal mt-1">
+                    {errors.issue_title}
+                  </p>
+                )}
 
                 <label>Issue Description</label>
                 <textarea
@@ -498,6 +544,11 @@ function LocationPicker({ onSelect }) {
                   required
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
                 />
+                {errors.issue_description && (
+                  <p className="text-red-600 text-sm font-normal mt-1">
+                    {errors.issue_description}
+                  </p>
+                )}
               </div>
 
               {/* Right */}
@@ -558,6 +609,11 @@ function LocationPicker({ onSelect }) {
                       {selectedFile.name}
                     </span>
                   )}
+                  {errors.image && (
+                    <p className="text-red-600 text-sm font-normal text-center">
+                      {errors.image}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -584,14 +640,20 @@ function LocationPicker({ onSelect }) {
       className="border px-3 py-2 rounded-md w-full
       bg-gray-100 text-gray-600 cursor-not-allowed"
     />
+
     <button
       type="button"
       onClick={() => setShowMap(true)}
       className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
-    >
+      >
       Choose
     </button>
   </div>
+      {errors.location && (
+        <p className="text-red-600 text-sm font-normal mt-1">
+          {errors.location}
+        </p>
+      )}
 </div>
 
 
