@@ -29,6 +29,11 @@ function Report() {
     issue_description: "",
     image_url: "",
   });
+  const [errors, setErrors] = useState({
+  issue_title: "",
+  issue_description: "",
+  image: "",
+  });
 
   // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
@@ -59,6 +64,7 @@ function Report() {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
       setFormData((p) => ({ ...p, image_url: "" }));
+      setErrors((p) => ({ ...p, image: "" }));
     } else {
       if (preview) {
         URL.revokeObjectURL(preview);
@@ -107,9 +113,11 @@ function Report() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+  const { name, value } = e.target;
+  setFormData((p) => ({ ...p, [name]: value }));
+  setErrors((p) => ({ ...p, [name]: "" }));
   };
+
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -121,6 +129,25 @@ function Report() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({ issue_title: "", issue_description: "", image: "" });
+
+    let hasError = false;
+    if (!formData.issue_title.trim()) {
+      setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
+      hasError = true;
+    }
+    if (!formData.issue_description.trim()) {
+      setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+      hasError = true;
+    }
+    if (!selectedFile) {
+      setErrors((p) => ({ ...p, image: "Issue image is required" }));
+      hasError = true;
+    }
+    if (hasError) {
+      setIsSubmitting(false);
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -227,7 +254,12 @@ function Report() {
       if (fileInput) fileInput.value = "";
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Error: " + (err.message || "Unknown error"));
+      if (err.message?.includes("issue_title")) {
+        setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
+      }
+      if (err.message?.includes("issue_description")) {
+        setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -488,6 +520,11 @@ function LocationPicker({ onSelect }) {
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500"
                   required
                 />
+                {errors.issue_title && (
+                  <p className="text-red-600 text-sm font-normal mt-1">
+                    {errors.issue_title}
+                  </p>
+                )}
 
                 <label>Issue Description</label>
                 <textarea
@@ -498,6 +535,11 @@ function LocationPicker({ onSelect }) {
                   required
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
                 />
+                {errors.issue_description && (
+                  <p className="text-red-600 text-sm font-normal mt-1">
+                    {errors.issue_description}
+                  </p>
+                )}
               </div>
 
               {/* Right */}
@@ -557,6 +599,11 @@ function LocationPicker({ onSelect }) {
                     <span className="text-xs text-gray-600 text-center truncate">
                       {selectedFile.name}
                     </span>
+                  )}
+                  {errors.image && (
+                    <p className="text-red-600 text-sm font-normal text-center">
+                      {errors.image}
+                    </p>
                   )}
                 </div>
               </div>
