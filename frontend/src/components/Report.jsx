@@ -29,6 +29,7 @@ function Report() {
     location: "",
     issue_description: "",
     image_url: "",
+    location: "",
   });
   const [errors, setErrors] = useState({
   issue_title: "",
@@ -56,8 +57,6 @@ function Report() {
     };
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
-
-
 
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -119,18 +118,18 @@ function Report() {
   setErrors((p) => ({ ...p, [name]: "" }));
   };
 
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file); // produces "data:image/jpeg;base64,..."
-    });
-  }
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({ issue_title: "", issue_description: "", image: "" });
+    setErrors({ issue_title: "", issue_description: "", image: "", location: ""});
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
     let hasError = false;
     if (!formData.issue_title.trim()) {
@@ -143,6 +142,10 @@ function Report() {
     }
     if (!selectedFile) {
       setErrors((p) => ({ ...p, image: "Issue image is required" }));
+      hasError = true;
+    }
+    if (!formData.location) {
+      setErrors((p) => ({ ...p, location: "Please choose the issue location" }));
       hasError = true;
     }
     if (hasError) {
@@ -271,9 +274,7 @@ function Report() {
     alert("Application ID copied to clipboard!");
   };
 
-  // Helper to safely read Aadhaar name fields
   const aadhaar = userProfile?.aadhaar || null;
-
   let firstNameDisplay = "Not provided";
   let middleNameDisplay = "Not provided";
   let lastNameDisplay = "Not provided";
@@ -305,23 +306,23 @@ function Report() {
     lastNameDisplay = lastName || "Not provided";
   }
 
-const markerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-function LocationPicker({ onSelect, position }) {
-  useMapEvents({
-    click: async (e) => {
-      const { lat, lng } = e.latlng;
-      onSelect(lat, lng);
-    },
+  const markerIcon = new L.Icon({
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
   });
 
-  return position ? <Marker position={position} icon={markerIcon} /> : null;
-}
+  function LocationPicker({ onSelect, position }) {
+    useMapEvents({
+      click: async (e) => {
+        const { lat, lng } = e.latlng;
+        onSelect(lat, lng);
+      },
+    });
+
+    return position ? <Marker position={position} icon={markerIcon} /> : null;
+  }
 
 
   return (
@@ -386,68 +387,68 @@ function LocationPicker({ onSelect, position }) {
         </div>
       )}
       {showMap && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white rounded-xl w-full max-w-3xl p-4">
-      <h2 className="text-xl font-bold mb-3 text-center">
-        Choose Issue Location
-      </h2>
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl w-full max-w-3xl p-4">
+          <h2 className="text-xl font-bold mb-3 text-center">
+            Choose Issue Location
+          </h2>
 
-      <div className="h-[400px] rounded-lg overflow-hidden">
-        <MapContainer
-          center={[20.5937, 78.9629]} // India center
-          zoom={5}
-          className="h-full w-full"
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LocationPicker
-  position={tempPosition}
-  onSelect={async (lat, lng) => {
-    setTempPosition([lat, lng]);
+          <div className="h-[400px] rounded-lg overflow-hidden">
+            <MapContainer
+              center={[20.5937, 78.9629]} // India center
+              zoom={5}
+              className="h-full w-full"
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <LocationPicker
+                position={tempPosition}
+                onSelect={async (lat, lng) => {
+                  setTempPosition([lat, lng]);
 
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-        { headers: { "User-Agent": "ReportMitra/1.0" } }
-      );
-      const data = await res.json();
-      setTempLocation(data.display_name || `${lat}, ${lng}`);
-    } catch {
-      setTempLocation(`${lat}, ${lng}`);
-    }
-  }}
-/>
-
-        </MapContainer>
-      </div>
+                  try {
+                    const res = await fetch(
+                      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+                      { headers: { "User-Agent": "ReportMitra/1.0" } }
+                    );
+                    const data = await res.json();
+                    setTempLocation(data.display_name || `${lat}, ${lng}`);
+                  } catch {
+                    setTempLocation(`${lat}, ${lng}`);
+                  }
+                }}
+              />
+            </MapContainer>
+          </div>
       
-{tempLocation && (
-  <button
-    onClick={() => {
-      setFormData((p) => ({ ...p, location: tempLocation }));
-      setTempLocation(null);
-      setTempPosition(null);
-      setShowMap(false);
-    }}
-    className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
-  >
-    Confirm Location
-  </button>
-)}
+        {tempLocation && (
+          <button
+            onClick={() => {
+              setFormData((p) => ({ ...p, location: tempLocation }));
+              setErrors((p) => ({ ...p, location: "" }));
+              setTempLocation(null);
+              setTempPosition(null);
+              setShowMap(false);
+            }}
+            className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
+          >
+            Confirm Location
+          </button>
+        )}
 
 
-<button
-  onClick={() => {
-    setTempLocation(null);
-    setTempPosition(null);
-    setShowMap(false);
-  }}
-  className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
->
-  Cancel
-</button>
-    </div>
-  </div>
-)}
+        <button
+          onClick={() => {
+            setTempLocation(null);
+            setTempPosition(null);
+            setShowMap(false);
+          }}
+          className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
+        >
+          Cancel
+        </button>
+            </div>
+          </div>
+        )}
 
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
@@ -639,14 +640,20 @@ function LocationPicker({ onSelect, position }) {
       className="border px-3 py-2 rounded-md w-full
       bg-gray-100 text-gray-600 cursor-not-allowed"
     />
+
     <button
       type="button"
       onClick={() => setShowMap(true)}
       className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
-    >
+      >
       Choose
     </button>
   </div>
+      {errors.location && (
+        <p className="text-red-600 text-sm font-normal mt-1">
+          {errors.location}
+        </p>
+      )}
 </div>
 
 
