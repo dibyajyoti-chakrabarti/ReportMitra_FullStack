@@ -29,7 +29,6 @@ function Report() {
     location: "",
     issue_description: "",
     image_url: "",
-    location: "",
   });
   const [errors, setErrors] = useState({
     issue_title: "",
