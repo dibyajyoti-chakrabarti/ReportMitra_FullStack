@@ -581,7 +581,10 @@ function Report() {
               </div>
 
               {/* Right */}
-              <div className="md:col-span-2 flex flex-col font-bold space-y-3">
+              <div
+                className="md:col-span-2 flex flex-col font-bold space-y-4
+  bg-gray-50 border rounded-xl p-4 h-full"
+              >
                 <label>Issue Image</label>
                 <a
                   href="https://www.precisely.com/glossary/geotagging/"
@@ -593,9 +596,9 @@ function Report() {
                 {/* Image Preview */}
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
-                  h-44 lg:h-56
-                  flex flex-col items-center justify-center gap-2
-                  text-gray-500 overflow-hidden"
+  flex-1 min-h-[220px] lg:min-h-[260px]
+  flex flex-col items-center justify-center gap-2
+  text-gray-500 overflow-hidden bg-white"
                 >
                   {preview ? (
                     <img
