@@ -534,32 +534,50 @@ function Report() {
                 <input
                   type="text"
                   name="issue_title"
-                  placeholder="Name the Issue"
+                  placeholder="Briefly name the issue"
                   value={formData.issue_title}
                   onChange={handleInputChange}
+                  maxLength={80}
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500"
-                  required
                 />
-                {errors.issue_title && (
-                  <p className="text-red-600 text-sm font-normal mt-1">
-                    {errors.issue_title}
-                  </p>
-                )}
+
+                <div className="flex justify-between text-xs mt-1">
+                  <span className="text-gray-500">
+                    {formData.issue_title.length}/80 characters
+                  </span>
+                  {errors.issue_title && (
+                    <span className="text-red-600">{errors.issue_title}</span>
+                  )}
+                </div>
 
                 <label>Issue Description</label>
                 <textarea
                   name="issue_description"
                   value={formData.issue_description}
                   onChange={handleInputChange}
-                  placeholder="Describe the Issue in Detail"
+                  placeholder="Describe the issue in detail"
+                  maxLength={500}
                   required
                   className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
                 />
-                {errors.issue_description && (
-                  <p className="text-red-600 text-sm font-normal mt-1">
-                    {errors.issue_description}
-                  </p>
-                )}
+
+                <div className="flex justify-between text-xs mt-1">
+                  <span
+                    className={
+                      formData.issue_description.length > 450
+                        ? "text-orange-600"
+                        : "text-gray-500"
+                    }
+                  >
+                    {formData.issue_description.length}/500 characters
+                  </span>
+
+                  {errors.issue_description && (
+                    <span className="text-red-600">
+                      {errors.issue_description}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Right */}

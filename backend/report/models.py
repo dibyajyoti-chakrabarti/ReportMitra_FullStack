@@ -19,7 +19,7 @@ class IssueReport(models.Model):
 
 
     # Core report fields
-    issue_title = models.CharField(max_length=150, default="Issue Report")
+    issue_title = models.CharField(max_length=80, default="Issue Report")
     location = models.CharField(max_length=500)
     issue_description = models.TextField(max_length=500)
     image_url = models.CharField(max_length=500, blank=True, null=True)
