@@ -561,7 +561,7 @@ function Report() {
                   rel="noopener noreferrer"
                 >
                 </a>
-                
+
                 {/* Image Preview */}
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
@@ -603,7 +603,7 @@ function Report() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  
+
                   {selectedFile && (
                     <span className="text-xs text-gray-600 text-center truncate">
                       {selectedFile.name}
