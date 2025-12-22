@@ -32,9 +32,9 @@ function Report() {
     location: "",
   });
   const [errors, setErrors] = useState({
-  issue_title: "",
-  issue_description: "",
-  image: "",
+    issue_title: "",
+    issue_description: "",
+    image: "",
   });
 
   // --- Load profile (Aadhaar-backed) ---
@@ -113,15 +113,19 @@ function Report() {
   };
 
   const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  setFormData((p) => ({ ...p, [name]: value }));
-  setErrors((p) => ({ ...p, [name]: "" }));
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+    setErrors((p) => ({ ...p, [name]: "" }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({ issue_title: "", issue_description: "", image: "", location: ""});
+    setErrors({
+      issue_title: "",
+      issue_description: "",
+      image: "",
+      location: "",
+    });
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -137,7 +141,10 @@ function Report() {
       hasError = true;
     }
     if (!formData.issue_description.trim()) {
-      setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+      setErrors((p) => ({
+        ...p,
+        issue_description: "Issue description is required",
+      }));
       hasError = true;
     }
     if (!selectedFile) {
@@ -145,7 +152,10 @@ function Report() {
       hasError = true;
     }
     if (!formData.location) {
-      setErrors((p) => ({ ...p, location: "Please choose the issue location" }));
+      setErrors((p) => ({
+        ...p,
+        location: "Please choose the issue location",
+      }));
       hasError = true;
     }
     if (hasError) {
@@ -255,7 +265,10 @@ function Report() {
         setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
       }
       if (err.message?.includes("issue_description")) {
-        setErrors((p) => ({ ...p, issue_description: "Issue description is required" }));
+        setErrors((p) => ({
+          ...p,
+          issue_description: "Issue description is required",
+        }));
       }
     } finally {
       setIsSubmitting(false);
@@ -324,7 +337,6 @@ function Report() {
     return position ? <Marker position={position} icon={markerIcon} /> : null;
   }
 
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -387,68 +399,67 @@ function Report() {
         </div>
       )}
       {showMap && (
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl w-full max-w-3xl p-4">
-          <h2 className="text-xl font-bold mb-3 text-center">
-            Choose Issue Location
-          </h2>
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl w-full max-w-3xl p-4">
+            <h2 className="text-xl font-bold mb-3 text-center">
+              Choose Issue Location
+            </h2>
 
-          <div className="h-[400px] rounded-lg overflow-hidden">
-            <MapContainer
-              center={[20.5937, 78.9629]} // India center
-              zoom={5}
-              className="h-full w-full"
-            >
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <LocationPicker
-                position={tempPosition}
-                onSelect={async (lat, lng) => {
-                  setTempPosition([lat, lng]);
+            <div className="h-[400px] rounded-lg overflow-hidden">
+              <MapContainer
+                center={[20.5937, 78.9629]} // India center
+                zoom={5}
+                className="h-full w-full"
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <LocationPicker
+                  position={tempPosition}
+                  onSelect={async (lat, lng) => {
+                    setTempPosition([lat, lng]);
 
-                  try {
-                    const res = await fetch(
-                      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-                      { headers: { "User-Agent": "ReportMitra/1.0" } }
-                    );
-                    const data = await res.json();
-                    setTempLocation(data.display_name || `${lat}, ${lng}`);
-                  } catch {
-                    setTempLocation(`${lat}, ${lng}`);
-                  }
-                }}
-              />
-            </MapContainer>
-          </div>
-      
-        {tempLocation && (
-          <button
-            onClick={() => {
-              setFormData((p) => ({ ...p, location: tempLocation }));
-              setErrors((p) => ({ ...p, location: "" }));
-              setTempLocation(null);
-              setTempPosition(null);
-              setShowMap(false);
-            }}
-            className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
-          >
-            Confirm Location
-          </button>
-        )}
-
-
-        <button
-          onClick={() => {
-            setTempLocation(null);
-            setTempPosition(null);
-            setShowMap(false);
-          }}
-          className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
-        >
-          Cancel
-        </button>
+                    try {
+                      const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+                        { headers: { "User-Agent": "ReportMitra/1.0" } }
+                      );
+                      const data = await res.json();
+                      setTempLocation(data.display_name || `${lat}, ${lng}`);
+                    } catch {
+                      setTempLocation(`${lat}, ${lng}`);
+                    }
+                  }}
+                />
+              </MapContainer>
             </div>
+
+            {tempLocation && (
+              <button
+                onClick={() => {
+                  setFormData((p) => ({ ...p, location: tempLocation }));
+                  setErrors((p) => ({ ...p, location: "" }));
+                  setTempLocation(null);
+                  setTempPosition(null);
+                  setShowMap(false);
+                }}
+                className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
+              >
+                Confirm Location
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                setTempLocation(null);
+                setTempPosition(null);
+                setShowMap(false);
+              }}
+              className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
+            >
+              Cancel
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
         <div
@@ -559,8 +570,7 @@ function Report() {
                   className="underline text-sm text-blue-700 -mt-1"
                   target="_blank"
                   rel="noopener noreferrer"
-                >
-                </a>
+                ></a>
 
                 {/* Image Preview */}
                 <div
@@ -624,38 +634,37 @@ function Report() {
               border-t pt-6 mt-6 gap-4"
             >
               <div className="flex flex-col gap-2 font-bold w-full md:max-w-[60%]">
-  <label className="whitespace-nowrap flex items-center gap-1">
-    <MapPin className="w-4 h-4 text-gray-600" />
-    Issue Location
-  </label>
+                <label className="whitespace-nowrap flex items-center gap-1">
+                  <MapPin className="w-4 h-4 text-gray-600" />
+                  Issue Location
+                </label>
 
-  <div className="flex gap-2 w-full">
-    <input
-      type="text"
-      name="location"
-      value={formData.location}
-      readOnly
-      required
-      placeholder="Choose location from map"
-      className="border px-3 py-2 rounded-md w-full
+                <div className="flex gap-2 w-full">
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    readOnly
+                    required
+                    placeholder="Choose location from map"
+                    className="border px-3 py-2 rounded-md w-full
       bg-gray-100 text-gray-600 cursor-not-allowed"
-    />
+                  />
 
-    <button
-      type="button"
-      onClick={() => setShowMap(true)}
-      className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
-      >
-      Choose
-    </button>
-  </div>
-      {errors.location && (
-        <p className="text-red-600 text-sm font-normal mt-1">
-          {errors.location}
-        </p>
-      )}
-</div>
-
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(true)}
+                    className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
+                  >
+                    Choose
+                  </button>
+                </div>
+                {errors.location && (
+                  <p className="text-red-600 text-sm font-normal mt-1">
+                    {errors.location}
+                  </p>
+                )}
+              </div>
 
               <button
                 onClick={handleSubmit}
