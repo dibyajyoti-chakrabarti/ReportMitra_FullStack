@@ -7,7 +7,9 @@ const Debug = () => {
   const [status, setStatus] = useState("");
   const [file, setFile] = useState(null);
 
-  const backendBase = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000/api";
+  if (import.meta.env.PROD) return null;
+
+  const backendBase = import.meta.env.VITE_BACKEND_URL;
 
   const handleCopyToken = async () => {
     try {

@@ -1,13 +1,12 @@
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { BACKEND_BASE_URL } from "../config/backend";
 
 function IssueAction() {
   const [reportData] = useOutletContext();
 
   const [afterImageUrl, setAfterImageUrl] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
-
-  const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   const trackingID = reportData?.tracking_id || "Fetching Data...";
   const status = reportData?.status
@@ -32,7 +31,7 @@ function IssueAction() {
 
       try {
         const res = await fetch(
-          `${API_BASE}/api/reports/${reportData.id}/presign-get/`
+          `${BACKEND_BASE_URL}/reports/${reportData.id}/presign-get/`
         );
         const data = await res.json();
 

@@ -2,6 +2,7 @@ import Navbar from "./MiniNavbar";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Footer from "./Footer";
+import { BACKEND_BASE_URL } from "../config/backend";
 
 function Track() {
   const [active, setActive] = useState("details");
@@ -15,11 +16,10 @@ function Track() {
       setError("Please enter a Tracking ID");
       return;
     }
+    const BACKEND_ROOT_URL = BACKEND_BASE_URL.replace(/\/api$/, "");
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/track/detail/${trackingId}/`
-      );
+      const response = await fetch(`${BACKEND_ROOT_URL}/track/detail/${trackingId}/`);
       if (response.ok) {
         const data = await response.json();
         setReportData(data);

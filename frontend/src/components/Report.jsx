@@ -10,8 +10,7 @@ import { User, FileText, Image as ImageIcon, MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-
-const API_BASE = "http://localhost:8000";
+import { BACKEND_BASE_URL } from "../config/backend";
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -41,7 +40,7 @@ function Report() {
     const fetchUserProfile = async () => {
       try {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${API_BASE}/api/profile/me/`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/api/profile/me/`, {
           headers,
         });
         if (response.ok) {
@@ -78,7 +77,7 @@ function Report() {
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    const presignResp = await fetch(`${API_BASE}/api/reports/s3/presign/`, {
+    const presignResp = await fetch(`${BACKEND_BASE_URL}/api/reports/s3/presign/`, {
       method: "POST",
       headers: { ...authHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -224,7 +223,7 @@ function Report() {
         status: "pending",
       };
 
-      const response = await fetch(`${API_BASE}/api/reports/`, {
+      const response = await fetch(`${BACKEND_BASE_URL}/api/reports/`, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify(payload),

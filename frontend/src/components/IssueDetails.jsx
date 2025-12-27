@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthProvider";
+import { BACKEND_BASE_URL } from "../config/backend";
 
 export default function IssueDetails() {
   const [reportData] = useOutletContext();
@@ -28,7 +29,7 @@ export default function IssueDetails() {
       setLoadingImg(true);
 
       const backend =
-        import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000/api";
+        import.meta.env.VITE_BACKEND_URL ?? `${BACKEND_BASE_URL}`;
       const presignUrl = `${backend}/reports/${reportData.id}/presign-get/`;
 
       try {
