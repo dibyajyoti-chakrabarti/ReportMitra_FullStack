@@ -40,7 +40,7 @@ function Report() {
     const fetchUserProfile = async () => {
       try {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${BACKEND_BASE_URL}/api/profile/me/`, {
+        const response = await fetch(`${BACKEND_BASE_URL}/profile/me/`, {
           headers,
         });
         if (response.ok) {
@@ -77,7 +77,7 @@ function Report() {
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    const presignResp = await fetch(`${BACKEND_BASE_URL}/api/reports/s3/presign/`, {
+    const presignResp = await fetch(`${BACKEND_BASE_URL}/reports/s3/presign/`, {
       method: "POST",
       headers: { ...authHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -223,7 +223,7 @@ function Report() {
         status: "pending",
       };
 
-      const response = await fetch(`${BACKEND_BASE_URL}/api/reports/`, {
+      const response = await fetch(`${BACKEND_BASE_URL}/reports/`, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
