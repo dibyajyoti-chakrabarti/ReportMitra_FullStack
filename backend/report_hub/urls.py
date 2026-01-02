@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from report.views import PublicIssueReportDetailView   # 👈 add this import
+from report.views import PublicIssueReportDetailView
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,3 +14,9 @@ urlpatterns = [
          PublicIssueReportDetailView.as_view(), 
          name='report-detail'),
 ]
+
+if not settings.DEBUG:
+    from report_hub.views import health_check
+    urlpatterns.append(
+        path('api/health', health_check)
+    )
