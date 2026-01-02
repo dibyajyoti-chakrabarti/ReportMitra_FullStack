@@ -47,17 +47,15 @@ const History = () => {
   };
 
   if (loading) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-700">
-      <Loader2 className="h-14 w-14 animate-spin text-gray-900" />
-      <p className="text-lg font-semibold tracking-wide">
-        Fetching your reports
-      </p>
-    </div>
-  );
-}
-
-
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-700">
+        <Loader2 className="h-14 w-14 animate-spin text-gray-900" />
+        <p className="text-lg font-semibold tracking-wide">
+          Fetching your reports
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

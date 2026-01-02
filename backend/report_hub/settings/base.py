@@ -2,9 +2,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
@@ -93,6 +92,20 @@ KINDE_DOMAIN = os.getenv("KINDE_DOMAIN", "")
 KINDE_ISSUER_URL = os.getenv("KINDE_ISSUER_URL", "")
 KINDE_BACKEND_CLIENT_ID = os.getenv("KINDE_BACKEND_CLIENT_ID", "")
 KINDE_BACKEND_CLIENT_SECRET = os.getenv("KINDE_BACKEND_CLIENT_SECRET", "")
+
+# AWS / S3 (Report Images)
+REPORT_IMAGES_BUCKET = os.getenv("REPORT_IMAGES_BUCKET")
+AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = REPORT_IMAGES_BUCKET
+
+if not REPORT_IMAGES_BUCKET:
+    raise RuntimeError(
+        "REPORT_IMAGES_BUCKET is not set. Check your .env file."
+    )
+
+
 
 DATABASES = {
     "default": {

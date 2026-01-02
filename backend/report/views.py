@@ -115,7 +115,16 @@ def presign_get_for_track(request, id):
     except IssueReport.DoesNotExist:
         return Response({"detail": "Report not found"}, status=404)
 
-    bucket_name = settings.REPORT_IMAGES_BUCKET
+    bucket_name = getattr(settings, "REPORT_IMAGES_BUCKET", None)
+
+    if not bucket_name:
+        return Response(
+            {
+                "detail": "REPORT_IMAGES_BUCKET is not configured on the server"
+            },
+            status=500,
+        )
+
     region_name = settings.AWS_REGION
 
     s3_client = boto3.client(
