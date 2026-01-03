@@ -4,6 +4,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "api.reportmitra.in",
+    ".reportmitra.in",
 ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -14,10 +15,15 @@ CSRF_COOKIE_SECURE = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://api.reportmitra.in",
+    "https://reportmitra.in",
+    "https://www.reportmitra.in",
+    "https://admin.reportmitra.in",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://reportmitra.in",
+    "https://www.reportmitra.in",
+    "https://admin.reportmitra.in",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
