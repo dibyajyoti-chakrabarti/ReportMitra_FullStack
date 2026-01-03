@@ -298,7 +298,7 @@ function Report() {
 
   const aadhaar = userProfile?.aadhaar || null;
   let firstNameDisplay = "Not provided";
-  let middleNameDisplay = "Not provided";
+  let middleNameDisplay = "N/A";
   let lastNameDisplay = "Not provided";
 
   if (!userProfile) {
@@ -324,7 +324,7 @@ function Report() {
     }
 
     firstNameDisplay = firstName || "Not provided";
-    middleNameDisplay = middleName || "Not provided";
+    middleNameDisplay = middleName || "N/A";
     lastNameDisplay = lastName || "Not provided";
   }
 
