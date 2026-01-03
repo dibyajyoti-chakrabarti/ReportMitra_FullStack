@@ -7,8 +7,6 @@ export function useBackendHealth() {
   const [status, setStatus] = useState("checking");
 
   const checkHealth = useCallback(async () => {
-    setStatus("checking");
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -21,6 +19,7 @@ export function useBackendHealth() {
 
       clearTimeout(timeout);
 
+      // Reachability check (not strict success)
       if (res.status < 500) {
         setStatus("up");
       } else {
@@ -28,7 +27,8 @@ export function useBackendHealth() {
       }
     } catch (err) {
       clearTimeout(timeout);
-      // Silently handle - this is expected when backend is down
+
+      // Network error, timeout, connection refused → backend asleep
       setStatus("down");
     }
   }, []);

@@ -4,13 +4,11 @@ import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
 import {
   User,
-  ShieldCheck,
-  IdCard,
+  CreditCard,
   Phone,
-  MapPin,
-  Calendar,
   CheckCircle,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 function Profile() {
@@ -19,15 +17,16 @@ function Profile() {
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [verificationResult, setVerificationResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [profileData, setProfileData] = useState({
-    firstName: "Fetching...",
-    midName: "Fetching...",
-    lastName: "Fetching...",
-    age: "Fetching...",
-    dateOfBirth: "Fetching...",
-    ph: "Fetching...",
-    addr: "Fetching...",
-    lastUpdated: "Fetching...",
+    firstName: "Not Verified",
+    midName: "",
+    lastName: "",
+    age: "Not Verified",
+    dateOfBirth: "Not Verified",
+    ph: "Not Verified",
+    addr: "Not Verified",
+    lastUpdated: "Not Verified",
     isVerified: false,
   });
 
@@ -53,6 +52,7 @@ function Profile() {
 
   const loadProfileData = async () => {
     try {
+      setIsLoadingProfile(true);
       const headers = await getAuthHeaders();
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/profile/me/`,
@@ -134,6 +134,8 @@ function Profile() {
       }
     } catch (error) {
       console.error("Failed to load profile:", error);
+    } finally {
+      setIsLoadingProfile(false);
     }
   };
 
@@ -210,6 +212,22 @@ function Profile() {
 
   const verified = profileData.isVerified ? "✓" : "Not Verified";
 
+  // Show loading screen while fetching profile data
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex flex-col items-center justify-center gap-4 text-gray-700 bg-gray-50">
+          <Loader2 className="h-14 w-14 animate-spin text-gray-900" />
+          <p className="text-lg font-semibold tracking-wide">
+            Loading your profile
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -247,7 +265,7 @@ bg-gray-50 border rounded-lg p-4 mb-6"
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
               <div className="flex flex-wrap justify-center items-center gap-3">
                 <div className="flex items-center gap-2 font-semibold text-lg">
-                  <IdCard className="w-5 h-5" />
+                  <CreditCard className="w-5 h-5" />
                   Aadhaar Number
                 </div>
 

@@ -4,7 +4,7 @@ import server_down_image from '../assets/server-down.svg'
 export default function Sleeping({ onRetry }) {
   return (
     <>
-      {/* Component-scoped animations (mirrors original CSS) */}
+      {/* Component-scoped animations */}
       <style>
         {`
           @keyframes fadeUp {
@@ -44,83 +44,90 @@ export default function Sleeping({ onRetry }) {
         `}
       </style>
 
-      {/* Viewport */}
-      <div className="min-h-[100svh] bg-slate-50 flex justify-center items-start px-4 sm:px-8 overflow-x-hidden overflow-y-auto">
+      {/* Fixed viewport - no scrolling */}
+      <div className="fixed inset-0 bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
         <div
           className="
-            w-full max-w-[860px]
+            w-full max-w-[min(860px,100%)]
+            max-h-[100vh]
             bg-white
-            rounded-[22px]
-            shadow-[0_32px_64px_rgba(0,0,0,0.12)]
+            rounded-2xl sm:rounded-[22px]
+            shadow-[0_16px_48px_rgba(0,0,0,0.1)]
             text-center
-            px-6 sm:px-10 md:px-16
-            py-10 sm:py-14 md:py-20
-            my-auto
+            px-4 sm:px-8 md:px-12
+            py-6 sm:py-10 md:py-12
+            flex flex-col
+            justify-center
+            overflow-hidden
           "
           style={{ animation: "fadeUp 0.8s ease-out both" }}
         >
-          {/* Hero image */}
+          {/* Hero image - scales down on small screens */}
           <img
             src={server_down_image}
             alt="Server temporarily unavailable"
             className="
-              w-full max-w-[460px]
+              w-full max-w-[clamp(180px,50vw,360px)]
               mx-auto
-              mb-8 sm:mb-10 md:mb-12
-              drop-shadow-[0_14px_20px_rgba(0,0,0,0.12)]
+              mb-4 sm:mb-6 md:mb-8
+              drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)]
             "
             style={{ animation: "float 3.5s ease-in-out infinite" }}
           />
 
-          {/* Heading */}
+          {/* Heading - responsive sizing */}
           <h1
             className="
               font-bold
               text-slate-900
               tracking-tight
-              mb-4
-              text-[clamp(26px,4vw,42px)]
+              mb-3 sm:mb-4
+              text-[clamp(20px,5vw,36px)]
+              leading-tight
             "
             style={{ animation: "fadeUp 0.9s ease-out both" }}
           >
             Our servers are currently sleeping
           </h1>
 
-          {/* Description */}
+          {/* Description - compact on small screens */}
           <p
             className="
-              text-slate-500
+              text-slate-600
               leading-relaxed
-              max-w-[640px]
+              max-w-[560px]
               mx-auto
-              text-[clamp(15px,2.3vw,18px)]
+              mb-4 sm:mb-6
+              text-[clamp(13px,2.5vw,16px)]
+              px-2
             "
             style={{ animation: "fadeUp 1s ease-out both" }}
           >
-            We’re doing a quick wake-up routine on our backend systems.
+            We're doing a quick wake-up routine on our backend systems.
             Please check back during the window below.
           </p>
 
-          {/* Time box */}
+          {/* Time box - responsive padding */}
           <div
             className="
               inline-block
-              mt-8 sm:mt-10
-              px-8 py-4
-              rounded-2xl
+              px-4 sm:px-6 md:px-8
+              py-2 sm:py-3
+              rounded-xl sm:rounded-2xl
               font-bold
               text-blue-600
               bg-blue-600/10
-              text-[clamp(14px,2vw,16px)]
+              text-[clamp(12px,2.5vw,15px)]
+              mb-4 sm:mb-6
             "
             style={{ animation: "pulse 2.8s ease-in-out infinite" }}
           >
             10:30 AM – 12:30 PM IST
           </div>
 
-          {/* Retry button (optional but wired) */}
+          {/* Retry button - compact on mobile */}
           {onRetry && (
-            <div className="mt-8">
+            <div className="mb-4 sm:mb-6">
               <button
                 onClick={onRetry}
                 className="
@@ -128,9 +135,12 @@ export default function Sleeping({ onRetry }) {
                   rounded-md
                   bg-slate-900
                   text-white
-                  px-6 py-2
-                  text-sm font-medium
+                  px-5 sm:px-6
+                  py-2
+                  text-[13px] sm:text-sm
+                  font-medium
                   hover:bg-slate-800
+                  active:bg-slate-700
                   transition
                 "
               >
@@ -139,11 +149,10 @@ export default function Sleeping({ onRetry }) {
             </div>
           )}
 
-          {/* Footer */}
+          {/* Footer - smaller text */}
           <footer
             className="
-              mt-10 sm:mt-12
-              text-[13px]
+              text-[11px] sm:text-[12px]
               text-slate-500
             "
             style={{ animation: "fadeUp 1.1s ease-out both" }}
