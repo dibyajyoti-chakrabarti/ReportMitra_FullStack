@@ -14,7 +14,9 @@ export const AuthProvider = ({ children }) => {
       redirectUri={import.meta.env.VITE_KINDE_REDIRECT_URI}
       logoutUri={import.meta.env.VITE_KINDE_LOGOUT_REDIRECT_URI}
       onRedirectCallback={(user, appState) => {
-        console.log('Redirect callback', user, appState);
+        if (import.meta.env.DEV) {
+          console.log('Redirect callback', user, appState);
+        }
       }}
     >
       <AuthProviderInner>{children}</AuthProviderInner>

@@ -16,7 +16,9 @@ const Debug = () => {
       const token = await getToken();
       await navigator.clipboard.writeText(token);
       setStatus("Token copied to clipboard");
-      console.log("KINDE TOKEN (dev only):", token);
+      if (import.meta.env.DEV) {
+        console.log("KINDE TOKEN (dev only):", token);
+      }
     } catch (e) {
       console.error(e);
       setStatus("Failed to get token");
@@ -74,7 +76,9 @@ const Debug = () => {
       }
       const created = await createRes.json();
       setStatus(`Done — report id ${created.id}`);
-      console.log("Created report", created);
+      if (import.meta.env.DEV) {
+        console.log("Created report", created);
+      }
     } catch (err) {
       console.error(err);
       setStatus(`Error: ${err.message}`);

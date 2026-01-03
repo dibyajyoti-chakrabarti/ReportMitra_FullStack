@@ -16,14 +16,18 @@ const History = () => {
     const fetchHistory = async () => {
       try {
         const headers = await getAuthHeaders();
-        console.log("HISTORY HEADERS:", headers);
+        if (import.meta.env.DEV) {
+          console.log("HISTORY HEADERS:", headers);
+        }
 
         const res = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/reports/history/`,
           { headers }
         );
 
-        console.log("HISTORY STATUS:", res.status);
+        if (import.meta.env.DEV) {
+          console.log("HISTORY STATUS:", res.status);
+        }
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }

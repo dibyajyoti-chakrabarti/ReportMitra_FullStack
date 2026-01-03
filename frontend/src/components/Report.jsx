@@ -190,7 +190,9 @@ function Report() {
         try {
           const { objectUrl } = await uploadFileToS3(selectedFile);
           imageUrl = objectUrl;
-          console.log("Uploaded image URL:", imageUrl);
+          if (import.meta.env.DEV) {
+            console.log("Uploaded image URL:", imageUrl);
+          }
         } catch (uploadErr) {
           console.error("Image upload error:", uploadErr);
           alert("Failed to upload image. Please try again.");
@@ -203,7 +205,9 @@ function Report() {
         try {
           const base64 = await fileToBase64(selectedFile);
           department = await classifyImage(base64);
-          console.log("AI Department:", department);
+          if (import.meta.env.DEV) {
+            console.log("AI Department:", department);
+          }
         } catch (err) {
           console.error("Classification failed:", err);
         }
@@ -242,7 +246,9 @@ function Report() {
       }
 
       const result = await response.json();
-      console.log("Report submit result:", result);
+      if (import.meta.env.DEV) {
+        console.log("Report submit result:", result);
+      }
       setApplicationId(result.tracking_id);
       setShowSuccessPopup(true);
 
