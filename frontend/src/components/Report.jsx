@@ -6,7 +6,7 @@ import Footer from "./Footer";
 import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
 import { classifyImage } from "../ai/classifyImage";
-import { User, FileText, Image as ImageIcon, MapPin } from "lucide-react";
+import { User, FileText, Image as ImageIcon, MapPin, AlertCircle, ShieldAlert } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
@@ -18,6 +18,7 @@ function Report() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showUnverifiedPopup, setShowUnverifiedPopup] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const { user, getAuthHeaders } = useAuth();
   const [showMap, setShowMap] = useState(false);
@@ -46,6 +47,11 @@ function Report() {
         if (response.ok) {
           const data = await response.json();
           setUserProfile(data);
+          
+          // Show popup if user is not verified
+          if (!data.is_aadhaar_verified) {
+            setShowUnverifiedPopup(true);
+          }
         } else {
           console.error("Failed to fetch profile:", response.status);
         }
@@ -124,6 +130,13 @@ function Report() {
       image: "",
       location: "",
     });
+    
+    // Check verification status first
+    if (!userProfile?.is_aadhaar_verified) {
+      setShowUnverifiedPopup(true);
+      return;
+    }
+    
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -172,14 +185,6 @@ function Report() {
 
       if (!userProfile) {
         alert("Profile data is still loading. Please wait and try again.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!userProfile.is_aadhaar_verified) {
-        alert(
-          "Please complete Aadhaar verification in your Profile page before creating a report."
-        );
         setIsSubmitting(false);
         return;
       }
@@ -344,6 +349,56 @@ function Report() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+
+      {/* Unverified User Popup */}
+      {showUnverifiedPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShieldAlert className="w-10 h-10 text-red-600" />
+            </div>
+
+            <h2 className="text-2xl font-bold text-red-600 mb-3">
+              Verification Required
+            </h2>
+
+            <p className="text-gray-700 mb-4 leading-relaxed">
+              You must complete <strong>Aadhaar verification</strong> before submitting reports. This ensures authenticity and prevents misuse of the platform.
+            </p>
+
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3 text-left">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-gray-700">
+                  <p className="font-semibold mb-1">Why verification matters:</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li>Prevents spam and fake reports</li>
+                    <li>Ensures accountability</li>
+                    <li>Required by government regulations</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  window.location.href = "/profile";
+                }}
+                className="bg-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+              >
+                Go to Profile & Verify
+              </button>
+              <button
+                onClick={() => setShowUnverifiedPopup(false)}
+                className="text-gray-600 hover:text-gray-800 underline text-sm cursor-pointer transition"
+              >
+                I'll do it later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showSuccessPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
