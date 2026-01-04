@@ -1,6 +1,7 @@
-// DebugTokenEnhanced.jsx  (drop in dev-only area)
+// DebugTokenEnhanced.jsx
 import { useState } from "react";
-import { useAuth } from "../AuthProvider"; // keep same hook you're using
+import { useAuth } from "../AuthProvider";
+import { getApiUrl } from "../utils/api";
 
 const Debug = () => {
   const { getToken, isAuthenticated, user } = useAuth();
@@ -8,8 +9,6 @@ const Debug = () => {
   const [file, setFile] = useState(null);
 
   if (import.meta.env.PROD) return null;
-
-  const backendBase = import.meta.env.VITE_BACKEND_URL;
 
   const handleCopyToken = async () => {
     try {
@@ -37,12 +36,13 @@ const Debug = () => {
     try {
       const token = await getToken();
       setStatus("Requesting presign...");
-      const presignRes = await fetch(`${backendBase}/reports/s3/presign/`, {
+      const presignRes = await fetch(getApiUrl("/reports/s3/presign/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileName: file.name, contentType: file.type }),
       });
-      if (!presignRes.ok) throw new Error(`presign failed ${presignRes.status}`);
+      if (!presignRes.ok)
+        throw new Error(`presign failed ${presignRes.status}`);
       const { url, key } = await presignRes.json();
 
       setStatus("Uploading to S3...");
@@ -62,7 +62,7 @@ const Debug = () => {
         issue_description: "Created via DebugTokenEnhanced",
         image_url: key,
       };
-      const createRes = await fetch(`${backendBase}/reports/`, {
+      const createRes = await fetch(getApiUrl("/reports/"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +89,9 @@ const Debug = () => {
 
   return (
     <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg z-50 w-80">
-      <h3 className="font-bold mb-2 text-sm">Dev Debug (remove before commit)</h3>
+      <h3 className="font-bold mb-2 text-sm">
+        Dev Debug (remove before commit)
+      </h3>
       <div className="mb-2">
         <button
           onClick={handleCopyToken}
@@ -115,7 +117,7 @@ const Debug = () => {
 
       <div className="text-xs text-gray-300 mt-2">
         <div>Status: {status}</div>
-        <div className="mt-1">Backend: {backendBase}</div>
+        <div className="mt-1">Backend: {import.meta.env.VITE_BACKEND_URL}</div>
         <div className="mt-1">User: {user?.email}</div>
       </div>
     </div>

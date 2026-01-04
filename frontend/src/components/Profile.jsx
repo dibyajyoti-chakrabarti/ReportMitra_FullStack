@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../AuthProvider";
 import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
+import { getApiUrl } from "../utils/api";
+
 import {
   User,
   CreditCard,
@@ -54,13 +56,10 @@ function Profile() {
     try {
       setIsLoadingProfile(true);
       const headers = await getAuthHeaders();
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/profile/me/`,
-        {
-          method: "GET",
-          headers: headers,
-        }
-      );
+      const response = await fetch(getApiUrl("/profile/me/"), {
+        method: "GET",
+        headers: headers,
+      });
 
       if (response.ok) {
         const profile = await response.json();
@@ -154,17 +153,14 @@ function Profile() {
     setIsVerifying(true);
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/aadhaar/verify/`,
-        {
-          method: "POST",
-          headers: {
-            ...headers,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ aadhaar_number: aadhaarNumber }),
-        }
-      );
+      const response = await fetch(getApiUrl("/aadhaar/verify/"), {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ aadhaar_number: aadhaarNumber }),
+      });
 
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {

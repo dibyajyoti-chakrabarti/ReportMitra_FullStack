@@ -1,6 +1,7 @@
 // src/AuthProvider.jsx
 import { createContext, useContext, useEffect, useState } from 'react';
 import { KindeProvider, useKindeAuth } from '@kinde-oss/kinde-auth-react';
+import { getApiUrl } from './utils/api';
 
 const AuthContext = createContext();
 
@@ -45,7 +46,7 @@ const AuthProviderInner = ({ children }) => {
         try {
           const token = await getToken();
           // Sync with Django backend
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/profile/`, {
+          const response = await fetch(getApiUrl('/users/profile/'), {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',

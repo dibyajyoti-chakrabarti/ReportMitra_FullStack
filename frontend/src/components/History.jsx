@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { Clipboard, Check, Loader2 } from "lucide-react";
 import Navbar from "./MiniNavbar";
+import { getApiUrl } from "../utils/api";
 
 const History = () => {
   const [issues, setIssues] = useState([]);
@@ -20,10 +21,7 @@ const History = () => {
           console.log("HISTORY HEADERS:", headers);
         }
 
-        const res = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/reports/history/`,
-          { headers }
-        );
+        const res = await fetch(getApiUrl("/reports/history/"), { headers });
 
         if (import.meta.env.DEV) {
           console.log("HISTORY STATUS:", res.status);
