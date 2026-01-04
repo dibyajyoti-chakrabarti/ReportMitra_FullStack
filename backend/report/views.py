@@ -96,14 +96,6 @@ def presign_s3(request):
             {"detail": "Could not create upload URL"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    
-from urllib.parse import urlparse, unquote
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from django.conf import settings
-import boto3
-
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -119,20 +111,25 @@ def presign_get_for_track(request, id):
 
     if not bucket_name:
         return Response(
-            {
-                "detail": "REPORT_IMAGES_BUCKET is not configured on the server"
-            },
+            {"detail": "REPORT_IMAGES_BUCKET is not configured on the server"},
             status=500,
         )
 
-    region_name = settings.AWS_REGION
+    region_name = getattr(settings, "AWS_REGION", "ap-south-1")
 
-    s3_client = boto3.client(
-        "s3",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name=region_name,
-    )
+    try:
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=region_name,
+        )
+    except Exception as e:
+        print(f"Error creating S3 client: {e}")
+        return Response(
+            {"detail": "Could not connect to S3"},
+            status=500,
+        )
 
     before_url = None
     after_url = None
@@ -140,9 +137,14 @@ def presign_get_for_track(request, id):
     # ---------------- BEFORE IMAGE ----------------
     if report.image_url:
         try:
-            key = unquote(urlparse(report.image_url).path.lstrip("/"))
-
-            # Remove bucket name if present in path
+            # image_url is a full S3 URL like:
+            # https://reportmitra-report-images-dc.s3.ap-south-1.amazonaws.com/reports%2F6%2F5cdfb3535e6949af91ec82e9241f7a03-phole.jpg
+            
+            parsed = urlparse(report.image_url)
+            # Extract path and decode URL encoding: /reports%2F6%2F... -> /reports/6/...
+            key = unquote(parsed.path.lstrip("/"))
+            
+            # Remove bucket name if it's in the path (shouldn't be for your URLs, but just in case)
             if key.startswith(bucket_name + "/"):
                 key = key[len(bucket_name) + 1:]
 
@@ -154,21 +156,31 @@ def presign_get_for_track(request, id):
                 },
                 ExpiresIn=3600,
             )
-        except Exception:
+        except Exception as e:
+            print(f"Error generating before_url for report {id}: {e}")
+            print(f"image_url was: {report.image_url}")
             before_url = None
 
     # ---------------- AFTER IMAGE ----------------
     if report.completion_url:
         try:
+            # completion_url is just the S3 key like:
+            # completion/Sanitation Department/565b2eba-0af0-4d1b-a946-090d0e000eb8.jpeg
+            
+            # No need to parse or decode - it's already the key
+            key = report.completion_url
+
             after_url = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
                     "Bucket": bucket_name,
-                    "Key": report.completion_url,
+                    "Key": key,
                 },
                 ExpiresIn=3600,
             )
-        except Exception:
+        except Exception as e:
+            print(f"Error generating after_url for report {id}: {e}")
+            print(f"completion_url was: {report.completion_url}")
             after_url = None
 
     # ---------------- RESPONSE (BACKWARD COMPATIBLE) ----------------
@@ -180,8 +192,6 @@ def presign_get_for_track(request, id):
         "before": before_url,
         "after": after_url,
     })
-
-
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
     """
