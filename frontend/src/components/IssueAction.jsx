@@ -1,6 +1,7 @@
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { BACKEND_BASE_URL } from "../config/backend";
+import { getApiUrl } from "../utils/api";
 
 function IssueAction() {
   const [reportData] = useOutletContext();
@@ -30,9 +31,9 @@ function IssueAction() {
       setLoadingImage(true);
 
       try {
-        const res = await fetch(
-          `${BACKEND_BASE_URL}/reports/${reportData.id}/presign-get/`
-        );
+        const presignUrl = getApiUrl(`/reports/${reportData.id}/presign-get/`); // ✅ Use getApiUrl here
+
+        const res = await fetch(presignUrl);
         const data = await res.json();
 
         setAfterImageUrl(data.after || null);
