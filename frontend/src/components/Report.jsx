@@ -10,7 +10,7 @@ import { User, FileText, Image as ImageIcon, MapPin, AlertCircle, ShieldAlert } 
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { BACKEND_BASE_URL } from "../config/backend";
+import { getApiUrl } from "../utils/api";
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -41,7 +41,7 @@ function Report() {
     const fetchUserProfile = async () => {
       try {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${BACKEND_BASE_URL}/profile/me/`, {
+        const response = await fetch(getApiUrl('/profile/me/'), {
           headers,
         });
         if (response.ok) {
@@ -83,7 +83,7 @@ function Report() {
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    const presignResp = await fetch(`${BACKEND_BASE_URL}/reports/s3/presign/`, {
+    const presignResp = await fetch(getApiUrl('/reports/s3/presign/'), {
       method: "POST",
       headers: { ...authHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -232,7 +232,7 @@ function Report() {
         status: "pending",
       };
 
-      const response = await fetch(`${BACKEND_BASE_URL}/reports/`, {
+      const response = await fetch(getApiUrl('/reports/'), {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
