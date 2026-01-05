@@ -1,0 +1,18 @@
+name: Notify Frontend Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify-automation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger frontend deployment in automation repo
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.AUTOMATION_REPO_TOKEN }}
+          repository: dibyajyoti-chakrabarti/ReportMitra_Automation
+          event-type: frontend-deploy
