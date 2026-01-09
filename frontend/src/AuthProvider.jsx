@@ -42,6 +42,7 @@ const AuthProviderInner = ({ children }) => {
   useEffect(() => {
     const syncUserWithBackend = async () => {
       if (isAuthenticated && kindeUser) {
+        setBackendUser(kindeUser);
         setIsSyncing(true);
         try {
           const token = await getToken();
