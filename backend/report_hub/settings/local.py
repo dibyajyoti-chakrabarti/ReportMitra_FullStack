@@ -8,19 +8,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # REMOVED: "users.authentication.KindeAuthentication",
-        # Temporarily empty - will add JWT in Phase 2
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        # TEMPORARILY COMMENT THIS OUT so you can test without auth
-        # "rest_framework.permissions.IsAuthenticated",
-        "rest_framework.permissions.AllowAny",  # Temporary for testing
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }
 

@@ -8,8 +8,6 @@ const Signin = () => {
   const { loginWithGoogle, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -46,11 +44,11 @@ const Signin = () => {
     }
 
     setIsLoading(true);
+    setError('');
     try {
-      await register(formData.email, formData.password, {
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      });
+      await register(formData.email, formData.password);
+      // Redirect on success
+      navigate('/profile'); // Redirect to profile to complete Aadhaar verification
     } catch (error) {
       setError(error.message || 'Registration failed');
       console.error('Registration error:', error);
@@ -161,41 +159,6 @@ const Signin = () => {
 
               {/* Email Sign Up Form */}
               <form onSubmit={handleEmailSignup} className="space-y-4">
-                {/* Name Fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
-                      placeholder="John"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
-                      placeholder="Doe"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
                 {/* Email Field */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-300">

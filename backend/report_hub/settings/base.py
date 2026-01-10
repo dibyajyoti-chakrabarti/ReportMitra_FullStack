@@ -1,5 +1,6 @@
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -11,16 +12,28 @@ DEBUG = False  # overridden in local.py
 
 ALLOWED_HOSTS = []
 
+# JWT Configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token valid for 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token valid for 7 days
+    'ROTATE_REFRESH_TOKENS': True,                   # Issue new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,                # Blacklist old refresh tokens
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        # REMOVE: "users.authentication.KindeAuthentication",
-        # Will add JWT authentication in next phase
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
 }
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -33,6 +46,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',          # JWT support
+    'rest_framework_simplejwt.token_blacklist',  # Token blacklist for logout
     'phonenumber_field',
 
     'users',
@@ -77,7 +92,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://api.reportmitra.in",
 ]
 
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -93,7 +107,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -120,8 +133,6 @@ if not REPORT_IMAGES_BUCKET:
     raise RuntimeError(
         "REPORT_IMAGES_BUCKET is not set. Check your .env file."
     )
-
-
 
 DATABASES = {
     "default": {

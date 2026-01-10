@@ -22,8 +22,11 @@ const Login = () => {
     setIsLoading(true);
     try {
       await loginWithEmail(email, password);
+      // Redirect on success
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
+      alert(error.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }

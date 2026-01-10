@@ -1,21 +1,131 @@
-from django.shortcuts import render
-
+# users/views.py
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
-# ✅ use the profile model & serializer from the user_profile app
 from user_profile.models import UserProfile
 from user_profile.serializers import UserProfileSerializer
+from .serializers import (
+    RegisterSerializer, 
+    LoginSerializer, 
+    UserSerializer,
+    ChangePasswordSerializer
+)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_view(request):
+    """
+    Register a new user with email and password
+    POST /api/users/register/
+    Body: {"email": "user@example.com", "password": "pass123", "password2": "pass123"}
+    """
+    serializer = RegisterSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        user = serializer.save()
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'User registered successfully',
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    """
+    Login with email and password
+    POST /api/users/login/
+    Body: {"email": "user@example.com", "password": "pass123"}
+    """
+    serializer = LoginSerializer(data=request.data, context={'request': request})
+    
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Login successful',
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    """
+    Logout user by blacklisting refresh token
+    POST /api/users/logout/
+    Body: {"refresh": "refresh_token_here"}
+    """
+    try:
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
+            return Response(
+                {"error": "Refresh token is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        
+        return Response({
+            "message": "Logout successful"
+        }, status=status.HTTP_200_OK)
+    
+    except TokenError:
+        return Response(
+            {"error": "Invalid token"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user_view(request):
+    """
+    Get current authenticated user details
+    GET /api/users/me/
+    """
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
-    """Get or update user profile for the logged-in user"""
-
-    # ✅ works regardless of related_name, creates one if missing
+    """
+    Get or update user profile for the logged-in user
+    GET/PUT /api/users/profile/
+    """
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'GET':
@@ -28,6 +138,31 @@ def user_profile(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password_view(request):
+    """
+    Change user password
+    POST /api/users/change-password/
+    Body: {"old_password": "old", "new_password": "new", "new_password2": "new"}
+    """
+    serializer = ChangePasswordSerializer(
+        data=request.data, 
+        context={'request': request}
+    )
+    
+    if serializer.is_valid():
+        user = request.user
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+        
+        return Response({
+            "message": "Password changed successfully"
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

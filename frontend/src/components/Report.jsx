@@ -24,6 +24,7 @@ function Report() {
   const [showMap, setShowMap] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
   const [tempPosition, setTempPosition] = useState(null);
+  
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
@@ -36,6 +37,7 @@ function Report() {
     image: "",
   });
 
+  
   // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
     const fetchUserProfile = async () => {
