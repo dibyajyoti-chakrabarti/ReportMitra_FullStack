@@ -38,15 +38,19 @@ const AuthProviderInner = ({ children }) => {
 
   const [backendUser, setBackendUser] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasAttemptedSync, setHasAttemptedSync] = useState(false);
 
   useEffect(() => {
     const syncUserWithBackend = async () => {
-      if (isAuthenticated && kindeUser) {
+      if (isAuthenticated && kindeUser && !hasAttemptedSync) {
         setBackendUser(kindeUser);
         setIsSyncing(true);
+        setHasAttemptedSync(true);
+        
         try {
           const token = await getToken();
-          // Sync with Django backend
+          console.log('Syncing with backend...');
+          
           const response = await fetch(getApiUrl('/users/profile/'), {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -54,10 +58,14 @@ const AuthProviderInner = ({ children }) => {
             },
           });
           
+          console.log('Backend response status:', response.status);
+          
           if (response.ok) {
             const userProfile = await response.json();
             setBackendUser({ ...kindeUser, ...userProfile });
+            console.log('Backend sync successful');
           } else {
+            console.error('Backend sync failed:', response.status);
             setBackendUser(kindeUser);
           }
         } catch (error) {
@@ -66,14 +74,16 @@ const AuthProviderInner = ({ children }) => {
         } finally {
           setIsSyncing(false);
         }
-      } else {
+      } else if (!isAuthenticated) {
         setBackendUser(null);
+        setHasAttemptedSync(false);
       }
     };
 
     syncUserWithBackend();
-  }, [isAuthenticated, kindeUser, getToken]);
+  }, [isAuthenticated, kindeUser, hasAttemptedSync, getToken]);
 
+  // ADD THIS FUNCTION - it was missing!
   const getAuthHeaders = async () => {
     const token = await getToken();
     return {
@@ -88,7 +98,7 @@ const AuthProviderInner = ({ children }) => {
     login,
     register,
     logout,
-    getAuthHeaders,
+    getAuthHeaders,  // Now it's defined
     isAuthenticated,
     getToken,
   };
