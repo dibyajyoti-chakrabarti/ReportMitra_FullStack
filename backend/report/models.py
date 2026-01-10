@@ -10,7 +10,6 @@ class IssueReport(models.Model):
         ("closed", "Closed"),
     ]
 
-    # Who created the report (joins via CustomUser.id, which has kinde_id)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
