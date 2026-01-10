@@ -23,6 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Signin />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/auth/callback" element={<Callback />} />
           <Route path="/community" element={<Community />} />
@@ -47,7 +48,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/community" element={<Community />} />
           <Route
             path="/history"
             element={

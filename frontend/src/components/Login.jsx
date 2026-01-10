@@ -1,32 +1,44 @@
 // src/components/Login.jsx
 import { useAuth } from '../AuthProvider';
-import { useEffect } from 'react';
-import { Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, Mail, Chrome, Lock, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const { loginWithEmail, loginWithGoogle, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleEmailLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
     try {
-      await login();
+      await loginWithEmail(email, password);
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.href = '/';
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      console.error('Google login error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAuthenticated]);
-
-  // Auto-initiate login on mount
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      handleLogin();
-    }
-  }, []);
+  };
 
   return (
     <>
@@ -37,124 +49,159 @@ const Login = () => {
             to { opacity: 1; transform: translateY(0); }
           }
           
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+          @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
           }
-          
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-          }
-          
-          @keyframes slideRight {
-            0% { transform: translateX(-100%); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-          }
-          
+
           .fade-in {
             animation: fadeIn 0.6s ease-out forwards;
           }
           
-          .spin {
-            animation: spin 1s linear infinite;
+          .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
           }
-          
-          .pulse {
-            animation: pulse 2s ease-in-out infinite;
-          }
-          
-          .slide-right {
-            animation: slideRight 0.5s ease-out forwards;
+
+          .glass-effect {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
           }
         `}
       </style>
 
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-[0.03]">
+      <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 opacity-[0.02]">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51, 65, 85) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
+            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
           }}></div>
         </div>
 
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
+
         {/* Main container */}
-        <div className="relative z-10 w-full max-w-md px-6 fade-in">
-          {/* Government-style header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-full mb-6 shadow-lg">
-              <Shield className="w-10 h-10 text-white" strokeWidth={2.5} />
+        <div className="relative z-10 w-full max-w-md fade-in">
+          {/* Logo/Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-6 shadow-lg shadow-white/20">
+              <Shield className="w-8 h-8 text-black" strokeWidth={2.5} />
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2 tracking-tight">
+            <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
               ReportMitra
             </h1>
-            <p className="text-sm text-slate-600 font-medium uppercase tracking-wider">
-              Government of India
+            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">
+              CIVIC | CONNECT | RESOLVE
             </p>
           </div>
 
-          {/* Main card */}
-          <div className="bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden">
-            {/* Header bar */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-              <h2 className="text-white text-lg font-semibold text-center">
-                Secure Authentication
+          {/* Login Card */}
+          <div className="glass-effect rounded-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-white px-6 py-4 border-b border-white/10">
+              <h2 className="text-black text-xl font-bold text-center">
+                Secure Login
               </h2>
             </div>
 
             {/* Content */}
-            <div className="px-8 py-10">
-              {/* Loading indicator */}
-              <div className="flex flex-col items-center justify-center space-y-6">
-                <div className="relative">
-                  <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
-                  <div className="w-16 h-16 border-4 border-blue-600 rounded-full border-t-transparent absolute top-0 left-0 spin"></div>
-                </div>
+            <div className="px-6 py-8 sm:px-8 sm:py-10 space-y-6">
+              {/* Google Login Button */}
+              <button
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20 shadow-lg shadow-white/10"
+              >
+                <Chrome className="w-5 h-5" />
+                <span>Continue with Google</span>
+              </button>
 
-                <div className="text-center space-y-2">
-                  <p className="text-slate-800 font-semibold text-lg pulse">
-                    Redirecting to secure login...
-                  </p>
-                  <p className="text-slate-600 text-sm">
-                    Please wait while we connect you to the authentication service
-                  </p>
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
-
-                {/* Progress steps */}
-                <div className="w-full space-y-3 pt-4">
-                  <div className="flex items-center space-x-3 slide-right" style={{ animationDelay: '0.2s' }}>
-                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-                    <span className="text-sm text-slate-700">Verifying secure connection</span>
-                  </div>
-                  <div className="flex items-center space-x-3 slide-right" style={{ animationDelay: '0.4s' }}>
-                    <div className="w-5 h-5 border-2 border-blue-600 rounded-full border-t-transparent spin flex-shrink-0"></div>
-                    <span className="text-sm text-slate-700">Connecting to authentication service</span>
-                  </div>
-                  <div className="flex items-center space-x-3 opacity-40 slide-right" style={{ animationDelay: '0.6s' }}>
-                    <div className="w-5 h-5 border-2 border-slate-300 rounded-full flex-shrink-0"></div>
-                    <span className="text-sm text-slate-500">Preparing secure session</span>
-                  </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-black text-gray-400">Or continue with email</span>
                 </div>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div className="bg-slate-50 px-6 py-4 border-t border-slate-200">
-              <div className="flex items-center justify-center space-x-2 text-xs text-slate-600">
-                <Shield className="w-4 h-4" />
-                <span>Protected by enterprise-grade security</span>
+              {/* Email Login Form */}
+              <form onSubmit={handleEmailLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
+                      placeholder="your.email@example.com"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
+                      placeholder="••••••••"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20"
+                >
+                  <Mail className="w-5 h-5" />
+                  {isLoading ? 'Signing in...' : 'Sign In with Email'}
+                </button>
+              </form>
+
+              {/* Sign Up Link */}
+              <div className="text-center text-sm text-gray-400 pt-2">
+                Don't have an account?{' '}
+                <a 
+                  href="/register" 
+                  className="text-white hover:underline font-semibold transition-colors"
+                >
+                  Sign Up
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Bottom info */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-slate-600">
-              This is a secure government portal. All activities are monitored and logged.
+          {/* Footer */}
+          <div className="mt-8 text-center space-y-3">
+            <p className="text-xs text-gray-500">
+              Secure government portal • All activities are monitored
             </p>
-            <p className="text-xs text-slate-500 mt-2">
-              © 2025 ReportMitra • Ministry of Urban Development
+            <p className="text-xs text-gray-600">
+              © 2025 ReportMitra • Government of India
             </p>
           </div>
         </div>

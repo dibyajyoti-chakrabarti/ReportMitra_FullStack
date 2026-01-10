@@ -2,10 +2,7 @@ from .base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-]
+ALLOWED_HOSTS = ['*']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -17,9 +14,19 @@ CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "users.authentication.KindeAuthentication",
+        # REMOVED: "users.authentication.KindeAuthentication",
+        # Temporarily empty - will add JWT in Phase 2
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        # TEMPORARILY COMMENT THIS OUT so you can test without auth
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",  # Temporary for testing
     ],
+}
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }

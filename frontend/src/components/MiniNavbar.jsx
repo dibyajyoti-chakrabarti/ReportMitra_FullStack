@@ -1,21 +1,30 @@
 import { useState } from "react";
 import { useAuth } from "../AuthProvider";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo_1 from "../assets/logo-1.png";
 import logo_2 from "../assets/logo-2.png";
 import { Menu, X } from "lucide-react";
 
-const Navbar = () => {
-  const { login, register, logout, isAuthenticated, isLoading } = useAuth();
+const MiniNavbar = () => {
+  const { logout, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogin = async () => await login();
-  const handleRegister = async () => await register();
-  const handleLogout = async () => await logout();
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   if (isLoading) {
     return (
-      <header className="bg-black text-white p-4 shadow-md w-full fixed top-0 left-0 z-50">
+      <header className="bg-black text-white p-4 shadow-md w-full">
         <div className="max-w-screen-xl mx-auto flex justify-between items-center">
           <div className="text-xl font-bold">ReportMitra</div>
           <div>Loading...</div>
@@ -25,7 +34,7 @@ const Navbar = () => {
   }
 
   return (
-<header className="bg-black text-white px-4 py-2 shadow-md w-full">
+    <header className="bg-black text-white px-4 py-2 shadow-md w-full">
       <div className="max-w-screen-xl mx-auto flex justify-between items-center">
         {/* Logo Section */}
         <Link
@@ -126,6 +135,13 @@ const Navbar = () => {
             >
               Profile
             </Link>
+            <Link
+              to="/community"
+              onClick={() => setMenuOpen(false)}
+              className="hover:underline"
+            >
+              Community
+            </Link>
             <button
               onClick={() => {
                 handleLogout();
@@ -163,4 +179,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default MiniNavbar;

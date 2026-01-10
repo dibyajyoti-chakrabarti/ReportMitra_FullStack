@@ -1,91 +1,70 @@
 // src/AuthProvider.jsx
-import { createContext, useContext, useEffect, useState } from 'react';
-import { KindeProvider, useKindeAuth } from '@kinde-oss/kinde-auth-react';
-import { getApiUrl } from './utils/api';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  return (
-    <KindeProvider
-      clientId={import.meta.env.VITE_KINDE_CLIENT_ID}
-      domain={import.meta.env.VITE_KINDE_DOMAIN}
-      redirectUri={import.meta.env.VITE_KINDE_REDIRECT_URI}
-      logoutUri={import.meta.env.VITE_KINDE_LOGOUT_URI}
-      onRedirectCallback={(user, appState) => {
-        if (import.meta.env.DEV) {
-          console.log('Redirect callback', user, appState);
-        }
-      }}
-    >
-      <AuthProviderInner>{children}</AuthProviderInner>
-    </KindeProvider>
-  );
-};
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-const AuthProviderInner = ({ children }) => {
-  const {
-    isLoading: kindeLoading,
-    isAuthenticated,
-    user: kindeUser,
-    login,
-    register,
-    logout,
-    getToken
-  } = useKindeAuth();
-
-  const [backendUser, setBackendUser] = useState(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [hasAttemptedSync, setHasAttemptedSync] = useState(false);
-
+  // Check for existing token on mount
   useEffect(() => {
-    const syncUserWithBackend = async () => {
-      if (isAuthenticated && kindeUser && !hasAttemptedSync) {
-        setBackendUser(kindeUser);
-        setIsSyncing(true);
-        setHasAttemptedSync(true);
-        
-        try {
-          const token = await getToken();
-          console.log('Syncing with backend...');
-          
-          const response = await fetch(getApiUrl('/users/profile/'), {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          console.log('Backend response status:', response.status);
-          
-          if (response.ok) {
-            const userProfile = await response.json();
-            setBackendUser({ ...kindeUser, ...userProfile });
-            console.log('Backend sync successful');
-          } else {
-            console.error('Backend sync failed:', response.status);
-            setBackendUser(kindeUser);
-          }
-        } catch (error) {
-          console.error('Backend sync failed:', error);
-          setBackendUser(kindeUser);
-        } finally {
-          setIsSyncing(false);
-        }
-      } else if (!isAuthenticated) {
-        setBackendUser(null);
-        setHasAttemptedSync(false);
-      }
-    };
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      // TODO: Validate token and fetch user data
+      setIsAuthenticated(true);
+    }
+  }, []);
 
-    syncUserWithBackend();
-  }, [isAuthenticated, kindeUser, hasAttemptedSync, getToken]);
+  // Placeholder functions - will implement in Phase 2
+  const loginWithEmail = async (email, password) => {
+    console.log('Email login - to be implemented');
+    setIsLoading(true);
+    try {
+      // TODO: Implement JWT login
+      alert('JWT Authentication will be implemented in Phase 2');
+    } catch (error) {
+      console.error('Login failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // ADD THIS FUNCTION - it was missing!
+  const loginWithGoogle = async () => {
+    console.log('Google OAuth - to be implemented');
+    alert('Google OAuth will be implemented in Phase 2');
+  };
+
+  const register = async (email, password, additionalData = {}) => {
+    console.log('Registration - to be implemented');
+    setIsLoading(true);
+    try {
+      // TODO: Implement JWT registration
+      alert('Registration will be implemented in Phase 2');
+      // After successful registration, could auto-login
+      // setIsAuthenticated(true);
+      // setUser({ email, ...additionalData });
+    } catch (error) {
+      console.error('Registration failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/login';
+  };
+
   const getAuthHeaders = async () => {
-    const token = await getToken();
+    const token = localStorage.getItem('accessToken');
     return {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -93,14 +72,16 @@ const AuthProviderInner = ({ children }) => {
   };
 
   const value = {
-    user: backendUser,
-    isLoading: kindeLoading || isSyncing,
-    login,
+    user,
+    isLoading,
+    isAuthenticated,
+    loginWithEmail,
+    loginWithGoogle,
     register,
     logout,
-    getAuthHeaders,  // Now it's defined
-    isAuthenticated,
-    getToken,
+    getAuthHeaders,
+    // Legacy support for existing components
+    login: () => alert('Please use loginWithEmail or loginWithGoogle'),
   };
 
   return (

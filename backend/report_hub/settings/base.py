@@ -13,7 +13,8 @@ ALLOWED_HOSTS = []
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "users.authentication.KindeAuthentication",
+        # REMOVE: "users.authentication.KindeAuthentication",
+        # Will add JWT authentication in next phase
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -107,12 +108,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'report_hub.urls'
 WSGI_APPLICATION = 'report_hub.wsgi.application'
-
-# Kinde (defaults for local)
-KINDE_DOMAIN = os.getenv("KINDE_DOMAIN", "")
-KINDE_ISSUER_URL = os.getenv("KINDE_ISSUER_URL", "")
-KINDE_BACKEND_CLIENT_ID = os.getenv("KINDE_BACKEND_CLIENT_ID", "")
-KINDE_BACKEND_CLIENT_SECRET = os.getenv("KINDE_BACKEND_CLIENT_SECRET", "")
 
 # AWS / S3 (Report Images)
 REPORT_IMAGES_BUCKET = os.getenv("REPORT_IMAGES_BUCKET")
