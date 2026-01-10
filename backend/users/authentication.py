@@ -4,30 +4,33 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import authentication
 from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import login
 
 User = get_user_model()
 
 class KindeAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
-        auth_header = request.headers.get('Authorization')
-        
+        auth_header = request.headers.get("Authorization")
+
+        # ✅ If no Bearer token, do NOT attempt auth
+        # Let SessionAuthentication handle it
         if not auth_header:
             return None
-            
-        try:
-            token = auth_header.split(' ')[1]  # Bearer <token>
-            
-            # Verify token with Kinde's userinfo endpoint
-            user_info = self.verify_kinde_token(token)
-            
-            # Get or create user
-            user = self.get_or_create_user(user_info)
-            
-            return (user, token)
-            
-        except Exception as e:
-            print(f"Auth error: {e}")
-            raise AuthenticationFailed(f'Authentication failed: {str(e)}')
+
+        if not auth_header.startswith("Bearer "):
+            raise AuthenticationFailed("Invalid Authorization header")
+
+        token = auth_header.split(" ")[1]
+
+        # ---- Kinde token validation ----
+        user_info = self.verify_kinde_token(token)
+
+        user = self.get_or_create_user(user_info)
+
+        # ✅ Create session ONCE (safe)
+        login(request._request, user)
+
+        return (user, token)
     
     def verify_kinde_token(self, token):
         """Verify the token with Kinde's userinfo endpoint"""
