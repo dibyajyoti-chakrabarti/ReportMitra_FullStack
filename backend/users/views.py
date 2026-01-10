@@ -13,8 +13,12 @@ from .serializers import (
     RegisterSerializer, 
     LoginSerializer, 
     UserSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    RequestOTPSerializer,
+    VerifyOTPSerializer
 )
+from .email_utils import send_otp_email
+from .models import EmailOTP
 
 
 @api_view(['POST'])
@@ -172,3 +176,63 @@ def verify_user(request):
     request.user.is_verified = True
     request.user.save()
     return Response({'message': 'User verified successfully'})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def request_otp_view(request):
+    """
+    Request OTP for email-based login
+    POST /api/users/request-otp/
+    Body: {"email": "user@example.com"}
+    """
+    serializer = RequestOTPSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        
+        # Generate OTP
+        otp_obj = EmailOTP.generate_otp(email)
+        
+        # Send email
+        email_sent = send_otp_email(email, otp_obj.otp)
+        
+        if email_sent:
+            return Response({
+                'message': f'Login code sent to {email}',
+                'expires_in': '10 minutes'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'Failed to send email. Please try again.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_otp_view(request):
+    """
+    Verify OTP and login user
+    POST /api/users/verify-otp/
+    Body: {"email": "user@example.com", "otp": "123456"}
+    """
+    serializer = VerifyOTPSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        user = serializer.validated_data['user']
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Login successful',
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

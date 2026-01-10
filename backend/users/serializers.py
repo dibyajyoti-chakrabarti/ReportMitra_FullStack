@@ -141,3 +141,60 @@ class ChangePasswordSerializer(serializers.Serializer):
         if not user.check_password(value):
             raise serializers.ValidationError("Old password is incorrect.")
         return value
+
+
+class RequestOTPSerializer(serializers.Serializer):
+    """Serializer for requesting OTP"""
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        """Validate email exists"""
+        if not CustomUser.objects.filter(email=value.lower()).exists():
+            raise serializers.ValidationError("No account found with this email address.")
+        return value.lower()
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    """Serializer for verifying OTP and logging in"""
+    email = serializers.EmailField(required=True)
+    otp = serializers.CharField(required=True, max_length=6, min_length=6)
+
+    def validate(self, attrs):
+        """Validate OTP"""
+        from .models import EmailOTP
+        
+        email = attrs.get('email', '').lower()
+        otp = attrs.get('otp')
+
+        # Get the most recent unused OTP for this email
+        try:
+            otp_obj = EmailOTP.objects.filter(
+                email=email,
+                otp=otp,
+                is_used=False
+            ).latest('created_at')
+            
+            if not otp_obj.is_valid():
+                raise serializers.ValidationError({
+                    "otp": "This code has expired. Please request a new one."
+                })
+            
+            # Get user
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                raise serializers.ValidationError({
+                    "email": "No account found with this email."
+                })
+            
+            # Mark OTP as used
+            otp_obj.is_used = True
+            otp_obj.save()
+            
+            attrs['user'] = user
+            return attrs
+            
+        except EmailOTP.DoesNotExist:
+            raise serializers.ValidationError({
+                "otp": "Invalid code. Please check and try again."
+            })

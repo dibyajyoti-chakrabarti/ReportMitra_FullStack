@@ -10,6 +10,10 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
+    # OTP endpoints
+    path('request-otp/', views.request_otp_view, name='request-otp'),
+    path('verify-otp/', views.verify_otp_view, name='verify-otp'),
+    
     # User endpoints
     path('me/', views.current_user_view, name='current-user'),
     path('profile/', views.user_profile, name='user-profile'),
