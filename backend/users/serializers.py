@@ -198,3 +198,68 @@ class VerifyOTPSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 "otp": "Invalid code. Please check and try again."
             })
+
+
+class GoogleAuthSerializer(serializers.Serializer):
+    """Serializer for Google OAuth authentication"""
+    token = serializers.CharField(required=True)
+    
+    def validate_token(self, value):
+        """Validate Google OAuth token"""
+        from google.oauth2 import id_token
+        from google.auth.transport import requests
+        from django.conf import settings
+        
+        try:
+            # Verify the token
+            idinfo = id_token.verify_oauth2_token(
+                value,
+                requests.Request(),
+                settings.GOOGLE_CLIENT_ID
+            )
+            
+            # Token is valid, return user info
+            return idinfo
+            
+        except ValueError as e:
+            raise serializers.ValidationError(f"Invalid token: {str(e)}")
+    
+    def create_or_get_user(self, validated_data):
+        """Create or get user from Google data"""
+        google_data = validated_data['token']
+        
+        email = google_data.get('email')
+        google_id = google_data.get('sub')
+        first_name = google_data.get('given_name', '')
+        last_name = google_data.get('family_name', '')
+        profile_picture = google_data.get('picture', '')
+        
+        # Check if user exists by email
+        try:
+            user = CustomUser.objects.get(email=email)
+            
+            # Update Google info if not set
+            if not user.google_id:
+                user.google_id = google_id
+                user.auth_method = 'google'
+                user.profile_picture = profile_picture
+                user.is_email_verified = True  # Google emails are verified
+                user.save()
+                
+        except CustomUser.DoesNotExist:
+            # Create new user
+            user = CustomUser.objects.create(
+                email=email,
+                google_id=google_id,
+                first_name=first_name,
+                last_name=last_name,
+                profile_picture=profile_picture,
+                auth_method='google',
+                is_email_verified=True,
+            )
+            
+            # Create user profile
+            from user_profile.models import UserProfile
+            UserProfile.objects.create(user=user)
+        
+        return user

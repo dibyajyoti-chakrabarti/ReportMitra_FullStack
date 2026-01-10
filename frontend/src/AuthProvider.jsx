@@ -1,6 +1,6 @@
 // src/AuthProvider.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
-import { getApiUrl } from './utils/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { getApiUrl } from "./utils/api";
 
 const AuthContext = createContext();
 
@@ -14,14 +14,14 @@ export const AuthProvider = ({ children }) => {
   // Check for existing token on mount and fetch user data
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       if (token) {
         try {
           // Validate token and fetch user data
-          const response = await fetch(getApiUrl('/users/me/'), {
+          const response = await fetch(getApiUrl("/users/me/"), {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           });
 
@@ -34,10 +34,10 @@ export const AuthProvider = ({ children }) => {
             await refreshAccessToken();
           }
         } catch (error) {
-          console.error('Auth initialization failed:', error);
+          console.error("Auth initialization failed:", error);
           // Clear invalid tokens
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
         }
       }
       setIsLoading(false);
@@ -48,29 +48,29 @@ export const AuthProvider = ({ children }) => {
 
   // Refresh access token using refresh token
   const refreshAccessToken = async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) {
       return false;
     }
 
     try {
-      const response = await fetch(getApiUrl('/users/token/refresh/'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/users/token/refresh/"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ refresh: refreshToken }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('accessToken', data.access);
-        
+        localStorage.setItem("accessToken", data.access);
+
         // Fetch user data with new token
-        const userResponse = await fetch(getApiUrl('/users/me/'), {
+        const userResponse = await fetch(getApiUrl("/users/me/"), {
           headers: {
-            'Authorization': `Bearer ${data.access}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data.access}`,
+            "Content-Type": "application/json",
           },
         });
 
@@ -81,15 +81,15 @@ export const AuthProvider = ({ children }) => {
           return true;
         }
       }
-      
+
       // Refresh failed, clear tokens
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       return false;
     } catch (error) {
-      console.error('Token refresh failed:', error);
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      console.error("Token refresh failed:", error);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       return false;
     }
   };
@@ -98,10 +98,10 @@ export const AuthProvider = ({ children }) => {
   const loginWithEmail = async (email, password) => {
     setIsLoading(true);
     try {
-      const response = await fetch(getApiUrl('/users/login/'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/users/login/"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -110,21 +110,25 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         // Store tokens
-        localStorage.setItem('accessToken', data.tokens.access);
-        localStorage.setItem('refreshToken', data.tokens.refresh);
-        
+        localStorage.setItem("accessToken", data.tokens.access);
+        localStorage.setItem("refreshToken", data.tokens.refresh);
+
         // Set user data
         setUser(data.user);
         setIsAuthenticated(true);
-        
+
         return { success: true, user: data.user };
       } else {
         // Handle error
-        const errorMessage = data.non_field_errors?.[0] || data.email?.[0] || data.password?.[0] || 'Login failed';
+        const errorMessage =
+          data.non_field_errors?.[0] ||
+          data.email?.[0] ||
+          data.password?.[0] ||
+          "Login failed";
         throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -135,15 +139,15 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password) => {
     setIsLoading(true);
     try {
-      const response = await fetch(getApiUrl('/users/register/'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/users/register/"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          email, 
+        body: JSON.stringify({
+          email,
           password,
-          password2: password  // Confirmation password
+          password2: password, // Confirmation password
         }),
       });
 
@@ -151,21 +155,25 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         // Store tokens
-        localStorage.setItem('accessToken', data.tokens.access);
-        localStorage.setItem('refreshToken', data.tokens.refresh);
-        
+        localStorage.setItem("accessToken", data.tokens.access);
+        localStorage.setItem("refreshToken", data.tokens.refresh);
+
         // Set user data
         setUser(data.user);
         setIsAuthenticated(true);
-        
+
         return { success: true, user: data.user };
       } else {
         // Handle validation errors
-        const errorMessage = data.email?.[0] || data.password?.[0] || data.password2?.[0] || 'Registration failed';
+        const errorMessage =
+          data.email?.[0] ||
+          data.password?.[0] ||
+          data.password2?.[0] ||
+          "Registration failed";
         throw new Error(errorMessage);
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -173,54 +181,84 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Google OAuth login (placeholder for Phase 3)
-  const loginWithGoogle = async () => {
-    alert('Google OAuth will be implemented in Phase 3');
+  const loginWithGoogle = async (credentialResponse) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(getApiUrl("/users/google-auth/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store tokens
+        localStorage.setItem("accessToken", data.tokens.access);
+        localStorage.setItem("refreshToken", data.tokens.refresh);
+
+        // Set user data
+        setUser(data.user);
+        setIsAuthenticated(true);
+
+        return { success: true, user: data.user };
+      } else {
+        throw new Error(data.error || "Google authentication failed");
+      }
+    } catch (error) {
+      console.error("Google auth error:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Logout
   const logout = async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    
+    const refreshToken = localStorage.getItem("refreshToken");
+
     if (refreshToken) {
       try {
-        const accessToken = localStorage.getItem('accessToken');
-        await fetch(getApiUrl('/users/logout/'), {
-          method: 'POST',
+        const accessToken = localStorage.getItem("accessToken");
+        await fetch(getApiUrl("/users/logout/"), {
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ refresh: refreshToken }),
         });
       } catch (error) {
-        console.error('Logout API call failed:', error);
+        console.error("Logout API call failed:", error);
       }
     }
-    
+
     // Clear local state regardless of API call success
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    window.location.href = '/login';
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
   };
 
   // Get auth headers for API calls
   const getAuthHeaders = async () => {
-    let token = localStorage.getItem('accessToken');
-    
+    let token = localStorage.getItem("accessToken");
+
     // If no token, return empty headers
     if (!token) {
       return {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
     }
-    
+
     // Try to use existing token
     // If it fails in actual API calls, the app should call refreshAccessToken
     return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     };
   };
 
@@ -238,9 +276,5 @@ export const AuthProvider = ({ children }) => {
     login: loginWithEmail,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

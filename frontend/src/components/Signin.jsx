@@ -1,72 +1,78 @@
 // src/components/Signin.jsx
-import { useAuth } from '../AuthProvider';
-import { useState, useEffect } from 'react';
-import { Shield, Mail, Chrome, Lock, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthProvider";
+import { useState, useEffect } from "react";
+import { Shield, Mail, Chrome, Lock, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Signin = () => {
   const { loginWithGoogle, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setError('');
+    setError("");
   };
 
   const handleEmailSignup = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters');
+      setError("Password must be at least 8 characters");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
     try {
       await register(formData.email, formData.password);
       // Redirect on success
-      navigate('/profile'); // Redirect to profile to complete Aadhaar verification
+      navigate("/profile"); // Redirect to profile to complete Aadhaar verification
     } catch (error) {
-      setError(error.message || 'Registration failed');
-      console.error('Registration error:', error);
+      setError(error.message || "Registration failed");
+      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleGoogleSignup = async (credentialResponse) => {
     setIsLoading(true);
+    setError("");
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(credentialResponse);
+      navigate("/profile"); // or '/'
     } catch (error) {
-      setError(error.message || 'Google sign up failed');
-      console.error('Google signup error:', error);
+      setError(error.message || "Google sign up failed");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google signup was cancelled or failed");
   };
 
   return (
@@ -93,11 +99,14 @@ const Signin = () => {
       <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
         {/* Subtle grid background */}
         <div className="absolute inset-0 opacity-[0.02]">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
                             linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
 
         {/* Gradient orbs */}
@@ -131,14 +140,18 @@ const Signin = () => {
             {/* Content */}
             <div className="px-6 py-8 sm:px-8 sm:py-10 space-y-6">
               {/* Google Sign Up Button */}
-              <button
-                onClick={handleGoogleSignup}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20 shadow-lg shadow-white/10"
-              >
-                <Chrome className="w-5 h-5" />
-                <span>Sign Up with Google</span>
-              </button>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSignup}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="filled_black"
+                  size="large"
+                  text="continue_with"
+                  shape="rectangular"
+                  logo_alignment="left"
+                />
+              </div>
 
               {/* Divider */}
               <div className="relative">
@@ -146,7 +159,9 @@ const Signin = () => {
                   <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-black text-gray-400">Or sign up with email</span>
+                  <span className="px-4 bg-black text-gray-400">
+                    Or sign up with email
+                  </span>
                 </div>
               </div>
 
@@ -233,15 +248,15 @@ const Signin = () => {
                   className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20 mt-6"
                 >
                   <Mail className="w-5 h-5" />
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                  {isLoading ? "Creating Account..." : "Create Account"}
                 </button>
               </form>
 
               {/* Login Link */}
               <div className="text-center text-sm text-gray-400 pt-2">
-                Already have an account?{' '}
-                <a 
-                  href="/login" 
+                Already have an account?{" "}
+                <a
+                  href="/login"
                   className="text-white hover:underline font-semibold transition-colors"
                 >
                   Sign In
@@ -253,7 +268,8 @@ const Signin = () => {
           {/* Footer */}
           <div className="mt-8 text-center space-y-3">
             <p className="text-xs text-gray-500">
-              By signing up, you agree to our Terms of Service and Privacy Policy
+              By signing up, you agree to our Terms of Service and Privacy
+              Policy
             </p>
             <p className="text-xs text-gray-600">
               © 2025 ReportMitra • Government of India

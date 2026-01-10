@@ -1,33 +1,34 @@
 // src/components/Login.jsx
-import { useAuth } from '../AuthProvider';
-import { useState, useEffect } from 'react';
-import { Shield, Mail, Chrome, Lock, User, ArrowRight, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { getApiUrl } from '../utils/api';
+import { useAuth } from "../AuthProvider";
+import { useState, useEffect } from "react";
+import { Shield, Mail, Lock, User, ArrowRight, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import { getApiUrl } from "../utils/api";
 
 const Login = () => {
   const { loginWithEmail, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
+
   // Login method: 'password' or 'otp'
-  const [loginMethod, setLoginMethod] = useState('password');
-  
+  const [loginMethod, setLoginMethod] = useState("password");
+
   // Password login
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   // OTP login
-  const [otpEmail, setOtpEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
-  
+
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -42,12 +43,12 @@ const Login = () => {
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
     try {
       await loginWithEmail(email, password);
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      setError(error.message || 'Login failed. Please check your credentials.');
+      setError(error.message || "Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }
@@ -56,13 +57,13 @@ const Login = () => {
   const handleRequestOTP = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    
+    setError("");
+
     try {
-      const response = await fetch(getApiUrl('/users/request-otp/'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/users/request-otp/"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: otpEmail }),
       });
@@ -72,12 +73,12 @@ const Login = () => {
       if (response.ok) {
         setOtpSent(true);
         setOtpTimer(600); // 10 minutes = 600 seconds
-        setError('');
+        setError("");
       } else {
-        setError(data.email?.[0] || data.error || 'Failed to send code');
+        setError(data.email?.[0] || data.error || "Failed to send code");
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -86,13 +87,13 @@ const Login = () => {
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    
+    setError("");
+
     try {
-      const response = await fetch(getApiUrl('/users/verify-otp/'), {
-        method: 'POST',
+      const response = await fetch(getApiUrl("/users/verify-otp/"), {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: otpEmail, otp }),
       });
@@ -101,36 +102,44 @@ const Login = () => {
 
       if (response.ok) {
         // Store tokens
-        localStorage.setItem('accessToken', data.tokens.access);
-        localStorage.setItem('refreshToken', data.tokens.refresh);
-        
+        localStorage.setItem("accessToken", data.tokens.access);
+        localStorage.setItem("refreshToken", data.tokens.refresh);
+
         // Redirect (AuthProvider will pick up the tokens)
-        window.location.href = '/';
+        window.location.href = "/";
       } else {
-        setError(data.otp?.[0] || data.email?.[0] || data.error || 'Invalid code');
+        setError(
+          data.otp?.[0] || data.email?.[0] || data.error || "Invalid code"
+        );
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (credentialResponse) => {
     setIsLoading(true);
+    setError("");
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(credentialResponse);
+      navigate("/");
     } catch (error) {
-      setError(error.message || 'Google login failed');
+      setError(error.message || "Google login failed");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google login was cancelled or failed");
   };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -155,11 +164,14 @@ const Login = () => {
       <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 opacity-[0.02]">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
                             linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
         <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
@@ -191,14 +203,18 @@ const Login = () => {
             {/* Content */}
             <div className="px-6 py-8 sm:px-8 sm:py-10 space-y-6">
               {/* Google Login Button */}
-              <button
-                onClick={handleGoogleLogin}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-white/20 shadow-lg shadow-white/10"
-              >
-                <Chrome className="w-5 h-5" />
-                <span>Continue with Google</span>
-              </button>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  theme="filled_black"
+                  size="large"
+                  text="continue_with"
+                  shape="rectangular"
+                  logo_alignment="left"
+                />
+              </div>
 
               {/* Divider */}
               <div className="relative">
@@ -206,7 +222,9 @@ const Login = () => {
                   <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-black text-gray-400">Or continue with email</span>
+                  <span className="px-4 bg-black text-gray-400">
+                    Or continue with email
+                  </span>
                 </div>
               </div>
 
@@ -214,27 +232,27 @@ const Login = () => {
               <div className="flex gap-2 p-1 bg-white/5 rounded-lg border border-white/10">
                 <button
                   onClick={() => {
-                    setLoginMethod('password');
-                    setError('');
+                    setLoginMethod("password");
+                    setError("");
                     setOtpSent(false);
                   }}
                   className={`flex-1 py-2.5 rounded-md font-semibold transition-all ${
-                    loginMethod === 'password'
-                      ? 'bg-white text-black'
-                      : 'text-gray-400 hover:text-white'
+                    loginMethod === "password"
+                      ? "bg-white text-black"
+                      : "text-gray-400 hover:text-white"
                   }`}
                 >
                   Password
                 </button>
                 <button
                   onClick={() => {
-                    setLoginMethod('otp');
-                    setError('');
+                    setLoginMethod("otp");
+                    setError("");
                   }}
                   className={`flex-1 py-2.5 rounded-md font-semibold transition-all ${
-                    loginMethod === 'otp'
-                      ? 'bg-white text-black'
-                      : 'text-gray-400 hover:text-white'
+                    loginMethod === "otp"
+                      ? "bg-white text-black"
+                      : "text-gray-400 hover:text-white"
                   }`}
                 >
                   Email Code
@@ -249,7 +267,7 @@ const Login = () => {
               )}
 
               {/* Password Login Form */}
-              {loginMethod === 'password' && (
+              {loginMethod === "password" && (
                 <form onSubmit={handlePasswordLogin} className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
@@ -296,7 +314,9 @@ const Login = () => {
                     disabled={isLoading}
                     className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20 mt-6"
                   >
-                    {isLoading ? 'Signing in...' : (
+                    {isLoading ? (
+                      "Signing in..."
+                    ) : (
                       <>
                         <Mail className="w-5 h-5" />
                         Sign In with Password
@@ -307,7 +327,7 @@ const Login = () => {
               )}
 
               {/* OTP Login Form */}
-              {loginMethod === 'otp' && !otpSent && (
+              {loginMethod === "otp" && !otpSent && (
                 <form onSubmit={handleRequestOTP} className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
@@ -334,7 +354,9 @@ const Login = () => {
                     disabled={isLoading}
                     className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20"
                   >
-                    {isLoading ? 'Sending code...' : (
+                    {isLoading ? (
+                      "Sending code..."
+                    ) : (
                       <>
                         <ArrowRight className="w-5 h-5" />
                         Send Login Code
@@ -345,13 +367,15 @@ const Login = () => {
               )}
 
               {/* OTP Verification Form */}
-              {loginMethod === 'otp' && otpSent && (
+              {loginMethod === "otp" && otpSent && (
                 <form onSubmit={handleVerifyOTP} className="space-y-4">
                   <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
                     <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold">Code sent to {otpEmail}</p>
-                      <p className="text-xs mt-1">Check your email for the 6-digit code</p>
+                      <p className="text-xs mt-1">
+                        Check your email for the 6-digit code
+                      </p>
                     </div>
                   </div>
 
@@ -362,7 +386,9 @@ const Login = () => {
                     <input
                       type="text"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) =>
+                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
                       className="w-full px-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all text-center text-2xl tracking-widest font-mono"
                       placeholder="000000"
                       required
@@ -373,7 +399,10 @@ const Login = () => {
 
                   {otpTimer > 0 && (
                     <p className="text-sm text-gray-400 text-center">
-                      Code expires in <span className="font-mono font-semibold text-white">{formatTime(otpTimer)}</span>
+                      Code expires in{" "}
+                      <span className="font-mono font-semibold text-white">
+                        {formatTime(otpTimer)}
+                      </span>
                     </p>
                   )}
 
@@ -382,15 +411,15 @@ const Login = () => {
                     disabled={isLoading || otp.length !== 6}
                     className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20"
                   >
-                    {isLoading ? 'Verifying...' : 'Verify & Sign In'}
+                    {isLoading ? "Verifying..." : "Verify & Sign In"}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       setOtpSent(false);
-                      setOtp('');
-                      setError('');
+                      setOtp("");
+                      setError("");
                     }}
                     className="w-full text-gray-400 hover:text-white text-sm transition-colors"
                   >
@@ -401,9 +430,9 @@ const Login = () => {
 
               {/* Sign Up Link */}
               <div className="text-center text-sm text-gray-400 pt-2">
-                Don't have an account?{' '}
-                <a 
-                  href="/register" 
+                Don't have an account?{" "}
+                <a
+                  href="/register"
                   className="text-white hover:underline font-semibold transition-colors"
                 >
                   Sign Up

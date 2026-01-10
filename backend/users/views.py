@@ -15,7 +15,8 @@ from .serializers import (
     UserSerializer,
     ChangePasswordSerializer,
     RequestOTPSerializer,
-    VerifyOTPSerializer
+    VerifyOTPSerializer,
+    GoogleAuthSerializer
 )
 from .email_utils import send_otp_email
 from .models import EmailOTP
@@ -222,6 +223,35 @@ def verify_otp_view(request):
     
     if serializer.is_valid():
         user = serializer.validated_data['user']
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'message': 'Login successful',
+            'user': UserSerializer(user).data,
+            'tokens': {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def google_auth_view(request):
+    """
+    Authenticate with Google OAuth
+    POST /api/users/google-auth/
+    Body: {"token": "google_oauth_token"}
+    """
+    serializer = GoogleAuthSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        # Create or get user
+        user = serializer.create_or_get_user(serializer.validated_data)
         
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
