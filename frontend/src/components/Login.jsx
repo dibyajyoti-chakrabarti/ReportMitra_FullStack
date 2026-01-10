@@ -15,18 +15,18 @@ const Login = () => {
   };
 
   // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.href = '/';
-    }
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     window.location.href = '/';
+  //   }
+  // }, [isAuthenticated]);
 
   // Auto-initiate login on mount
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      handleLogin();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!isAuthenticated && !isLoading) {
+  //     handleLogin();
+  //   }
+  // }, []);
 
   return (
     <>
