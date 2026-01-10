@@ -6,17 +6,17 @@ const Callback = () => {
   const { isLoading, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated && user) {
-        // Successfully authenticated, redirect to home
-        navigate('/');
-      } else {
-        // Authentication failed, redirect to login
-        navigate('/login');
-      }
-    }
-  }, [isLoading, isAuthenticated, user, navigate]);
+  // useEffect(() => {
+  //   if (!isLoading) {
+  //     if (isAuthenticated && user) {
+  //       // Successfully authenticated, redirect to home
+  //       navigate('/');
+  //     } else {
+  //       // Authentication failed, redirect to login
+  //       navigate('/login');
+  //     }
+  //   }
+  // }, [isLoading, isAuthenticated, user, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

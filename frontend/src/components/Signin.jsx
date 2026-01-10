@@ -15,11 +15,11 @@ const Signin = () => {
   };
 
   // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.href = '/';
-    }
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     window.location.href = '/';
+  //   }
+  // }, [isAuthenticated]);
 
   return (
     <div className="min-h-screen bg-gray-50">
