@@ -1,5 +1,5 @@
 import { useAuth } from "../AuthProvider";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GridDistortion from "../react-bits/gridDistortion";
 import bg_img from "../assets/blr-infra-1.png";
 import TextType from "../react-bits/TextType";
@@ -8,19 +8,18 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
-import DebugToken from "./Debug";
 
 const Landing = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    await login();
+  const handleGetStarted = () => {
+    navigate('/login');
   };
 
   return (
     <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
       <Navbar />
-      {/* <DebugToken /> */}
 
       {/* Background: fixed so it stays visible while page grows */}
       <div
@@ -85,7 +84,7 @@ const Landing = () => {
         {!isAuthenticated && (
           <div className="flex justify-center">
             <button
-              onClick={handleLogin}
+              onClick={handleGetStarted}
               className="bg-white font-bold cursor-pointer text-black px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 rounded-full hover:scale-105 hover:bg-black hover:text-white transition duration-200 text-lg sm:text-xl md:text-2xl"
             >
               Get Started
@@ -106,7 +105,6 @@ const Landing = () => {
                 to="/report"
                 className="relative w-full hover:scale-105 transition-transform cursor-pointer"
               >
-                {/* rounded corners kept for visual appeal */}
                 <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl "></div>
                 <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
                   <img
@@ -124,7 +122,7 @@ const Landing = () => {
               </Link>
             ) : (
               <div
-                onClick={handleLogin}
+                onClick={handleGetStarted}
                 className="relative w-full hover:scale-105 transition-transform cursor-pointer"
               >
                 <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
@@ -176,7 +174,7 @@ const Landing = () => {
         </section>
       </main>
 
-      {/* ABOUT SECTION (stacked cards on black background, no rounding) */}
+      {/* ABOUT SECTION */}
       <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="max-w-7xl mx-auto flex flex-col gap-12 sm:gap-16">
 
@@ -216,7 +214,7 @@ const Landing = () => {
               cleaner, safer, and smarter neighbourhoods can be achieved when citizens are empowered
               with the right tools and information.
               <br /><br />
-              Ultimately, we aspire to build a city where civic problems don’t accumulate silently but
+              Ultimately, we aspire to build a city where civic problems don't accumulate silently but
               are acknowledged, addressed, and resolved with efficiency — shaping a more accountable and
               responsive urban environment for everyone.
             </p>

@@ -1,5 +1,6 @@
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -11,15 +12,28 @@ DEBUG = False  # overridden in local.py
 
 ALLOWED_HOSTS = []
 
+# JWT Configuration
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token valid for 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token valid for 7 days
+    'ROTATE_REFRESH_TOKENS': True,                   # Issue new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,                # Blacklist old refresh tokens
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "users.authentication.KindeAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
 }
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -32,6 +46,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',          # JWT support
+    'rest_framework_simplejwt.token_blacklist',  # Token blacklist for logout
     'phonenumber_field',
 
     'users',
@@ -76,7 +92,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://api.reportmitra.in",
 ]
 
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -93,10 +108,9 @@ TEMPLATES = [
     },
 ]
 
-
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # MUST be high
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -107,12 +121,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'report_hub.urls'
 WSGI_APPLICATION = 'report_hub.wsgi.application'
-
-# Kinde (defaults for local)
-KINDE_DOMAIN = os.getenv("KINDE_DOMAIN", "")
-KINDE_ISSUER_URL = os.getenv("KINDE_ISSUER_URL", "")
-KINDE_BACKEND_CLIENT_ID = os.getenv("KINDE_BACKEND_CLIENT_ID", "")
-KINDE_BACKEND_CLIENT_SECRET = os.getenv("KINDE_BACKEND_CLIENT_SECRET", "")
 
 # AWS / S3 (Report Images)
 REPORT_IMAGES_BUCKET = os.getenv("REPORT_IMAGES_BUCKET")
@@ -125,8 +133,6 @@ if not REPORT_IMAGES_BUCKET:
     raise RuntimeError(
         "REPORT_IMAGES_BUCKET is not set. Check your .env file."
     )
-
-
 
 DATABASES = {
     "default": {
@@ -149,3 +155,17 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ReportMitra <noreply@reportmitra.in>')
+
+# Google OAuth
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5173/auth/google/callback')

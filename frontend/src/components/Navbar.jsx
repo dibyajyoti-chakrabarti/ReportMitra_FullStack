@@ -6,10 +6,13 @@ import logo_2 from "../assets/logo-2.png";
 import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
-  const { login, register, logout, isAuthenticated, isLoading } = useAuth();
+  const { loginWithEmail, loginWithGoogle, register, logout, isAuthenticated, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogin = async () => await login();
+  const handleLogin = () => {
+  // Redirect to login page instead of calling Kinde directly
+  window.location.href = '/login';
+};
   const handleRegister = async () => await register();
   const handleLogout = async () => await logout();
 
