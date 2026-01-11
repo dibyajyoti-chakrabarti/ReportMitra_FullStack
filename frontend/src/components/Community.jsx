@@ -2,11 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
 import PostCard from "./PostCard";
+import { Loader2 } from "lucide-react";
 
 function Community() {
   const [posts, setPosts] = useState([]);
   const [nextCursorUrl, setNextCursorUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const observerRef = useRef(null);
 
@@ -14,7 +16,8 @@ function Community() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
   const fetchPosts = async (
-    url = `${API_BASE}/api/reports/community/resolved/`
+    url = `${API_BASE}/api/reports/community/resolved/`,
+    isInitial = false
   ) => {
     if (loading) return;
     setLoading(true);
@@ -27,28 +30,30 @@ function Community() {
         const text = await res.text();
         console.error("Expected JSON, got:", text);
         setLoading(false);
+        if (isInitial) setInitialLoading(false);
         return;
       }
 
       const data = await res.json();
 
-    setPosts(prev => {
-      const existingIds = new Set(prev.map(p => p.id));
-      const newItems = data.results.filter(p => !existingIds.has(p.id));
-      return [...prev, ...newItems];
-    });
+      setPosts(prev => {
+        const existingIds = new Set(prev.map(p => p.id));
+        const newItems = data.results.filter(p => !existingIds.has(p.id));
+        return [...prev, ...newItems];
+      });
 
       setNextCursorUrl(data.next);
     } catch (err) {
       console.error("Failed to fetch community posts:", err);
     } finally {
       setLoading(false);
+      if (isInitial) setInitialLoading(false);
     }
   };
 
   // Initial load
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(undefined, true);
   }, []);
 
   // Infinite scroll observer
@@ -65,6 +70,18 @@ function Community() {
 
     return () => observer.disconnect();
   }, [nextCursorUrl]);
+
+  // Show loading screen during initial fetch (NO Navbar/Footer)
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-700">
+        <Loader2 className="h-14 w-14 animate-spin text-gray-900" />
+        <p className="text-lg font-semibold tracking-wide">
+          Loading community updates
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

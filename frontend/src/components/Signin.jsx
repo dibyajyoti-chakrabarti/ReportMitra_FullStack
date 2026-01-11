@@ -1,9 +1,10 @@
 // src/components/Signin.jsx
 import { useAuth } from "../AuthProvider";
 import { useState, useEffect } from "react";
-import { Shield, Mail, Chrome, Lock, User } from "lucide-react";
+import { Mail, Lock, User, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import logo from "../assets/logo-1.png";
 
 const Signin = () => {
   const { loginWithGoogle, register, isAuthenticated } = useAuth();
@@ -96,7 +97,7 @@ const Signin = () => {
         `}
       </style>
 
-      <div className="min-h-screen bg-black flex items-center justify-center px-4 py-8 relative overflow-hidden">
+      <div className="min-h-screen bg-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
         {/* Subtle grid background */}
         <div className="absolute inset-0 opacity-[0.02]">
           <div
@@ -113,17 +114,26 @@ const Signin = () => {
         <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
 
+        {/* Back to Home Button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group z-20"
+        >
+          <Home className="w-5 h-5" />
+          <span className="text-sm font-medium">Home</span>
+        </button>
+
         {/* Main container */}
         <div className="relative z-10 w-full max-w-md fade-in">
           {/* Logo/Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-6 shadow-lg shadow-white/20">
-              <Shield className="w-8 h-8 text-black" strokeWidth={2.5} />
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center mb-4">
+              <img src={logo} alt="ReportMitra Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">
               ReportMitra
             </h1>
-            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">
+            <p className="text-xs sm:text-sm text-gray-400 font-medium uppercase tracking-wider">
               CIVIC | CONNECT | RESOLVE
             </p>
           </div>
@@ -131,14 +141,14 @@ const Signin = () => {
           {/* Sign Up Card */}
           <div className="glass-effect rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-white px-6 py-4 border-b border-white/10">
-              <h2 className="text-black text-xl font-bold text-center">
+            <div className="bg-white px-6 py-3 sm:py-4 border-b border-white/10">
+              <h2 className="text-black text-lg sm:text-xl font-bold text-center">
                 Create Account
               </h2>
             </div>
 
             {/* Content */}
-            <div className="px-6 py-8 sm:px-8 sm:py-10 space-y-6">
+            <div className="px-4 py-6 sm:px-6 sm:py-8 space-y-5">
               {/* Google Sign Up Button */}
               <div className="flex justify-center">
                 <GoogleLogin
@@ -167,7 +177,7 @@ const Signin = () => {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm">
                   {error}
                 </div>
               )}
@@ -176,19 +186,19 @@ const Signin = () => {
               <form onSubmit={handleEmailSignup} className="space-y-4">
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Email Address
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-500" />
+                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
                     </div>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
+                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
                       placeholder="your.email@example.com"
                       required
                       disabled={isLoading}
@@ -198,19 +208,19 @@ const Signin = () => {
 
                 {/* Password Field */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Password
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-500" />
+                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
                     </div>
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
+                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
                       placeholder="••••••••"
                       required
                       disabled={isLoading}
@@ -221,19 +231,19 @@ const Signin = () => {
 
                 {/* Confirm Password Field */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Confirm Password
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-500" />
+                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
                     </div>
                     <input
                       type="password"
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
+                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
                       placeholder="••••••••"
                       required
                       disabled={isLoading}
@@ -245,15 +255,15 @@ const Signin = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20 mt-6"
+                  className="w-full bg-white text-black py-2.5 sm:py-3.5 rounded-xl text-sm sm:text-base font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20 mt-4 sm:mt-6"
                 >
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                   {isLoading ? "Creating Account..." : "Create Account"}
                 </button>
               </form>
 
               {/* Login Link */}
-              <div className="text-center text-sm text-gray-400 pt-2">
+              <div className="text-center text-xs sm:text-sm text-gray-400 pt-2">
                 Already have an account?{" "}
                 <a
                   href="/login"
@@ -266,13 +276,13 @@ const Signin = () => {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 text-center space-y-3">
+          <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-gray-500">
               By signing up, you agree to our Terms of Service and Privacy
               Policy
             </p>
             <p className="text-xs text-gray-600">
-              © 2025 ReportMitra • Government of India
+              © 2026 ReportMitra • Government of India
             </p>
           </div>
         </div>

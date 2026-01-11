@@ -174,46 +174,54 @@ const Landing = () => {
         </section>
       </main>
 
-      {/* ABOUT SECTION */}
+      {/* ABOUT SECTION - Professional and Elegant Design */}
       <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col gap-12 sm:gap-16">
+        <div className="max-w-6xl mx-auto flex flex-col gap-12 sm:gap-16">
 
           {/* Mission */}
-          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Our Mission</h2>
-            <div className="h-1 w-20 bg-[#2563EB] mb-6"></div>
+          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-1 bg-blue-500"></div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Mission</h2>
+            </div>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
               Our mission is to build a unified and transparent civic reporting platform that every
               citizen of Bengaluru can rely on. We want to remove the confusion around where and how
               to report issues, and provide a single, trusted destination for citizens to highlight
               civic problems.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               We aim to make reporting simple, eliminate unnecessary delays caused by manual routing,
               and ensure that every complaint reaches the correct department without friction. Through
               clear communication, accessible tools, and reliable tracking, ReportMitra empowers citizens
               to take meaningful action in improving their neighbourhoods.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               At its core, our mission is to strengthen the relationship between the people of Bengaluru
               and the systems that serve them — making civic participation easier, faster, and more impactful.
             </p>
           </div>
 
           {/* Vision */}
-          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Our Vision</h2>
-            <div className="h-1 w-20 bg-[#2563EB] mb-6"></div>
+          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-1 bg-blue-500"></div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Vision</h2>
+            </div>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
               We envision a future where Bengaluru becomes a model for citizen-driven urban improvement.
               A city where everyone — from daily commuters to families to students — has the ability to
               report issues effortlessly, track real progress, and see visible outcomes in their community.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               Our vision is a Bengaluru where transparency is the norm, technology removes unnecessary
               barriers, and civic bodies and citizens work together with mutual trust. We believe that
               cleaner, safer, and smarter neighbourhoods can be achieved when citizens are empowered
               with the right tools and information.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               Ultimately, we aspire to build a city where civic problems don't accumulate silently but
               are acknowledged, addressed, and resolved with efficiency — shaping a more accountable and
               responsive urban environment for everyone.
@@ -221,23 +229,28 @@ const Landing = () => {
           </div>
 
           {/* Why ReportMitra */}
-          <div className="bg-[#0D1117] p-8 sm:p-10 md:p-12 lg:p-14 border border-gray-800 shadow-lg">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Why ReportMitra?</h2>
-            <div className="h-1 w-28 bg-[#2563EB] mb-6"></div>
+          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-1 bg-blue-500"></div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Why ReportMitra?</h2>
+            </div>
 
-            <p className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-300">
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
               Civic issues in Bengaluru often go unresolved simply because citizens are unsure where to
               report them, which department is responsible, or whether their complaints will lead to any
               visible action. ReportMitra was created to bring clarity and confidence to this process.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               Through machine learning, every report is automatically classified and sent to the correct
               civic department — eliminating delays and reducing the dependency on manual decision-making.
               Our priority-based escalation model ensures long-pending issues receive increasing attention
               over time, even if the citizen does not repeatedly follow up.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               By giving residents a transparent way to track progress and stay informed, we aim to foster
               a culture where civic participation becomes easy, meaningful, and rewarding.
-              <br /><br />
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
               ReportMitra exists because Bengaluru deserves a system where every problem is heard, every
               voice matters, and every neighbourhood is valued.
             </p>
