@@ -50,7 +50,7 @@ export default function IssueDetails() {
         if (reportData.image_url) {
           // decode percent-encoding if present
           const decoded = decodeURIComponent(reportData.image_url);
-          if (!cancelled) setImgSrc(decoded);
+          if (!cancelled) setImgError("Image unavailable");
         } else {
           if (!cancelled) setImgError("No image available for this report.");
         }
@@ -58,7 +58,7 @@ export default function IssueDetails() {
         // network or other error -> fallback to direct image_url
         if (reportData?.image_url) {
           const decoded = decodeURIComponent(reportData.image_url);
-          if (!cancelled) setImgSrc(decoded);
+          if (!cancelled) setImgError("Image unavailable");
         } else {
           if (!cancelled) setImgError("Failed to load image.");
         }

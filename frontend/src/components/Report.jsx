@@ -7,7 +7,13 @@ import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
 import Logo from "../assets/logo-1.png";
 import { classifyImage } from "../ai/classifyImage";
-import { User, FileText, Image as ImageIcon, MapPin, AlertCircle } from "lucide-react";
+import {
+  User,
+  FileText,
+  Image as ImageIcon,
+  MapPin,
+  AlertCircle,
+} from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
@@ -25,7 +31,7 @@ function Report() {
   const [showMap, setShowMap] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
   const [tempPosition, setTempPosition] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     issue_title: "",
     location: "",
@@ -38,19 +44,18 @@ function Report() {
     image: "",
   });
 
-  
   // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const headers = await getAuthHeaders();
-        const response = await fetch(getApiUrl('/profile/me/'), {
+        const response = await fetch(getApiUrl("/profile/me/"), {
           headers,
         });
         if (response.ok) {
           const data = await response.json();
           setUserProfile(data);
-          
+
           // Show popup if user is not verified
           if (!data.is_aadhaar_verified) {
             setShowUnverifiedPopup(true);
@@ -86,7 +91,7 @@ function Report() {
     const authHeaders =
       typeof getAuthHeaders === "function" ? await getAuthHeaders() : {};
 
-    const presignResp = await fetch(getApiUrl('/reports/s3/presign/'), {
+    const presignResp = await fetch(getApiUrl("/reports/s3/presign/"), {
       method: "POST",
       headers: { ...authHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -112,11 +117,7 @@ function Report() {
       import.meta.env.VITE_S3_BUCKET || "reportmitra-report-images-dc";
     const AWS_REGION = import.meta.env.VITE_AWS_REGION || "ap-south-1";
 
-    const objectUrl = `https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${encodeURIComponent(
-      key
-    )}`;
-
-    return { objectUrl, key };
+    return { key };
   };
 
   const handleInputChange = (e) => {
@@ -133,13 +134,13 @@ function Report() {
       image: "",
       location: "",
     });
-    
+
     // Check verification status first
     if (!userProfile?.is_aadhaar_verified) {
       setShowUnverifiedPopup(true);
       return;
     }
-    
+
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -196,8 +197,9 @@ function Report() {
 
       if (selectedFile) {
         try {
-          const { objectUrl } = await uploadFileToS3(selectedFile);
-          imageUrl = objectUrl;
+          const { key } = await uploadFileToS3(selectedFile);
+          imageUrl = key;
+
           if (import.meta.env.DEV) {
             console.log("Uploaded image URL:", imageUrl);
           }
@@ -235,7 +237,7 @@ function Report() {
         status: "pending",
       };
 
-      const response = await fetch(getApiUrl('/reports/'), {
+      const response = await fetch(getApiUrl("/reports/"), {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -360,7 +362,11 @@ function Report() {
             {/* Logo */}
             <div className="flex justify-center mb-6">
               <div className="w-20 h-20">
-                <img src={Logo} alt="ReportMitra Logo" className="w-full h-full object-contain" />
+                <img
+                  src={Logo}
+                  alt="ReportMitra Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
 
@@ -372,13 +378,24 @@ function Report() {
             {/* Main Content */}
             <div className="space-y-6 text-base md:text-lg leading-relaxed">
               <p className="text-gray-300 text-center">
-                You must complete <strong className="text-white">Aadhaar verification</strong> before submitting reports. This ensures authenticity and prevents platform misuse.
+                You must complete{" "}
+                <strong className="text-white">Aadhaar verification</strong>{" "}
+                before submitting reports. This ensures authenticity and
+                prevents platform misuse.
               </p>
 
               <div className="border-t border-gray-700 pt-6">
-                <h2 className="text-xl font-bold mb-4 text-center">Why verification matters</h2>
+                <h2 className="text-xl font-bold mb-4 text-center">
+                  Why verification matters
+                </h2>
                 <p className="text-gray-300 text-center leading-relaxed">
-                  Aadhaar verification links your identity to every report you submit, ensuring that all reports come from real, verified citizens. This prevents spam and fake reports, creates accountability between the community and government, and complies with mandatory government regulations for civic reporting platforms. Your verified identity builds trust in the system while protecting it from misuse.
+                  Aadhaar verification links your identity to every report you
+                  submit, ensuring that all reports come from real, verified
+                  citizens. This prevents spam and fake reports, creates
+                  accountability between the community and government, and
+                  complies with mandatory government regulations for civic
+                  reporting platforms. Your verified identity builds trust in
+                  the system while protecting it from misuse.
                 </p>
               </div>
             </div>

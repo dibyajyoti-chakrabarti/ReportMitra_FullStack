@@ -24,9 +24,10 @@ class IssueReportSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """
         - Attach request.user
-        - Assume frontend sends a ready-to-store S3 URL in `image_url`
+        - Expect frontend to send a raw S3 object key in `image_url`
         - Generate a unique tracking_id
         """
+
         request = self.context.get("request")
         if request and getattr(request, "user", None) and request.user.is_authenticated:
             validated_data.setdefault("user", request.user)
@@ -38,6 +39,13 @@ class IssueReportSerializer(serializers.ModelSerializer):
             validated_data["tracking_id"] = self._generate_unique_tracking_id()
 
         return super().create(validated_data)
+    
+    def validate_image_url(self, value):
+        if value.startswith("http"):
+            raise serializers.ValidationError(
+                "image_url must be an S3 object key, not a full URL"
+            )
+        return value
 
 class IssueHistorySerializer(serializers.ModelSerializer):
     class Meta:

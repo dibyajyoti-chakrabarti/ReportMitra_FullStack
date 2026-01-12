@@ -10,7 +10,6 @@ from .serializers import IssueHistorySerializer
 from user_profile.models import UserProfile
 from .models import IssueReport
 from .serializers import IssueReportSerializer
-from urllib.parse import urlparse, unquote
 from django.conf import settings
 import boto3
 import uuid
@@ -134,54 +133,36 @@ def presign_get_for_track(request, id):
     before_url = None
     after_url = None
 
-    # ---------------- BEFORE IMAGE ----------------
+   # ---------------- BEFORE IMAGE ----------------
     if report.image_url:
         try:
-            # image_url is a full S3 URL like:
-            # https://reportmitra-report-images-dc.s3.ap-south-1.amazonaws.com/reports%2F6%2F5cdfb3535e6949af91ec82e9241f7a03-phole.jpg
-            
-            parsed = urlparse(report.image_url)
-            # Extract path and decode URL encoding: /reports%2F6%2F... -> /reports/6/...
-            key = unquote(parsed.path.lstrip("/"))
-            
-            # Remove bucket name if it's in the path (shouldn't be for your URLs, but just in case)
-            if key.startswith(bucket_name + "/"):
-                key = key[len(bucket_name) + 1:]
-
             before_url = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
                     "Bucket": bucket_name,
-                    "Key": key,
+                    "Key": report.image_url,
                 },
                 ExpiresIn=3600,
             )
         except Exception as e:
             print(f"Error generating before_url for report {id}: {e}")
-            print(f"image_url was: {report.image_url}")
             before_url = None
 
     # ---------------- AFTER IMAGE ----------------
     if report.completion_url:
         try:
-            # completion_url is just the S3 key like:
-            # completion/Sanitation Department/565b2eba-0af0-4d1b-a946-090d0e000eb8.jpeg
-            
-            # No need to parse or decode - it's already the key
-            key = report.completion_url
-
             after_url = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
                     "Bucket": bucket_name,
-                    "Key": key,
+                    "Key": report.completion_url,
                 },
                 ExpiresIn=3600,
             )
         except Exception as e:
             print(f"Error generating after_url for report {id}: {e}")
-            print(f"completion_url was: {report.completion_url}")
             after_url = None
+
 
     # ---------------- RESPONSE (BACKWARD COMPATIBLE) ----------------
     return Response({
