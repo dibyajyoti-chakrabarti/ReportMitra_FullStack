@@ -76,7 +76,7 @@ def presign_s3(request):
         )
 
         # Example key: reports/<user_id>/<uuid>-originalName.jpg
-        key = f"reports/{request.user.id}/{uuid.uuid4().hex}-{file_name}"
+        key = f"{uuid.uuid4().hex}-{file_name}"
 
         presigned_url = s3_client.generate_presigned_url(
             "put_object",
