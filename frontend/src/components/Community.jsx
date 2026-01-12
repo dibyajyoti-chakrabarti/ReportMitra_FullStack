@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Navbar from "./MiniNavbar";
 import Footer from "./Footer";
 import PostCard from "./PostCard";
-import { Loader2 } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 
 function Community() {
   const [posts, setPosts] = useState([]);
@@ -98,8 +98,16 @@ function Community() {
 
           <div className="space-y-10">
             {posts.length === 0 && !loading && (
-              <div className="text-center text-gray-600 py-16">
-                No resolved issues yet.
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                  <Users className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  No Updates Yet
+                </h3>
+                <p className="text-gray-500 max-w-md">
+                  The community page will show resolved issues and their impact. Check back soon to see how your reports are making a difference.
+                </p>
               </div>
             )}
 

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthProvider";
-import { Clipboard, Check, Loader2 } from "lucide-react";
+import { Clipboard, Check, Loader2, FileText } from "lucide-react";
 import Navbar from "./MiniNavbar";
+import Footer from "./Footer";
 import { getApiUrl } from "../utils/api";
 
 const History = () => {
@@ -76,9 +77,17 @@ const History = () => {
           </h1>
 
           {issues.length === 0 ? (
-            <p className="text-gray-600">
-              You haven’t reported any issues yet.
-            </p>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                <FileText className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No Reports Yet
+              </h3>
+              <p className="text-gray-500 max-w-md">
+                You haven't submitted any reports. Start by reporting an issue in your community to make a positive impact.
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
               {issues.map((issue) => (
@@ -134,6 +143,8 @@ const History = () => {
           )}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

@@ -5,8 +5,9 @@ import { useAuth } from "../AuthProvider";
 import Footer from "./Footer";
 import Tick from "../assets/tick.png";
 import Copy from "../assets/copy.jpg";
+import Logo from "../assets/logo-1.png";
 import { classifyImage } from "../ai/classifyImage";
-import { User, FileText, Image as ImageIcon, MapPin, AlertCircle, ShieldAlert } from "lucide-react";
+import { User, FileText, Image as ImageIcon, MapPin, AlertCircle } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
@@ -354,48 +355,43 @@ function Report() {
 
       {/* Unverified User Popup */}
       {showUnverifiedPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShieldAlert className="w-10 h-10 text-red-600" />
-            </div>
-
-            <h2 className="text-2xl font-bold text-red-600 mb-3">
-              Verification Required
-            </h2>
-
-            <p className="text-gray-700 mb-4 leading-relaxed">
-              You must complete <strong>Aadhaar verification</strong> before submitting reports. This ensures authenticity and prevents misuse of the platform.
-            </p>
-
-            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3 text-left">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-gray-700">
-                  <p className="font-semibold mb-1">Why verification matters:</p>
-                  <ul className="list-disc list-inside space-y-1 text-xs">
-                    <li>Prevents spam and fake reports</li>
-                    <li>Ensures accountability</li>
-                    <li>Required by government regulations</li>
-                  </ul>
-                </div>
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-6 overflow-y-auto">
+          <div className="max-w-2xl w-full text-white my-8">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20">
+                <img src={Logo} alt="ReportMitra Logo" className="w-full h-full object-contain" />
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
+            {/* Header */}
+            <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
+              Verification Required
+            </h1>
+
+            {/* Main Content */}
+            <div className="space-y-6 text-base md:text-lg leading-relaxed">
+              <p className="text-gray-300 text-center">
+                You must complete <strong className="text-white">Aadhaar verification</strong> before submitting reports. This ensures authenticity and prevents platform misuse.
+              </p>
+
+              <div className="border-t border-gray-700 pt-6">
+                <h2 className="text-xl font-bold mb-4 text-center">Why verification matters</h2>
+                <p className="text-gray-300 text-center leading-relaxed">
+                  Aadhaar verification links your identity to every report you submit, ensuring that all reports come from real, verified citizens. This prevents spam and fake reports, creates accountability between the community and government, and complies with mandatory government regulations for civic reporting platforms. Your verified identity builds trust in the system while protecting it from misuse.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <div className="flex flex-col gap-4 mt-8">
               <button
                 onClick={() => {
                   window.location.href = "/profile";
                 }}
-                className="bg-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 transition cursor-pointer"
+                className="bg-white text-black py-3 px-6 rounded-lg font-bold text-lg hover:bg-gray-200 transition-all duration-200 cursor-pointer"
               >
-                Go to Profile & Verify
-              </button>
-              <button
-                onClick={() => setShowUnverifiedPopup(false)}
-                className="text-gray-600 hover:text-gray-800 underline text-sm cursor-pointer transition"
-              >
-                I'll do it later
+                Verify Now
               </button>
             </div>
           </div>
