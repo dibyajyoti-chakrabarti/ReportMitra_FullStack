@@ -8,7 +8,7 @@ export async function classifyImage(imageUrl) {
 
         Allowed departments (choose only ONE):
 
-        1. Public Works Department (PWD)
+        1. Public Works Department
         Handles ONLY:
         - Structural damage to roads, streets, footpaths, bridges, flyovers, culverts
         - Broken or collapsed concrete or asphalt surfaces
@@ -16,7 +16,7 @@ export async function classifyImage(imageUrl) {
 
         Does NOT handle water, sewage, garbage, or traffic control equipment.
 
-        2. Water Board
+        2. Water Board Department
         Handles ONLY:
         - Drinking water supply infrastructure
         - Freshwater pipeline leaks or bursts
@@ -25,7 +25,7 @@ export async function classifyImage(imageUrl) {
 
         Does NOT handle sewage, drains, stormwater, garbage, or road damage.
 
-        3. Sewerage & Drainage Department
+        3. Sewage and Drainage Department
         Handles ONLY:
         - Sewage lines and manholes
         - Wastewater overflow
