@@ -22,10 +22,6 @@ const MiniNavbar = () => {
     await logout();
   };
 
-  const handleDocumentation = () => {
-    window.open('https://dibyajyoti-chakrabarti.vercel.app/projects/reportmitra', '_blank');
-  };
-
   if (isLoading) {
     return (
       <header className="bg-black text-white p-4 shadow-md w-full">
@@ -69,12 +65,6 @@ const MiniNavbar = () => {
                 Community
               </Link>
               <button
-                onClick={handleDocumentation}
-                className="hover:underline cursor-pointer"
-              >
-                Documentation
-              </button>
-              <button
                 onClick={handleLogout}
                 className="hover:underline cursor-pointer"
               >
@@ -83,12 +73,6 @@ const MiniNavbar = () => {
             </>
           ) : (
             <>
-              <button
-                onClick={handleDocumentation}
-                className="hover:underline cursor-pointer"
-              >
-                Documentation
-              </button>
               <button
                 onClick={handleLogin}
                 className="hover:underline cursor-pointer"
@@ -160,15 +144,6 @@ const MiniNavbar = () => {
             </Link>
             <button
               onClick={() => {
-                handleDocumentation();
-                setMenuOpen(false);
-              }}
-              className="hover:underline"
-            >
-              Documentation
-            </button>
-            <button
-              onClick={() => {
                 handleLogout();
                 setMenuOpen(false);
               }}
@@ -179,15 +154,6 @@ const MiniNavbar = () => {
           </>
         ) : (
           <>
-            <button
-              onClick={() => {
-                handleDocumentation();
-                setMenuOpen(false);
-              }}
-              className="hover:underline"
-            >
-              Documentation
-            </button>
             <button
               onClick={() => {
                 handleLogin();

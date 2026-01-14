@@ -1,5 +1,5 @@
 import logo from "../assets/logo-1.png";
-import { MapPin, Mail, Heart } from "lucide-react";
+import { MapPin, Mail, Heart, BookOpen } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -69,6 +69,17 @@ const Footer = () => {
                 <Mail className="w-4 h-4 mr-2" />
                 <a href="mailto:support@reportmitra.in" className="hover:text-white transition-colors duration-200">
                   support@reportmitra.in
+                </a>
+              </p>
+              <p className="flex items-center justify-center md:justify-start">
+                <BookOpen className="w-4 h-4 mr-2" />
+                <a 
+                  href="https://dibyajyoti-chakrabarti.vercel.app/projects/reportmitra" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Documentation
                 </a>
               </p>
               <p className="flex items-center justify-center md:justify-start text-sm pt-2">
