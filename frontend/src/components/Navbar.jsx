@@ -10,11 +10,16 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogin = () => {
-  // Redirect to login page instead of calling Kinde directly
-  window.location.href = '/login';
-};
+    // Redirect to login page instead of calling Kinde directly
+    window.location.href = '/login';
+  };
+
   const handleRegister = async () => await register();
   const handleLogout = async () => await logout();
+
+  const handleDocumentation = () => {
+    window.open('https://dibyajyoti-chakrabarti.vercel.app/projects/reportmitra', '_blank');
+  };
 
   if (isLoading) {
     return (
@@ -59,6 +64,12 @@ const Navbar = () => {
                 Community
               </Link>
               <button
+                onClick={handleDocumentation}
+                className="hover:underline cursor-pointer"
+              >
+                Documentation
+              </button>
+              <button
                 onClick={handleLogout}
                 className="hover:underline cursor-pointer"
               >
@@ -67,6 +78,12 @@ const Navbar = () => {
             </>
           ) : (
             <>
+              <button
+                onClick={handleDocumentation}
+                className="hover:underline cursor-pointer"
+              >
+                Documentation
+              </button>
               <button
                 onClick={handleLogin}
                 className="hover:underline cursor-pointer"
@@ -129,6 +146,22 @@ const Navbar = () => {
             >
               Profile
             </Link>
+            <Link
+              to="/community"
+              onClick={() => setMenuOpen(false)}
+              className="hover:underline"
+            >
+              Community
+            </Link>
+            <button
+              onClick={() => {
+                handleDocumentation();
+                setMenuOpen(false);
+              }}
+              className="hover:underline"
+            >
+              Documentation
+            </button>
             <button
               onClick={() => {
                 handleLogout();
@@ -141,6 +174,15 @@ const Navbar = () => {
           </>
         ) : (
           <>
+            <button
+              onClick={() => {
+                handleDocumentation();
+                setMenuOpen(false);
+              }}
+              className="hover:underline"
+            >
+              Documentation
+            </button>
             <button
               onClick={() => {
                 handleLogin();
