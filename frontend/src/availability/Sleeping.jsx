@@ -148,7 +148,7 @@ export default function Sleeping({ onRetry }) {
             "
             style={{ animation: "fadeUp 1.1s ease-out both" }}
           >
-            © 2025 ReportMitra
+            © 2026 ReportMitra
           </footer>
         </div>
       </div>
