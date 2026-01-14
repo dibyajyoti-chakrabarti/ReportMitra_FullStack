@@ -115,7 +115,7 @@ export default function Sleeping({ onRetry }) {
             "
             style={{ animation: "pulse 2.8s ease-in-out infinite" }}
           >
-            10:30 AM – 12:30 PM IST
+            10:30 AM – 1:30 PM IST
           </div>
 
           {onRetry && (
