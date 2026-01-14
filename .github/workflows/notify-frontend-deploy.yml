@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - frontend/**
+      - frontend/**/*
+      # add more if needed (e.g. public/, index.html)
 
 jobs:
   notify-automation:
