@@ -1,8 +1,6 @@
-# user_profile/serializers.py
 from rest_framework import serializers
 from user_profile.models import UserProfile
 from aadhaar.models import AadhaarDatabase
-
 
 class AadhaarSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,7 +18,6 @@ class AadhaarSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-
 class UserProfileSerializer(serializers.ModelSerializer):
     aadhaar = AadhaarSerializer(read_only=True)
 
@@ -33,4 +30,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = fields  # for now, profile is read-only from this endpoint
+        read_only_fields = fields

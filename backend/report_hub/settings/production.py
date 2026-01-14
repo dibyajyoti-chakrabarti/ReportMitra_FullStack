@@ -28,7 +28,6 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Additional CORS headers for OAuth
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -43,7 +42,6 @@ CORS_ALLOW_HEADERS = [
 
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
-# CRITICAL: Allow Google OAuth popup communication
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 SESSION_COOKIE_SAMESITE = "None"

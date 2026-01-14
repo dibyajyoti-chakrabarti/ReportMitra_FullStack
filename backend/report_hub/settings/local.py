@@ -22,7 +22,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Remove or comment out SQLite config
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
@@ -30,7 +29,6 @@ REST_FRAMEWORK = {
 #     }
 # }
 
-# Use environment variables for AWS RDS MySQL
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),

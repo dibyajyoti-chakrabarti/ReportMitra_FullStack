@@ -1,4 +1,3 @@
-# report/models.py
 from django.db import models
 from django.conf import settings
 
@@ -16,15 +15,11 @@ class IssueReport(models.Model):
         related_name="reports",
     )
 
-
-    # Core report fields
     issue_title = models.CharField(max_length=80, default="Issue Report")
     location = models.CharField(max_length=500)
     issue_description = models.TextField(max_length=500)
     image_url = models.CharField(max_length=500, blank=True, null=True)
     completion_url = models.CharField(max_length=1000, null=True, blank=True)
-
-    # Timestamps + status
     issue_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default="pending"

@@ -1,14 +1,11 @@
-# users/email_utils.py
 from django.core.mail import send_mail
 from django.conf import settings
-
 
 def send_otp_email(email, otp):
     """Send OTP email with beautiful HTML template"""
     
     subject = 'ReportMitra Login OTP'
     
-    # HTML email template - Text only, elegant design
     html_message = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -124,7 +121,6 @@ def send_otp_email(email, otp):
     </html>
     """
     
-    # Plain text fallback
     plain_message = f"""
     ═══════════════════════════════════════════════════
     REPORTMITRA - LOGIN OTP

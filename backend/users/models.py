@@ -5,7 +5,6 @@ from datetime import timedelta
 import random
 import string
 
-
 class CustomUserManager(BaseUserManager):
     """Custom user manager where email is the unique identifier"""
     
@@ -16,10 +15,8 @@ class CustomUserManager(BaseUserManager):
         
         email = self.normalize_email(email)
         
-        # Auto-generate username from email if not provided
         if 'username' not in extra_fields or not extra_fields.get('username'):
             extra_fields['username'] = email.split('@')[0]
-            # Handle potential duplicates
             base_username = extra_fields['username']
             counter = 1
             while self.model.objects.filter(username=extra_fields['username']).exists():
@@ -47,17 +44,12 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    # Primary identifier - email
+
     email = models.EmailField(unique=True)
-    
-    # Email verification for JWT auth
     is_email_verified = models.BooleanField(default=False)
-    
-    # Google OAuth fields (optional, for future use)
     google_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     profile_picture = models.URLField(max_length=500, null=True, blank=True)
     
-    # Auth method tracking
     AUTH_METHOD_CHOICES = [
         ('email', 'Email/JWT'),
         ('google', 'Google OAuth'),
@@ -68,16 +60,12 @@ class CustomUser(AbstractUser):
         default='email'
     )
     
-    # Make username optional (we use email as primary identifier)
     username = models.CharField(max_length=150, unique=True, null=True, blank=True)
-    
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []  # Remove username from required fields
+    REQUIRED_FIELDS = []
     
-    # Use custom manager
     objects = CustomUserManager()
 
-    # Keep these for Django admin compatibility
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name='groups',
@@ -106,7 +94,6 @@ class EmailOTP(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
-    
     class Meta:
         ordering = ['-created_at']
     
@@ -121,12 +108,10 @@ class EmailOTP(models.Model):
     def generate_otp(cls, email):
         """Generate a new 6-digit OTP"""
         otp = ''.join(random.choices(string.digits, k=6))
-        expires_at = timezone.now() + timedelta(minutes=10)  # OTP valid for 10 minutes
+        expires_at = timezone.now() + timedelta(minutes=10)
         
-        # Invalidate previous OTPs for this email
         cls.objects.filter(email=email, is_used=False).update(is_used=True)
         
-        # Create new OTP
         otp_obj = cls.objects.create(
             email=email,
             otp=otp,

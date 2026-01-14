@@ -1,4 +1,3 @@
-# report/views.py
 from rest_framework import generics, permissions, status
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import CursorPagination
@@ -14,7 +13,6 @@ from django.conf import settings
 import boto3
 import uuid
 
-
 class IssueReportListCreateView(generics.ListCreateAPIView):
     queryset = IssueReport.objects.all().order_by("-updated_at")
     serializer_class = IssueReportSerializer
@@ -23,16 +21,13 @@ class IssueReportListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
 
-        # Get / create profile
         profile, _ = UserProfile.objects.get_or_create(user=user)
 
-        # Block if Aadhaar not verified
         if not profile.is_aadhaar_verified or not profile.aadhaar:
             raise PermissionDenied(
                 "Aadhaar verification is required before creating a report."
             )
 
-        # Just save report for this user; Aadhaar details stay in Aadhaar table
         serializer.save(user=user)
 
 
@@ -52,7 +47,6 @@ def presign_s3(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Use your existing AWS settings / env vars
     bucket_name = getattr(
         settings,
         "REPORT_IMAGES_BUCKET",
@@ -74,7 +68,6 @@ def presign_s3(request):
             region_name=region_name,
         )
 
-        # Example key: reports/<user_id>/<uuid>-originalName.jpg
         key = f"reports/{uuid.uuid4().hex}-{file_name}"
 
         presigned_url = s3_client.generate_presigned_url(
@@ -89,7 +82,6 @@ def presign_s3(request):
 
         return Response({"url": presigned_url, "key": key})
     except Exception as e:
-        # Log server-side, but send generic message to client
         print("S3 presign error:", e)
         return Response(
             {"detail": "Could not create upload URL"},
@@ -133,7 +125,6 @@ def presign_get_for_track(request, id):
     before_url = None
     after_url = None
 
-   # ---------------- BEFORE IMAGE ----------------
     if report.image_url:
         try:
             before_url = s3_client.generate_presigned_url(
@@ -148,7 +139,6 @@ def presign_get_for_track(request, id):
             print(f"Error generating before_url for report {id}: {e}")
             before_url = None
 
-    # ---------------- AFTER IMAGE ----------------
     if report.completion_url:
         try:
             after_url = s3_client.generate_presigned_url(
@@ -163,8 +153,6 @@ def presign_get_for_track(request, id):
             print(f"Error generating after_url for report {id}: {e}")
             after_url = None
 
-
-    # ---------------- RESPONSE (BACKWARD COMPATIBLE) ----------------
     return Response({
         # OLD CONTRACT (IssueDetails.jsx)
         "url": before_url,
@@ -187,7 +175,7 @@ class PublicIssueReportDetailView(generics.RetrieveAPIView):
 
 class CommunityCursorPagination(CursorPagination):
     page_size = 6
-    ordering = "-updated_at"   # latest first
+    ordering = "-updated_at"
 
 
 class CommunityResolvedIssuesView(ListAPIView):

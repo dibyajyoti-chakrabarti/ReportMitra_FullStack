@@ -1,9 +1,8 @@
-# users/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser
-
+from user_profile.models import UserProfile
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for user details"""
@@ -63,15 +62,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             auth_method='email',
-            is_email_verified=False  # Will be verified later via email
+            is_email_verified=False
         )
         
-        # Create associated UserProfile
-        from user_profile.models import UserProfile
         UserProfile.objects.create(user=user)
-        
         return user
-
 
 class LoginSerializer(serializers.Serializer):
     """Serializer for user login"""
@@ -88,10 +83,9 @@ class LoginSerializer(serializers.Serializer):
         password = attrs.get('password')
 
         if email and password:
-            # Authenticate user
             user = authenticate(
                 request=self.context.get('request'),
-                username=email,  # Our USERNAME_FIELD is email
+                username=email,
                 password=password
             )
 
@@ -115,8 +109,7 @@ class LoginSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
-
-
+    
 class ChangePasswordSerializer(serializers.Serializer):
     """Serializer for password change"""
     old_password = serializers.CharField(required=True, write_only=True)
@@ -166,7 +159,6 @@ class VerifyOTPSerializer(serializers.Serializer):
         email = attrs.get('email', '').lower()
         otp = attrs.get('otp')
 
-        # Get the most recent unused OTP for this email
         try:
             otp_obj = EmailOTP.objects.filter(
                 email=email,
@@ -179,7 +171,6 @@ class VerifyOTPSerializer(serializers.Serializer):
                     "otp": "This code has expired. Please request a new one."
                 })
             
-            # Get user
             try:
                 user = CustomUser.objects.get(email=email)
             except CustomUser.DoesNotExist:
@@ -187,7 +178,6 @@ class VerifyOTPSerializer(serializers.Serializer):
                     "email": "No account found with this email."
                 })
             
-            # Mark OTP as used
             otp_obj.is_used = True
             otp_obj.save()
             
@@ -211,14 +201,12 @@ class GoogleAuthSerializer(serializers.Serializer):
         from django.conf import settings
         
         try:
-            # Verify the token
             idinfo = id_token.verify_oauth2_token(
                 value,
                 requests.Request(),
                 settings.GOOGLE_CLIENT_ID
             )
             
-            # Token is valid, return user info
             return idinfo
             
         except ValueError as e:
@@ -234,11 +222,9 @@ class GoogleAuthSerializer(serializers.Serializer):
         last_name = google_data.get('family_name', '')
         profile_picture = google_data.get('picture', '')
         
-        # Check if user exists by email
         try:
             user = CustomUser.objects.get(email=email)
             
-            # Update Google info if not set
             if not user.google_id:
                 user.google_id = google_id
                 user.auth_method = 'google'
@@ -247,7 +233,6 @@ class GoogleAuthSerializer(serializers.Serializer):
                 user.save()
                 
         except CustomUser.DoesNotExist:
-            # Create new user
             user = CustomUser.objects.create(
                 email=email,
                 google_id=google_id,
@@ -258,8 +243,6 @@ class GoogleAuthSerializer(serializers.Serializer):
                 is_email_verified=True,
             )
             
-            # Create user profile
-            from user_profile.models import UserProfile
             UserProfile.objects.create(user=user)
         
         return user

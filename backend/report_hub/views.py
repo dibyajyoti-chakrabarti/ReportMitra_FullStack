@@ -1,4 +1,3 @@
-# report_hub/views.py
 from django.http import JsonResponse
 
 def health_check(request):
