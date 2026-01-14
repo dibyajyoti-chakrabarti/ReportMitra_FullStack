@@ -32,7 +32,6 @@ function Profile() {
     isVerified: false,
   });
 
-  // helper: calculate age from DOB string (YYYY-MM-DD)
   const calculateAge = (dobString) => {
     if (!dobString) return null;
     const dob = new Date(dobString);
@@ -47,7 +46,6 @@ function Profile() {
     return age;
   };
 
-  // Load profile data when component mounts
   useEffect(() => {
     loadProfileData();
   }, []);
@@ -86,7 +84,6 @@ function Profile() {
         let middleName = aadhaar?.middle_name || "";
         let lastName = aadhaar?.last_name || "";
 
-        // Fallback: if split names are missing but full_name exists
         if ((!firstName || !lastName) && aadhaar?.full_name) {
           const parts = aadhaar.full_name.trim().split(/\s+/);
           if (parts.length === 1) {
@@ -125,7 +122,6 @@ function Profile() {
           isVerified: isVerified,
         });
 
-        // If already verified, set verification result and Aadhaar number
         if (isVerified && aadhaar?.aadhaar_number) {
           setVerificationResult({ verified: true });
           setAadhaarNumber(aadhaar.aadhaar_number);
@@ -144,7 +140,6 @@ function Profile() {
       return;
     }
 
-    // Validate Aadhaar number format (12 digits)
     if (!/^\d{12}$/.test(aadhaarNumber)) {
       alert("Please enter a valid 12-digit Aadhaar number");
       return;
@@ -178,7 +173,6 @@ function Profile() {
       setVerificationResult(result);
 
       if (result.verified) {
-        // Reload profile data to get updated information from backend
         await loadProfileData();
         alert(
           "Aadhaar verification successful! Your profile has been updated."
@@ -201,14 +195,12 @@ function Profile() {
   };
 
   const handleAadhaarChange = (e) => {
-    // Only allow numbers and limit to 12 digits
     const value = e.target.value.replace(/\D/g, "").slice(0, 12);
     setAadhaarNumber(value);
   };
 
   const verified = profileData.isVerified ? "✓" : "Not Verified";
 
-  // Show loading screen while fetching profile data (NO Navbar/Footer)
   if (isLoadingProfile) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-gray-700">
@@ -224,19 +216,15 @@ function Profile() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* main content area with background */}
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
-        {/* white card container (fluid height) */}
         <div
           className="bg-white w-full max-w-6xl rounded-2xl shadow-md
   px-4 sm:px-6 md:px-10 py-6 md:py-8"
         >
-          {/* Title */}
           <h1 className="text-center font-bold text-3xl md:text-4xl mb-4">
             Your Profile
           </h1>
 
-          {/* Note Section */}
           <div
             className="flex items-start gap-2 text-sm md:text-base
 bg-gray-50 border rounded-lg p-4 mb-6"
@@ -252,7 +240,6 @@ bg-gray-50 border rounded-lg p-4 mb-6"
 
           <hr className="my-4" />
 
-          {/* Aadhaar Input Section */}
           <div className="border rounded-xl p-5 mb-6">
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-6">
               <div className="flex flex-wrap justify-center items-center gap-3">
@@ -300,7 +287,6 @@ bg-gray-50 border rounded-lg p-4 mb-6"
               </div>
             </div>
 
-            {/* Verification Status */}
             {verificationResult && (
               <div
                 className={`text-center mb-4 text-sm ${
@@ -318,7 +304,6 @@ bg-gray-50 border rounded-lg p-4 mb-6"
 
           <hr className="my-4" />
 
-          {/* Personal Details Section */}
           <div className="mt-8">
             <div className="flex items-center gap-2 mb-6">
               <User className="w-6 h-6" />
@@ -381,7 +366,6 @@ bg-gray-50 border rounded-lg p-4 mb-6"
             </div>
           </div>
 
-          {/* Verified Message */}
           {profileData.isVerified && (
             <div className="mt-8 p-4 bg-green-100 border-2 border-green-700 rounded-lg">
               <p className="text-green-700 text-center">

@@ -1,6 +1,3 @@
-// frontend/src/ai/classifyImage.js
-// Requires: <script src="https://js.puter.com/v2/"></script> added in index.html
-
 export async function classifyImage(imageUrl) {
   const prompt = `
         You are an image classification assistant for a civics-issue reporting system.

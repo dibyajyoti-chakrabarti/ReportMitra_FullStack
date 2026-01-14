@@ -1,10 +1,8 @@
-// frontend/src/availability/Sleeping.jsx
 import server_down_image from '../assets/server-down.svg'
 
 export default function Sleeping({ onRetry }) {
   return (
     <>
-      {/* Component-scoped animations */}
       <style>
         {`
           @keyframes fadeUp {
@@ -44,7 +42,6 @@ export default function Sleeping({ onRetry }) {
         `}
       </style>
 
-      {/* Fixed viewport - no scrolling */}
       <div className="fixed inset-0 bg-slate-50 flex items-center justify-center p-4 overflow-hidden">
         <div
           className="
@@ -62,7 +59,6 @@ export default function Sleeping({ onRetry }) {
           "
           style={{ animation: "fadeUp 0.8s ease-out both" }}
         >
-          {/* Hero image - scales down on small screens */}
           <img
             src={server_down_image}
             alt="Server temporarily unavailable"
@@ -75,7 +71,6 @@ export default function Sleeping({ onRetry }) {
             style={{ animation: "float 3.5s ease-in-out infinite" }}
           />
 
-          {/* Heading - responsive sizing */}
           <h1
             className="
               font-bold
@@ -90,7 +85,6 @@ export default function Sleeping({ onRetry }) {
             Our servers are currently sleeping
           </h1>
 
-          {/* Description - compact on small screens */}
           <p
             className="
               text-slate-600
@@ -107,7 +101,6 @@ export default function Sleeping({ onRetry }) {
             Please check back during the window below.
           </p>
 
-          {/* Time box - responsive padding */}
           <div
             className="
               inline-block
@@ -125,7 +118,6 @@ export default function Sleeping({ onRetry }) {
             10:30 AM – 12:30 PM IST
           </div>
 
-          {/* Retry button - compact on mobile */}
           {onRetry && (
             <div className="mb-4 sm:mb-6">
               <button
@@ -149,7 +141,6 @@ export default function Sleeping({ onRetry }) {
             </div>
           )}
 
-          {/* Footer - smaller text */}
           <footer
             className="
               text-[11px] sm:text-[12px]

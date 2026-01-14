@@ -1,4 +1,3 @@
-// DebugTokenEnhanced.jsx
 import { useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { getApiUrl } from "../utils/api";
@@ -29,7 +28,6 @@ const Debug = () => {
     setStatus("");
   };
 
-  // presign -> put -> create report
   const runE2E = async () => {
     if (!file) return setStatus("Pick a file first");
     setStatus("Getting token...");

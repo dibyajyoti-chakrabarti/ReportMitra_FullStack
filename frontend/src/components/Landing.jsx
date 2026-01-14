@@ -21,7 +21,6 @@ const Landing = () => {
     <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
       <Navbar />
 
-      {/* Background: fixed so it stays visible while page grows */}
       <div
         className="fixed inset-0 -z-10 overflow-hidden brightness-40"
         style={{
@@ -31,7 +30,6 @@ const Landing = () => {
           backgroundPosition: "top center",
         }}
       >
-        {/* Keep GridDistortion fixed and full-screen so the effect covers the whole viewport */}
         <div className="fixed inset-0 w-full h-full pointer-events-none">
           <GridDistortion
             imageSrc={bg_img}
@@ -42,7 +40,6 @@ const Landing = () => {
           />
         </div>
 
-        {/* Mobile fallback image (shows top of image on small screens) */}
         <img
           src={bg_img}
           alt="background"
@@ -50,9 +47,7 @@ const Landing = () => {
         />
       </div>
 
-      {/* Main content */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-20 text-center flex flex-col gap-8 md:gap-10 justify-center pt-6 md:pt-12">
-        {/* Hero Text */}
         <h1 className="text-4xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mt-15 md:mt-12 leading-tight lg:mt-12">
           Welcome to ReportMitra
         </h1>
@@ -80,7 +75,6 @@ const Landing = () => {
           />
         </div>
 
-        {/* Get Started Button */}
         {!isAuthenticated && (
           <div className="flex justify-center">
             <button
@@ -92,14 +86,12 @@ const Landing = () => {
           </div>
         )}
 
-        {/* How it works */}
         <section className="mt-8 md:mt-12 w-full">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
             How It Works
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto px-2 md:px-0 place-items-stretch">
-            {/* Report */}
             {isAuthenticated ? (
               <Link
                 to="/report"
@@ -142,7 +134,6 @@ const Landing = () => {
               </div>
             )}
 
-            {/* Track */}
             <Link
               to="/track"
               className="relative w-full hover:scale-105 transition-transform cursor-pointer"
@@ -158,7 +149,6 @@ const Landing = () => {
               </div>
             </Link>
 
-            {/* Community */}
             <Link
               to="/community"
               className="relative w-full hover:scale-105 transition-transform cursor-pointer md:col-span-2 lg:col-span-1"
@@ -174,11 +164,9 @@ const Landing = () => {
         </section>
       </main>
 
-      {/* ABOUT SECTION - Professional and Elegant Design */}
       <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="max-w-6xl mx-auto flex flex-col gap-12 sm:gap-16">
 
-          {/* Mission */}
           <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
             <div className="flex items-center gap-4 mb-6">
               <div className="h-12 w-1 bg-blue-500"></div>
@@ -203,7 +191,6 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Vision */}
           <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
             <div className="flex items-center gap-4 mb-6">
               <div className="h-12 w-1 bg-blue-500"></div>
@@ -228,7 +215,6 @@ const Landing = () => {
             </p>
           </div>
 
-          {/* Why ReportMitra */}
           <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
             <div className="flex items-center gap-4 mb-6">
               <div className="h-12 w-1 bg-blue-500"></div>

@@ -35,17 +35,14 @@ function PostCard({ post }) {
 
   return (
     <article className="border rounded-xl bg-white shadow-sm hover:shadow-md transition p-6 md:p-8">
-      {/* TITLE */}
       <h2 className="text-xl md:text-2xl font-semibold mb-2 break-words line-clamp-2">
         {post.issue_title}
       </h2>
 
-      {/* DESCRIPTION */}
       <p className="text-gray-600 leading-relaxed mb-6 break-all line-clamp-4">
         {post.issue_description}
       </p>
 
-      {/* META */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-sm text-gray-700 border-t pt-4">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4" />
@@ -71,9 +68,7 @@ function PostCard({ post }) {
         </div>
       </div>
 
-      {/* IMAGES */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* BEFORE */}
         <ImageBox
           title="Before"
           image={beforeImage}
@@ -82,7 +77,6 @@ function PostCard({ post }) {
           onPreview={setPreviewImage}
         />
 
-        {/* AFTER */}
         <ImageBox
           title="After"
           image={afterImage}
@@ -92,7 +86,6 @@ function PostCard({ post }) {
         />
       </div>
 
-      {/* PREVIEW MODAL */}
       {previewImage && (
         <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm
