@@ -16,7 +16,12 @@ def verify_aadhaar(request):
     - The Aadhaar exists in AadhaarDatabase
     - It isn't already linked to another user
     """
-    aadhaar_number = (request.data.get("aadhaar_number") or "").strip()
+    aadhaar_number = str((request.data.get("aadhaar_number") or "")).strip()
+    if not aadhaar_number.isdigit() or len(aadhaar_number) != 12:
+        return Response(
+            {"error": "Invalid Aadhaar number format"},
+            status=400
+        )
 
     # 1) Basic validation
     if not aadhaar_number.isdigit() or len(aadhaar_number) != 12:

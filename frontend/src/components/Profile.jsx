@@ -15,7 +15,6 @@ import {
 
 function Profile() {
   const { getAuthHeaders, user } = useAuth();
-
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [verificationResult, setVerificationResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -31,6 +30,37 @@ function Profile() {
     lastUpdated: "Not Verified",
     isVerified: false,
   });
+  //Aadhaar from sandbox
+  // TEST-ONLY Aadhaar numbers (DO NOT use real numbers)
+const MOCK_AADHAAR_POOL =['900000000005', '900000000006', '900000000007', '900000000008', '900000000009', '900000000010', '900000000011', '900000000012', '900000000013', '900000000014', '900000000015', '900000000016', '900000000017', '900000000018', '900000000019', '900000000020', '900000000021', '900000000022', '900000000023', '900000000024', '900000000025', '900000000026', '900000000027', '900000000028', '900000000029', '900000000030', '900000000031', '900000000032', '900000000033', '900000000034', '900000000035', '900000000036', '900000000037', '900000000038', '900000000039', '900000000040', '900000000041', '900000000042', '900000000043', '900000000044', '900000000045', '900000000046', '900000000047', '900000000048', '900000000049', '900000000050', '900000000051', '900000000052', '900000000053', '900000000054', '900000000055', '900000000056', '900000000057', '900000000058', '900000000059', '900000000060', '900000000061', '900000000062', '900000000063', '900000000064', '900000000065', '900000000066', '900000000067', '900000000068', '900000000069', '900000000070', '900000000071', '900000000072', '900000000073', '900000000074', '900000000075', '900000000076', '900000000077', '900000000078', '900000000079', '900000000080', '900000000081', '900000000082', '900000000083', '900000000084', '900000000085', '900000000086', '900000000087', '900000000088', '900000000089', '900000000090', '900000000091', '900000000092', '900000000093', '900000000094', '900000000095', '900000000096', '900000000097', '900000000098'];
+const getRandomUnusedAadhaar = () => {
+  const used =
+    JSON.parse(localStorage.getItem("used_mock_aadhaars")) || [];
+
+  const unused = MOCK_AADHAAR_POOL.filter(
+    (num) => !used.includes(num)
+  );
+
+  if (unused.length === 0) {
+    alert("All test Aadhaar numbers are exhausted");
+    return null;
+  }
+
+  const random =
+    unused[Math.floor(Math.random() * unused.length)];
+
+  return random;
+};
+const handleUseTestAadhaar = () => {
+  const aadhaar = getRandomUnusedAadhaar();
+  if (!aadhaar) return;
+
+  setAadhaarNumber(String(aadhaar));
+};
+
+
+
+
 
   // helper: calculate age from DOB string (YYYY-MM-DD)
   const calculateAge = (dobString) => {
@@ -178,6 +208,15 @@ function Profile() {
       setVerificationResult(result);
 
       if (result.verified) {
+        const used =
+          JSON.parse(localStorage.getItem("used_mock_aadhaars")) || [];
+
+        if (!used.includes(aadhaarNumber)) {
+          localStorage.setItem(
+            "used_mock_aadhaars",
+            JSON.stringify([...used, aadhaarNumber])
+          );
+        }
         // Reload profile data to get updated information from backend
         await loadProfileData();
         alert(
@@ -291,6 +330,14 @@ bg-gray-50 border rounded-lg p-4 mb-6"
                     ? "Verified"
                     : "Verify"}
                 </button>
+                    <button
+                    type="button"
+                    onClick={handleUseTestAadhaar}
+                    disabled={profileData.isVerified}
+                    className="text-xs px-3 py-1 rounded-lg border border-dashed border-gray-400 text-gray-600 hover:bg-gray-100"
+                  >
+                    Use Test Aadhaar
+                  </button>
 
                 {profileData.isVerified ? (
                   <CheckCircle className="w-7 h-7 text-green-700" />
