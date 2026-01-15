@@ -1,4 +1,3 @@
-// src/components/Signin.jsx
 import { useAuth } from "../AuthProvider";
 import { useState, useEffect } from "react";
 import { Mail, Lock, User, Home } from "lucide-react";
@@ -34,7 +33,6 @@ const Signin = () => {
   const handleEmailSignup = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -49,8 +47,7 @@ const Signin = () => {
     setError("");
     try {
       await register(formData.email, formData.password);
-      // Redirect on success
-      navigate("/profile"); // Redirect to profile to complete Aadhaar verification
+      navigate("/profile");
     } catch (error) {
       setError(error.message || "Registration failed");
       console.error("Registration error:", error);
@@ -64,7 +61,7 @@ const Signin = () => {
     setError("");
     try {
       await loginWithGoogle(credentialResponse);
-      navigate("/profile"); // or '/'
+      navigate("/profile");
     } catch (error) {
       setError(error.message || "Google sign up failed");
     } finally {
@@ -98,7 +95,6 @@ const Signin = () => {
       </style>
 
       <div className="min-h-screen bg-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
-        {/* Subtle grid background */}
         <div className="absolute inset-0 opacity-[0.02]">
           <div
             className="absolute inset-0"
@@ -110,11 +106,9 @@ const Signin = () => {
           ></div>
         </div>
 
-        {/* Gradient orbs */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
 
-        {/* Back to Home Button */}
         <button
           onClick={() => navigate("/")}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group z-20"
@@ -123,9 +117,7 @@ const Signin = () => {
           <span className="text-sm font-medium">Home</span>
         </button>
 
-        {/* Main container */}
         <div className="relative z-10 w-full max-w-md fade-in">
-          {/* Logo/Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
               <img src={logo} alt="ReportMitra Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
@@ -138,18 +130,14 @@ const Signin = () => {
             </p>
           </div>
 
-          {/* Sign Up Card */}
           <div className="glass-effect rounded-2xl overflow-hidden">
-            {/* Header */}
             <div className="bg-white px-6 py-3 sm:py-4 border-b border-white/10">
               <h2 className="text-black text-lg sm:text-xl font-bold text-center">
                 Create Account
               </h2>
             </div>
 
-            {/* Content */}
             <div className="px-4 py-6 sm:px-6 sm:py-8 space-y-5">
-              {/* Google Sign Up Button */}
               <div className="flex justify-center">
                 <GoogleLogin
                   onSuccess={handleGoogleSignup}
@@ -163,7 +151,6 @@ const Signin = () => {
                 />
               </div>
 
-              {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-white/10"></div>
@@ -175,16 +162,13 @@ const Signin = () => {
                 </div>
               </div>
 
-              {/* Error Message */}
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm">
                   {error}
                 </div>
               )}
 
-              {/* Email Sign Up Form */}
               <form onSubmit={handleEmailSignup} className="space-y-4">
-                {/* Email Field */}
                 <div className="space-y-2">
                   <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Email Address
@@ -206,7 +190,6 @@ const Signin = () => {
                   </div>
                 </div>
 
-                {/* Password Field */}
                 <div className="space-y-2">
                   <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Password
@@ -229,7 +212,6 @@ const Signin = () => {
                   </div>
                 </div>
 
-                {/* Confirm Password Field */}
                 <div className="space-y-2">
                   <label className="block text-xs sm:text-sm font-medium text-gray-300">
                     Confirm Password
@@ -262,7 +244,6 @@ const Signin = () => {
                 </button>
               </form>
 
-              {/* Login Link */}
               <div className="text-center text-xs sm:text-sm text-gray-400 pt-2">
                 Already have an account?{" "}
                 <a
@@ -275,7 +256,6 @@ const Signin = () => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-gray-500">
               By signing up, you agree to our Terms of Service and Privacy

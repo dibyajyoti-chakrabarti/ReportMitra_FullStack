@@ -1,13 +1,11 @@
 import logo from "../assets/logo-1.png";
-import { MapPin, Mail, Heart } from "lucide-react";
+import { MapPin, Mail, Heart, BookOpen } from "lucide-react";
 
 const Footer = () => {
   return (
     <footer className="bg-black text-white border-t border-white/10">
       <div className="container mx-auto px-6 md:px-20 py-12 md:py-16">
         <div className="grid md:grid-cols-3 gap-12 text-center md:text-left">
-          
-          {/* Brand + Tagline */}
           <div>
             <div className="flex items-center justify-center md:justify-start mb-4">
               <img 
@@ -25,7 +23,6 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
             <ul className="space-y-2.5 text-gray-400">
@@ -57,7 +54,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">Get in Touch</h3>
             <div className="space-y-3 text-gray-400">
@@ -71,6 +67,17 @@ const Footer = () => {
                   support@reportmitra.in
                 </a>
               </p>
+              <p className="flex items-center justify-center md:justify-start">
+                <BookOpen className="w-4 h-4 mr-2" />
+                <a 
+                  href="https://dibyajyoti-chakrabarti.vercel.app/projects/reportmitra" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors duration-200"
+                >
+                  Documentation
+                </a>
+              </p>
               <p className="flex items-center justify-center md:justify-start text-sm pt-2">
                 <span className="text-gray-500">Secure government portal</span>
               </p>
@@ -78,7 +85,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-white/10 mt-12 pt-6">
           <div className="text-center space-y-2">
             <p className="text-gray-500 text-sm">
@@ -87,7 +93,6 @@ const Footer = () => {
             <p className="text-gray-600 text-xs">
               All rights reserved · All activities are monitored
             </p>
-            {/* Student Credit */}
             <p className="text-gray-700 text-xs pt-3 border-t border-white/5 mt-4 inline-flex items-center gap-1.5 px-4">
               <span>Built with</span>
               <Heart className="w-3 h-3 text-red-500 fill-red-500" />

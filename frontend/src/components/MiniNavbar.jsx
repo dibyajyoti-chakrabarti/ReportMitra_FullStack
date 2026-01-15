@@ -36,7 +36,6 @@ const MiniNavbar = () => {
   return (
     <header className="bg-black text-white px-4 py-2 shadow-md w-full">
       <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-        {/* Logo Section */}
         <Link
           to="/"
           className="flex items-center gap-2 font-bold py-1 hover:opacity-80 transition"
@@ -45,7 +44,6 @@ const MiniNavbar = () => {
           <img src={logo_2} alt="logo" className="h-8 sm:h-12" />
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center font-bold text-xl lg:text-2xl gap-6">
           {isAuthenticated ? (
             <>
@@ -89,7 +87,6 @@ const MiniNavbar = () => {
           )}
         </nav>
 
-        {/* Mobile Menu Button */}
         <button
           className="md:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-800 transition"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -99,7 +96,6 @@ const MiniNavbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       <div
         className={`md:hidden bg-black text-white font-bold text-lg flex flex-col items-center gap-4 overflow-hidden transition-all duration-300 ${
           menuOpen ? "max-h-96 py-4" : "max-h-0 py-0"

@@ -37,7 +37,6 @@ export default function IssueDetails() {
         if (res.ok) {
           const json = await res.json();
           if (!cancelled) {
-            // backend returns { url } (presigned GET) on success
             if (json.url) {
               setImgSrc(json.url);
               setLoadingImg(false);
@@ -46,16 +45,13 @@ export default function IssueDetails() {
           }
         }
 
-        // Fallback: if presign failed or returned no url, try using image_url directly
         if (reportData.image_url) {
-          // decode percent-encoding if present
           const decoded = decodeURIComponent(reportData.image_url);
           if (!cancelled) setImgError("Image unavailable");
         } else {
           if (!cancelled) setImgError("No image available for this report.");
         }
       } catch (err) {
-        // network or other error -> fallback to direct image_url
         if (reportData?.image_url) {
           const decoded = decodeURIComponent(reportData.image_url);
           if (!cancelled) setImgError("Image unavailable");
@@ -77,7 +73,7 @@ export default function IssueDetails() {
   }, []);
   const loadProfile = async () => {
     const headers = await getAuthHeaders();
-    const profileUrl = getApiUrl("/profile/me/"); // ✅ Use getApiUrl here
+    const profileUrl = getApiUrl("/profile/me/");
 
     const res = await fetch(profileUrl, {
       method: "GET",
@@ -99,7 +95,6 @@ export default function IssueDetails() {
     rounded-2xl shadow-sm px-5 sm:px-8 py-6 sm:py-8
     max-w-4xl mx-auto border-b-1"
     >
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl sm:text-3xl font-extrabold">Issue Report</h2>
         <p className="text-sm text-gray-500 mt-1">
@@ -109,7 +104,6 @@ export default function IssueDetails() {
 
       <hr className="mb-6" />
 
-      {/* Metadata */}
       <div className="space-y-3 text-base sm:text-lg">
         <div>
           <span className="font-semibold">Full Name:</span> {fullName}
@@ -127,7 +121,6 @@ export default function IssueDetails() {
 
       <hr className="my-6" />
 
-      {/* Description */}
       <div>
         <h3 className="font-bold text-lg mb-2">Issue Description</h3>
         <div
@@ -140,7 +133,6 @@ export default function IssueDetails() {
 
       <hr className="my-6" />
 
-      {/* Image Section */}
       <div>
         <h3 className="font-bold text-lg mb-3 text-center">Issue Image</h3>
 
@@ -189,7 +181,6 @@ export default function IssueDetails() {
           )}
         </div>
 
-        {/* Image Actions */}
         {imgSrc && (
           <div className="flex justify-center gap-3 mt-4">
             <a

@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import { useAuth } from "../AuthProvider";
 import { useState, useEffect } from "react";
 import { Mail, Lock, User, ArrowRight, Check, Home } from "lucide-react";
@@ -10,20 +9,13 @@ import logo from "../assets/logo-1.png";
 const Login = () => {
   const { loginWithEmail, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
-  // Login method: 'password' or 'otp'
   const [loginMethod, setLoginMethod] = useState("password");
-
-  // Password login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // OTP login
   const [otpEmail, setOtpEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,7 +25,6 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // OTP Timer countdown
   useEffect(() => {
     if (otpTimer > 0) {
       const timer = setTimeout(() => setOtpTimer(otpTimer - 1), 1000);
@@ -102,11 +93,8 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Store tokens
         localStorage.setItem("accessToken", data.tokens.access);
         localStorage.setItem("refreshToken", data.tokens.refresh);
-
-        // Redirect (AuthProvider will pick up the tokens)
         window.location.href = "/";
       } else {
         setError(
@@ -163,7 +151,6 @@ const Login = () => {
       </style>
 
       <div className="min-h-screen bg-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
-        {/* Background */}
         <div className="absolute inset-0 opacity-[0.02]">
           <div
             className="absolute inset-0"
@@ -177,7 +164,6 @@ const Login = () => {
         <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
 
-        {/* Back to Home Button */}
         <button
           onClick={() => navigate("/")}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group z-20"
@@ -186,9 +172,7 @@ const Login = () => {
           <span className="text-sm font-medium">Home</span>
         </button>
 
-        {/* Main container */}
         <div className="relative z-10 w-full max-w-md fade-in">
-          {/* Logo/Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
               <img src={logo} alt="ReportMitra Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
@@ -201,18 +185,14 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Login Card */}
           <div className="glass-effect rounded-2xl overflow-hidden">
-            {/* Header */}
             <div className="bg-white px-6 py-3 sm:py-4 border-b border-white/10">
               <h2 className="text-black text-lg sm:text-xl font-bold text-center">
                 Secure Login
               </h2>
             </div>
 
-            {/* Content */}
             <div className="px-4 py-6 sm:px-6 sm:py-8 space-y-5">
-              {/* Google Login Button */}
               <div className="flex justify-center">
                 <GoogleLogin
                   onSuccess={handleGoogleLogin}
@@ -226,7 +206,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-white/10"></div>
@@ -238,7 +217,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Login Method Toggle */}
               <div className="flex gap-2 p-1 bg-white/5 rounded-lg border border-white/10">
                 <button
                   onClick={() => {
@@ -269,14 +247,12 @@ const Login = () => {
                 </button>
               </div>
 
-              {/* Error Message */}
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm">
                   {error}
                 </div>
               )}
 
-              {/* Password Login Form */}
               {loginMethod === "password" && (
                 <form onSubmit={handlePasswordLogin} className="space-y-4">
                   <div className="space-y-2">
@@ -336,7 +312,6 @@ const Login = () => {
                 </form>
               )}
 
-              {/* OTP Login Form */}
               {loginMethod === "otp" && !otpSent && (
                 <form onSubmit={handleRequestOTP} className="space-y-4">
                   <div className="space-y-2">
@@ -376,7 +351,6 @@ const Login = () => {
                 </form>
               )}
 
-              {/* OTP Verification Form */}
               {loginMethod === "otp" && otpSent && (
                 <form onSubmit={handleVerifyOTP} className="space-y-4">
                   <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm flex items-start gap-2">
@@ -438,7 +412,6 @@ const Login = () => {
                 </form>
               )}
 
-              {/* Sign Up Link */}
               <div className="text-center text-xs sm:text-sm text-gray-400 pt-2">
                 Don't have an account?{" "}
                 <a
@@ -451,7 +424,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-gray-500">
               Secure government portal • All activities are monitored

@@ -1,4 +1,3 @@
-# aadhaar/views.py
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -23,14 +22,12 @@ def verify_aadhaar(request):
             status=400
         )
 
-    # 1) Basic validation
     if not aadhaar_number.isdigit() or len(aadhaar_number) != 12:
         return Response(
             {"verified": False, "error": "Please provide a valid 12-digit Aadhaar number."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # 2) Check existence in AadhaarDatabase
     try:
         aadhaar = AadhaarDatabase.objects.get(aadhaar_number=aadhaar_number)
     except AadhaarDatabase.DoesNotExist:
@@ -39,10 +36,8 @@ def verify_aadhaar(request):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    # 3) Get/create profile for this user
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
-    # 4) Ensure no one else has taken this Aadhaar
     from user_profile.models import UserProfile as ProfileModel
     taken_by_other = ProfileModel.objects.filter(aadhaar=aadhaar).exclude(user=request.user).exists()
     if taken_by_other:
@@ -54,12 +49,10 @@ def verify_aadhaar(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # 5) Link + mark verified
     profile.aadhaar = aadhaar
     profile.is_aadhaar_verified = True
     profile.save()
 
-    # 6) Response that matches Profile.jsx expectations
     return Response(
         {
             "verified": True,

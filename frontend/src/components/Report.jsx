@@ -44,7 +44,6 @@ function Report() {
     image: "",
   });
 
-  // --- Load profile (Aadhaar-backed) ---
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -56,7 +55,6 @@ function Report() {
           const data = await response.json();
           setUserProfile(data);
 
-          // Show popup if user is not verified
           if (!data.is_aadhaar_verified) {
             setShowUnverifiedPopup(true);
           }
@@ -135,7 +133,6 @@ function Report() {
       location: "",
     });
 
-    // Check verification status first
     if (!userProfile?.is_aadhaar_verified) {
       setShowUnverifiedPopup(true);
       return;
@@ -180,7 +177,6 @@ function Report() {
     setIsSubmitting(true);
 
     try {
-      // --- Frontend guard: login + Aadhaar verification ---
       if (!user) {
         alert("Please log in before submitting a report.");
         setIsSubmitting(false);
@@ -313,7 +309,6 @@ function Report() {
     let middleName = aadhaar.middle_name || "";
     let lastName = aadhaar.last_name || "";
 
-    // Fallback: if split names are missing but full_name exists
     if ((!firstName || !lastName) && aadhaar.full_name) {
       const parts = aadhaar.full_name.trim().split(/\s+/);
       if (parts.length === 1) {
@@ -355,11 +350,10 @@ function Report() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* Unverified User Popup */}
       {showUnverifiedPopup && (
         <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-6 overflow-y-auto">
           <div className="max-w-2xl w-full text-white my-8">
-            {/* Logo */}
+
             <div className="flex justify-center mb-6">
               <div className="w-20 h-20">
                 <img
@@ -370,12 +364,10 @@ function Report() {
               </div>
             </div>
 
-            {/* Header */}
             <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
               Verification Required
             </h1>
 
-            {/* Main Content */}
             <div className="space-y-6 text-base md:text-lg leading-relaxed">
               <p className="text-gray-300 text-center">
                 You must complete{" "}
@@ -400,7 +392,6 @@ function Report() {
               </div>
             </div>
 
-            {/* Action Button */}
             <div className="flex flex-col gap-4 mt-8">
               <button
                 onClick={() => {
@@ -481,7 +472,7 @@ function Report() {
 
             <div className="h-[400px] rounded-lg overflow-hidden">
               <MapContainer
-                center={[20.5937, 78.9629]} // India center
+                center={[20.5937, 78.9629]}
                 zoom={5}
                 className="h-full w-full"
               >
@@ -545,7 +536,6 @@ function Report() {
           </h1>
 
           <div className="flex-1 flex flex-col justify-center">
-            {/* User details */}
             <div className="flex items-center gap-2 mb-4">
               <User className="w-5 h-5 text-gray-700" />
               <h2 className="text-lg font-semibold text-gray-800">
@@ -592,7 +582,6 @@ function Report() {
 
             <hr className="my-4" />
 
-            {/* Issue Details Section Header */}
             <div className="flex items-center gap-2 mb-4 mt-6">
               <FileText className="w-5 h-5 text-gray-700" />
               <h2 className="text-lg font-semibold text-gray-800">
@@ -600,9 +589,7 @@ function Report() {
               </h2>
             </div>
 
-            {/* Issue details */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-6">
-              {/* Left */}
               <div className="md:col-span-3 flex flex-col font-bold space-y-2">
                 <label>Issue Title</label>
                 <input
@@ -654,7 +641,6 @@ function Report() {
                 </div>
               </div>
 
-              {/* Right */}
               <div
                 className="md:col-span-2 flex flex-col font-bold space-y-4
   bg-gray-50 border rounded-xl p-4 h-full"
@@ -667,7 +653,6 @@ function Report() {
                   rel="noopener noreferrer"
                 ></a>
 
-                {/* Image Preview */}
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
   flex-1 min-h-[220px] lg:min-h-[260px]
@@ -723,7 +708,6 @@ function Report() {
               </div>
             </div>
 
-            {/* Bottom section */}
             <div
               className="flex flex-col md:flex-row justify-between items-center
               border-t pt-6 mt-6 gap-4"

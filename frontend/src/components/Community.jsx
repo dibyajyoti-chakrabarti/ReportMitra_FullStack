@@ -115,7 +115,6 @@ function Community() {
               <PostCard key={post.id} post={post} />
             ))}
 
-            {/* Infinite scroll trigger */}
             <div ref={observerRef} />
 
             {loading && (

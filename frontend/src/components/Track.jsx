@@ -19,7 +19,9 @@ function Track() {
     const BACKEND_ROOT_URL = BACKEND_BASE_URL.replace(/\/api$/, "");
 
     try {
-      const response = await fetch(`${BACKEND_ROOT_URL}/track/detail/${trackingId}/`);
+      const response = await fetch(
+        `${BACKEND_ROOT_URL}/track/detail/${trackingId}/`
+      );
       if (response.ok) {
         const data = await response.json();
         setReportData(data);
@@ -40,21 +42,17 @@ function Track() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* MAIN CONTENT (grows to fill screen when short) */}
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
-        {/* White Container */}
         <div
           className={`bg-white w-full max-w-6xl rounded-2xl shadow-md
   px-4 sm:px-6 md:px-10 py-6 md:py-8
   transition-all duration-300 ease-out
   ${reportData ? "min-h-[60vh]" : "min-h-[16vh]"}`}
         >
-          {/* Title */}
           <div className="text-center font-extrabold text-3xl sm:text-4xl md:text-5xl py-3">
             Track Progress
           </div>
 
-          {/* Note */}
           <div className="text-sm sm:text-base leading-relaxed">
             <b>
               <u>Note:</u>
@@ -67,7 +65,6 @@ function Track() {
 
           <hr className="my-4" />
 
-          {/* Tracking Input */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
             <label htmlFor="trackID" className="font-bold">
               Tracking ID:
@@ -94,14 +91,12 @@ hover:bg-gray-900 transition ml-2"
             </div>
           </div>
 
-          {/* Errors */}
           {error && (
             <div className="text-center text-red-600 font-bold underline mt-3">
               {error}
             </div>
           )}
 
-          {/* Success */}
           {reportData && (
             <div className="text-center text-green-600 underline font-bold my-3">
               Report found! View details below.
@@ -110,10 +105,8 @@ hover:bg-gray-900 transition ml-2"
 
           <hr className="my-3" />
 
-          {/* Tabs + Details */}
           {reportData && (
             <div>
-              {/* Tabs */}
               <nav className="flex flex-wrap gap-2 items-center justify-center font-bold my-2">
                 <div className="border rounded-xl p-1 flex justify-center gap-1">
                   <Link
@@ -142,7 +135,6 @@ hover:bg-gray-900 transition ml-2"
                 </div>
               </nav>
 
-              {/* Tab Content */}
               <div className="overflow-x-auto md:mt-6">
                 <Outlet context={[reportData]} />
               </div>
@@ -150,8 +142,6 @@ hover:bg-gray-900 transition ml-2"
           )}
         </div>
       </main>
-
-      {/* FOOTER ALWAYS AT BOTTOM */}
       <Footer />
     </div>
   );

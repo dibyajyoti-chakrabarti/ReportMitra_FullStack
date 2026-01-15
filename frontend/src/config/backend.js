@@ -1,4 +1,3 @@
-// src/config/backend.js
 export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 if (!BACKEND_BASE_URL) {

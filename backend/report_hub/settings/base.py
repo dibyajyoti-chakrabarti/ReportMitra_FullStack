@@ -8,16 +8,15 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
-DEBUG = False  # overridden in local.py
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
-# JWT Configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token valid for 1 hour
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token valid for 7 days
-    'ROTATE_REFRESH_TOKENS': True,                   # Issue new refresh token on refresh
-    'BLACKLIST_AFTER_ROTATION': True,                # Blacklist old refresh tokens
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
@@ -46,8 +45,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt',          # JWT support
-    'rest_framework_simplejwt.token_blacklist',  # Token blacklist for logout
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'phonenumber_field',
 
     'users',
@@ -122,7 +121,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'report_hub.urls'
 WSGI_APPLICATION = 'report_hub.wsgi.application'
 
-# AWS / S3 (Report Images)
 REPORT_IMAGES_BUCKET = os.getenv("REPORT_IMAGES_BUCKET")
 AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
@@ -156,7 +154,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -165,6 +162,5 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ReportMitra <noreply@reportmitra.in>')
 
-# Google OAuth
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')

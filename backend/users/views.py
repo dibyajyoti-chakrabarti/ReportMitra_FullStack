@@ -1,4 +1,3 @@
-# users/views.py
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -21,7 +20,6 @@ from .serializers import (
 from .email_utils import send_otp_email
 from .models import EmailOTP
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
@@ -35,7 +33,6 @@ def register_view(request):
     if serializer.is_valid():
         user = serializer.save()
         
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -63,7 +60,6 @@ def login_view(request):
     if serializer.is_valid():
         user = serializer.validated_data['user']
         
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -192,10 +188,7 @@ def request_otp_view(request):
     if serializer.is_valid():
         email = serializer.validated_data['email']
         
-        # Generate OTP
         otp_obj = EmailOTP.generate_otp(email)
-        
-        # Send email
         email_sent = send_otp_email(email, otp_obj.otp)
         
         if email_sent:
@@ -223,8 +216,6 @@ def verify_otp_view(request):
     
     if serializer.is_valid():
         user = serializer.validated_data['user']
-        
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -250,10 +241,7 @@ def google_auth_view(request):
     serializer = GoogleAuthSerializer(data=request.data)
     
     if serializer.is_valid():
-        # Create or get user
         user = serializer.create_or_get_user(serializer.validated_data)
-        
-        # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
         return Response({

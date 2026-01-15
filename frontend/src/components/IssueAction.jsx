@@ -23,7 +23,6 @@ function IssueAction() {
       : "Pending";
   const escalated = reportData?.status === "in_progress" ? "Yes" : "No";
 
-  // 🔹 Fetch completion (after) image via presigned URL
   useEffect(() => {
     async function fetchCompletionImage() {
       if (!reportData?.id) return;
@@ -31,7 +30,7 @@ function IssueAction() {
       setLoadingImage(true);
 
       try {
-        const presignUrl = getApiUrl(`/reports/${reportData.id}/presign-get/`); // ✅ Use getApiUrl here
+        const presignUrl = getApiUrl(`/reports/${reportData.id}/presign-get/`);
 
         const res = await fetch(presignUrl);
         const data = await res.json();
@@ -54,7 +53,6 @@ function IssueAction() {
     rounded-2xl shadow-sm px-5 sm:px-8 py-6 sm:py-8
     max-w-4xl mx-auto border-b-1"
     >
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl sm:text-3xl font-extrabold">
           Action Taken Report
@@ -66,7 +64,6 @@ function IssueAction() {
 
       <hr className="mb-6" />
 
-      {/* Status & Meta */}
       <div className="space-y-3 text-base sm:text-lg">
         <div>
           <span className="font-semibold">Current Status:</span>{" "}
@@ -90,7 +87,6 @@ function IssueAction() {
 
       <hr className="my-6" />
 
-      {/* Completion Image */}
       <div>
         <h3 className="font-bold text-lg mb-3 text-center">
           Completion Evidence

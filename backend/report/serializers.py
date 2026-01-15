@@ -1,4 +1,3 @@
-# report/serializers.py
 from django.utils.crypto import get_random_string
 from rest_framework import serializers
 from .models import IssueReport
@@ -8,7 +7,6 @@ class IssueReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = IssueReport
         fields = "__all__"
-        # user, status & tracking_id are set server-side
         read_only_fields = ("id", "issue_date", "updated_at", "status", "user", "tracking_id")
 
     def _generate_unique_tracking_id(self) -> str:
@@ -32,9 +30,6 @@ class IssueReportSerializer(serializers.ModelSerializer):
         if request and getattr(request, "user", None) and request.user.is_authenticated:
             validated_data.setdefault("user", request.user)
 
-        # Don't touch image_url: frontend already builds the final S3 URL.
-
-        # Tracking ID
         if not validated_data.get("tracking_id"):
             validated_data["tracking_id"] = self._generate_unique_tracking_id()
 

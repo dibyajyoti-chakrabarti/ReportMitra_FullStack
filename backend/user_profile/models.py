@@ -8,7 +8,6 @@ class UserProfile(models.Model):
         related_name="user_profile",
     )
 
-    # Link to AadhaarDatabase (aadhaar_aadhaardatabase.aadhaar_number)
     aadhaar = models.OneToOneField(
         "aadhaar.AadhaarDatabase",
         on_delete=models.SET_NULL,

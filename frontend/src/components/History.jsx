@@ -64,14 +64,11 @@ const History = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      {/* MAIN CONTENT */}
       <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
-        {/* White Container */}
         <div
           className="bg-white w-full max-w-6xl rounded-2xl shadow-md
         px-4 sm:px-6 md:px-10 py-6 md:py-8"
         >
-          {/* Title */}
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-6">
             My Report History
           </h1>
@@ -97,7 +94,6 @@ const History = () => {
                 flex flex-col md:flex-row md:items-center md:justify-between gap-4
                 hover:shadow-sm transition"
                 >
-                  {/* LEFT */}
                   <div className="space-y-1">
                     <span
                       onClick={() => copyTrackingId(issue.tracking_id)}
@@ -121,7 +117,6 @@ const History = () => {
                     </div>
                   </div>
 
-                  {/* RIGHT (STATUS) */}
                   <span
                     className={`px-4 py-1.5 text-sm rounded-full font-semibold
                   self-start md:self-center

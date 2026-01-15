@@ -6,21 +6,14 @@ class AadhaarDatabase(models.Model):
         primary_key=True,
     )
 
-    # New split name fields
     first_name = models.CharField(max_length=50, null=True, blank=True)
     middle_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-
-    # Keep full_name for now (backwards compatible)
     full_name = models.CharField(max_length=100)
-
     date_of_birth = models.DateField()
     address = models.TextField()
     gender = models.CharField(max_length=10)
-
-    # New phone column
     phone_number = models.CharField(max_length=15, null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
