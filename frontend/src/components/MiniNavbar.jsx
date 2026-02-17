@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Leaf } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import logo from "../assets/logo-1.png";
 
 const MiniNavbar = () => {
   const { logout, isAuthenticated, isLoading } = useAuth();
@@ -39,12 +40,8 @@ const MiniNavbar = () => {
           to="/"
           className="flex items-center gap-3 font-bold py-1 hover:opacity-90 transition-opacity group"
         >
-          {/* 
-            NEW LOGO NEEDED - See LOGO_PROMPT.md for AI generation prompt
-            For now, using a green leaf icon as placeholder
-          */}
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-            <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+            <img src={logo} alt="ReportMitra logo" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">ReportMitra</span>

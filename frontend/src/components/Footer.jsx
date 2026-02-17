@@ -9,8 +9,8 @@ const Footer = () => {
           {/* Brand Section */}
           <div>
             <div className="flex items-center justify-center md:justify-start mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-md mr-3">
-                <Leaf className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 flex-shrink-0 mr-3">
+                <img src={logo} alt="ReportMitra logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <h2 className="text-2xl font-black text-gray-900">ReportMitra</h2>
