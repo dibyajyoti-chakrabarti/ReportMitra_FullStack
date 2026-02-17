@@ -40,12 +40,14 @@ export default function Sleeping({ onRetry }) {
       </style>
 
       <div className="min-h-screen lg:h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 p-4 md:p-6 lg:p-8 relative overflow-hidden">
+        {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-30"></div>
 
         <div className="relative z-10 w-full max-w-6xl mx-auto lg:h-full lg:max-h-[90vh] flex items-center py-8 lg:py-0">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
             
+            {/* Left side - Illustration */}
             <div 
               className="flex justify-center items-center"
               style={{ animation: "fadeUp 0.6s ease-out both" }}
@@ -58,7 +60,9 @@ export default function Sleeping({ onRetry }) {
               />
             </div>
 
+            {/* Right side - Content */}
             <div className="flex flex-col justify-center space-y-5 lg:space-y-6 text-center lg:text-left">
+              {/* Badge */}
               <div 
                 className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold self-center lg:self-start"
                 style={{ animation: "fadeUp 0.7s ease-out both" }}
@@ -67,6 +71,7 @@ export default function Sleeping({ onRetry }) {
                 Scheduled Maintenance
               </div>
 
+              {/* Title */}
               <h1 
                 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-black text-gray-900 leading-tight"
                 style={{ animation: "fadeUp 0.8s ease-out both" }}
@@ -74,6 +79,7 @@ export default function Sleeping({ onRetry }) {
                 We'll Be Right Back
               </h1>
 
+              {/* Description */}
               <p 
                 className="text-base md:text-lg text-gray-600 leading-relaxed"
                 style={{ animation: "fadeUp 0.9s ease-out both" }}
@@ -81,6 +87,7 @@ export default function Sleeping({ onRetry }) {
                 Our servers are taking a quick power nap to serve you better. We're performing routine maintenance to keep everything running smoothly.
               </p>
 
+              {/* Time window */}
               <div 
                 className="inline-block w-full"
                 style={{ animation: "fadeUp 1s ease-out both" }}
@@ -96,6 +103,7 @@ export default function Sleeping({ onRetry }) {
                 </div>
               </div>
 
+              {/* Retry button */}
               {onRetry && (
                 <div 
                   className="flex justify-center lg:justify-start"
@@ -111,6 +119,7 @@ export default function Sleeping({ onRetry }) {
                 </div>
               )}
 
+              {/* Progress indicator */}
               <div 
                 className="flex items-center justify-center lg:justify-start gap-2 text-xs md:text-sm text-gray-600"
                 style={{ animation: "fadeUp 1.2s ease-out both" }}
@@ -122,6 +131,7 @@ export default function Sleeping({ onRetry }) {
                 <span className="font-semibold">System maintenance in progress</span>
               </div>
 
+              {/* Footer */}
               <p 
                 className="text-xs md:text-sm text-gray-500 pt-2"
                 style={{ animation: "fadeUp 1.3s ease-out both" }}

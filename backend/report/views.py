@@ -1,31 +1,91 @@
-from rest_framework import generics, permissions, status
-from rest_framework.generics import ListAPIView
+from rest_framework import generics, permissions, status, views
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.pagination import CursorPagination
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import IssueHistorySerializer
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
+from zoneinfo import ZoneInfo
+from .serializers import IssueHistorySerializer, CommentSerializer
 from user_profile.models import UserProfile
-from .models import IssueReport
+from .models import IssueReport, Comment
 from .serializers import IssueReportSerializer
 from django.conf import settings
 import boto3
 import uuid
+
+
+def get_daily_report_limit_status(user):
+    ist = ZoneInfo("Asia/Kolkata")
+    now_ist = timezone.now().astimezone(ist)
+    start_of_day_ist = now_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+    next_midnight_ist = start_of_day_ist + timedelta(days=1)
+
+    start_of_day_utc = start_of_day_ist.astimezone(ZoneInfo("UTC"))
+    next_midnight_utc = next_midnight_ist.astimezone(ZoneInfo("UTC"))
+
+    submission_count = IssueReport.objects.filter(
+        user=user,
+        issue_date__gte=start_of_day_utc,
+        issue_date__lt=next_midnight_utc,
+    ).count()
+
+    daily_limit = 4
+    return {
+        "count": submission_count,
+        "limit": daily_limit,
+        "can_submit": submission_count < daily_limit,
+        "retry_at_label": "12:00 AM IST",
+        "retry_at_ist": next_midnight_ist.isoformat(),
+    }
+
+
+class ReportEligibilityView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        status_payload = get_daily_report_limit_status(request.user)
+        return Response(status_payload)
+
 
 class IssueReportListCreateView(generics.ListCreateAPIView):
     queryset = IssueReport.objects.all().order_by("-updated_at")
     serializer_class = IssueReportSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_context(self):
+        """Pass request to serializer for user context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     def perform_create(self, serializer):
         user = self.request.user
+
+        if user.is_temporarily_deactivated:
+            raise PermissionDenied(
+                "Account is temporarily deactivated. Please wait until reactivation."
+            )
 
         profile, _ = UserProfile.objects.get_or_create(user=user)
 
         if not profile.is_aadhaar_verified or not profile.aadhaar:
             raise PermissionDenied(
                 "Aadhaar verification is required before creating a report."
+            )
+
+        limit_status = get_daily_report_limit_status(user)
+        if not limit_status["can_submit"]:
+            raise ValidationError(
+                {
+                    "code": "DAILY_REPORT_LIMIT",
+                    "detail": "You cannot post more than 4 reports in a day.",
+                    "retry_at_label": limit_status["retry_at_label"],
+                    "retry_at_ist": limit_status["retry_at_ist"],
+                }
             )
 
         serializer.save(user=user)
@@ -88,11 +148,13 @@ def presign_s3(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def presign_get_for_track(request, id):
-    from .models import IssueReport
-
+    """
+    Generate presigned URLs for viewing report images
+    """
     try:
         report = IssueReport.objects.get(pk=id)
     except IssueReport.DoesNotExist:
@@ -154,13 +216,11 @@ def presign_get_for_track(request, id):
             after_url = None
 
     return Response({
-        # OLD CONTRACT (IssueDetails.jsx)
         "url": before_url,
-
-        # NEW CONTRACT (Community PostCard.jsx)
         "before": before_url,
         "after": after_url,
     })
+
 
 class PublicIssueReportDetailView(generics.RetrieveAPIView):
     """
@@ -173,12 +233,23 @@ class PublicIssueReportDetailView(generics.RetrieveAPIView):
     lookup_field = "tracking_id"
     lookup_url_kwarg = "tracking_id"
 
+    def get_serializer_context(self):
+        """Pass request to serializer for user context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
 class CommunityCursorPagination(CursorPagination):
     page_size = 6
     ordering = "-updated_at"
 
 
 class CommunityResolvedIssuesView(ListAPIView):
+    """
+    List all resolved issues for community feed
+    Supports pagination and includes social features
+    """
     permission_classes = [AllowAny]
     serializer_class = IssueReportSerializer
     pagination_class = CommunityCursorPagination
@@ -188,7 +259,17 @@ class CommunityResolvedIssuesView(ListAPIView):
             status="resolved"
         ).order_by("-updated_at")
     
+    def get_serializer_context(self):
+        """Pass request to serializer for user context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
 class UserIssueHistoryView(generics.ListAPIView):
+    """
+    View user's own issue report history
+    """
     serializer_class = IssueHistorySerializer
     permission_classes = [IsAuthenticated]
 
@@ -196,3 +277,111 @@ class UserIssueHistoryView(generics.ListAPIView):
         return IssueReport.objects.filter(
             user=self.request.user
         ).order_by("-issue_date")
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def submit_appeal(request, report_id):
+    report = get_object_or_404(IssueReport, id=report_id, user=request.user)
+
+    if report.status != "rejected":
+        return Response(
+            {"detail": "Appeal is allowed only for rejected reports."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if report.appeal_status != "not_appealed":
+        return Response(
+            {"detail": "Appeal has already been submitted for this report."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    report.appeal_status = "pending"
+    report.save(update_fields=["appeal_status"])
+
+    return Response(
+        {
+            "message": "Appeal submitted successfully.",
+            "appeal_status": report.appeal_status,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+class CommentListCreateView(generics.ListCreateAPIView):
+    """
+    List and create comments for a specific report
+    """
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        report_id = self.kwargs.get('report_id')
+        return Comment.objects.filter(report_id=report_id)
+
+    def get_serializer_context(self):
+        """Pass request to serializer for user context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    def perform_create(self, serializer):
+        report_id = self.kwargs.get('report_id')
+        report = get_object_or_404(IssueReport, id=report_id)
+        serializer.save(user=self.request.user, report=report)
+
+
+class ToggleLikeView(views.APIView):
+    """
+    Toggle like on a report
+    Returns updated like/dislike counts
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, report_id):
+        report = get_object_or_404(IssueReport, id=report_id)
+        user = request.user
+        
+        if report.likes.filter(id=user.id).exists():
+            report.likes.remove(user)
+            liked = False
+        else:
+            report.likes.add(user)
+            # Remove dislike if exists
+            if report.dislikes.filter(id=user.id).exists():
+                report.dislikes.remove(user)
+            liked = True
+            
+        return Response({
+            "liked": liked, 
+            "likes_count": report.likes.count(),
+            "dislikes_count": report.dislikes.count()
+        })
+
+
+class ToggleDislikeView(views.APIView):
+    """
+    Toggle dislike on a report
+    Returns updated like/dislike counts
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, report_id):
+        report = get_object_or_404(IssueReport, id=report_id)
+        user = request.user
+        
+        if report.dislikes.filter(id=user.id).exists():
+            report.dislikes.remove(user)
+            disliked = False
+        else:
+            report.dislikes.add(user)
+            # Remove like if exists
+            if report.likes.filter(id=user.id).exists():
+                report.likes.remove(user)
+            disliked = True
+            
+        return Response({
+            "disliked": disliked, 
+            "likes_count": report.likes.count(),
+            "dislikes_count": report.dislikes.count()
+        })

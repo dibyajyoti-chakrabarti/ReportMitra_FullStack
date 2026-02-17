@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
@@ -49,6 +50,13 @@ class CustomUser(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
     google_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     profile_picture = models.URLField(max_length=500, null=True, blank=True)
+    trust_score = models.IntegerField(
+        default=100,
+        validators=[MinValueValidator(0), MaxValueValidator(110)],
+    )
+    incentive_reward_granted = models.BooleanField(default=False)
+    incentive_reward_amount = models.PositiveIntegerField(default=0)
+    deactivated_until = models.DateTimeField(null=True, blank=True)
     
     AUTH_METHOD_CHOICES = [
         ('email', 'Email/JWT'),
@@ -85,6 +93,66 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    @property
+    def is_temporarily_deactivated(self):
+        return bool(self.deactivated_until and self.deactivated_until > timezone.now())
+
+
+class TrustScoreLog(models.Model):
+    REASON_FAKE_REPORT = "FAKE_REPORT"
+    REASON_APPEAL_ACCEPTED = "APPEAL_ACCEPTED"
+    REASON_POST_BAN_RESTORE = "POST_BAN_RESTORE"
+    REASON_ISSUE_RESOLVED = "ISSUE_RESOLVED"
+    REASON_MANUAL_ADMIN_ADJUSTMENT = "MANUAL_ADMIN_ADJUSTMENT"
+
+    REASON_CHOICES = [
+        (REASON_FAKE_REPORT, "Fake Report"),
+        (REASON_APPEAL_ACCEPTED, "Appeal Accepted"),
+        (REASON_POST_BAN_RESTORE, "Post-Ban Restore"),
+        (REASON_ISSUE_RESOLVED, "Issue Resolved"),
+        (REASON_MANUAL_ADMIN_ADJUSTMENT, "Manual Admin Adjustment"),
+    ]
+
+    APPEAL_NOT_APPEALED = "NOT_APPEALED"
+    APPEAL_PENDING = "PENDING"
+    APPEAL_ACCEPTED = "ACCEPTED"
+    APPEAL_REJECTED = "REJECTED"
+
+    APPEAL_STATUS_CHOICES = [
+        (APPEAL_NOT_APPEALED, "Not Appealed"),
+        (APPEAL_PENDING, "Pending"),
+        (APPEAL_ACCEPTED, "Accepted"),
+        (APPEAL_REJECTED, "Rejected"),
+    ]
+
+    user = models.ForeignKey(
+        "users.CustomUser",
+        on_delete=models.CASCADE,
+        related_name="trust_score_logs",
+    )
+    delta = models.IntegerField()
+    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
+    report = models.ForeignKey(
+        "report.IssueReport",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="trust_logs",
+    )
+    appeal_status = models.CharField(
+        max_length=15,
+        choices=APPEAL_STATUS_CHOICES,
+        default=APPEAL_NOT_APPEALED,
+    )
+    admin_id = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.email} {self.delta:+d} ({self.reason})"
 
 
 class EmailOTP(models.Model):

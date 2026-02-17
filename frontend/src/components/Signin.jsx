@@ -1,9 +1,9 @@
 import { useAuth } from "../AuthProvider";
 import { useState, useEffect } from "react";
-import { Mail, Lock, User, Home } from "lucide-react";
+import { Mail, Lock, User, Home, Leaf, Shield, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import logo from "../assets/logo-1.png";
+import SignupImage from "../assets/signup-illustration.png"
 
 const Signin = () => {
   const { loginWithGoogle, register, isAuthenticated } = useAuth();
@@ -74,200 +74,241 @@ const Signin = () => {
   };
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          .fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-          }
-
-          .glass-effect {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-          }
-        `}
-      </style>
-
-      <div className="min-h-screen bg-black flex items-center justify-center px-4 py-6 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.02]">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
-              backgroundSize: "50px 50px",
-            }}
-          ></div>
-        </div>
-
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-[0.03] rounded-full blur-3xl"></div>
-
-        <button
-          onClick={() => navigate("/")}
-          className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors group z-20"
-        >
-          <Home className="w-5 h-5" />
-          <span className="text-sm font-medium">Home</span>
-        </button>
-
-        <div className="relative z-10 w-full max-w-md fade-in">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center mb-4">
-              <img src={logo} alt="ReportMitra Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 tracking-tight">
-              ReportMitra
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-400 font-medium uppercase tracking-wider">
-              CIVIC | CONNECT | RESOLVE
-            </p>
-          </div>
-
-          <div className="glass-effect rounded-2xl overflow-hidden">
-            <div className="bg-white px-6 py-3 sm:py-4 border-b border-white/10">
-              <h2 className="text-black text-lg sm:text-xl font-bold text-center">
-                Create Account
-              </h2>
-            </div>
-
-            <div className="px-4 py-6 sm:px-6 sm:py-8 space-y-5">
-              <div className="flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleSignup}
-                  onError={handleGoogleError}
-                  useOneTap={false}
-                  theme="filled_black"
-                  size="large"
-                  text="continue_with"
-                  shape="rectangular"
-                  logo_alignment="left"
-                />
+    <div className="min-h-screen h-screen flex bg-white overflow-hidden">
+      {/* Left Side - Illustration & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-100 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        <div className="absolute bottom-20 left-20 w-64 h-64 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        
+        <div className="relative z-10 flex flex-col justify-center items-center w-full px-12 py-16">
+          {/* Logo */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                <Leaf className="w-9 h-9 text-white" />
               </div>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-black text-gray-400">
-                    Or sign up with email
-                  </span>
-                </div>
-              </div>
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2.5 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm">
-                  {error}
-                </div>
-              )}
-
-              <form onSubmit={handleEmailSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
-                      placeholder="your.email@example.com"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
-                    </div>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
-                      placeholder="••••••••"
-                      required
-                      disabled={isLoading}
-                      minLength={8}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                      <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
-                    </div>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 text-sm sm:text-base bg-white/5 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-gray-500 transition-all"
-                      placeholder="••••••••"
-                      required
-                      disabled={isLoading}
-                      minLength={8}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-white text-black py-2.5 sm:py-3.5 rounded-xl text-sm sm:text-base font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/20 mt-4 sm:mt-6"
-                >
-                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-                  {isLoading ? "Creating Account..." : "Create Account"}
-                </button>
-              </form>
-
-              <div className="text-center text-xs sm:text-sm text-gray-400 pt-2">
-                Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="text-white hover:underline font-semibold transition-colors"
-                >
-                  Sign In
-                </a>
+              <div>
+                <h1 className="text-3xl font-black text-gray-900">JanSaathi</h1>
+                <p className="text-xs font-semibold text-emerald-600 tracking-wide">CIVIC | CONNECT | RESOLVE</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 text-center space-y-2">
-            <p className="text-xs text-gray-500">
-              By signing up, you agree to our Terms of Service and Privacy
-              Policy
-            </p>
-            <p className="text-xs text-gray-600">
-              © 2026 ReportMitra • Government of India
-            </p>
+          {/* Illustration */}
+          <div className="flex-1 flex items-center justify-center max-w-lg">
+            {/* 
+              ILLUSTRATION NEEDED: Signup/Registration illustration
+              - Storyset.com > Nature Illustrations > Simple Background
+              - Colors: Green tones (#10B981, #059669)
+              - Style: Person joining community / Welcome gesture / New user onboarding
+              - Save as: signup-illustration.png
+            */}
+            <img 
+              src={SignupImage}
+              alt="Join JanSaathi" 
+              className="w-full h-auto max-h-96 object-contain drop-shadow-2xl"
+            />
+          </div>
+
+          {/* Features */}
+          <div className="mt-12 space-y-4 max-w-md">
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Check className="w-5 h-5 text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold">Free forever - no hidden charges</p>
+            </div>
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Shield className="w-5 h-5 text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold">Your data is secure and private</p>
+            </div>
+            <div className="flex items-center gap-3 text-gray-700">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Leaf className="w-5 h-5 text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold">Make a real impact in your city</p>
+            </div>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Right Side - Signup Form */}
+      <div className="w-full lg:w-1/2 flex flex-col overflow-y-auto">
+        {/* Home Button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-6 right-6 flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition-colors z-20 bg-white hover:bg-emerald-50 px-4 py-2 rounded-lg border border-gray-200 hover:border-emerald-300"
+        >
+          <Home className="w-5 h-5" />
+          <span className="text-sm font-semibold">Home</span>
+        </button>
+
+        <div className="flex-1 flex items-center justify-center px-6 sm:px-12 py-12">
+          <div className="w-full max-w-md">
+            {/* Mobile Logo */}
+            <div className="lg:hidden text-center mb-8">
+              <div className="inline-flex items-center gap-3 mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                  <Leaf className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-2xl font-black text-gray-900">JanSaathi</h1>
+                  <p className="text-[10px] font-semibold text-emerald-600 tracking-wide">CIVIC | CONNECT | RESOLVE</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Signup Header */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-black text-gray-900 mb-2">Create Account</h2>
+              <p className="text-gray-600">Join JanSaathi and start making a difference</p>
+            </div>
+
+            {/* Google Signup */}
+            <div className="mb-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSignup}
+                onError={handleGoogleError}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="signup_with"
+                shape="rectangular"
+                logo_alignment="left"
+                width="100%"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-medium">Or sign up with email</span>
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium mb-4">
+                {error}
+              </div>
+            )}
+
+            {/* Signup Form */}
+            <form onSubmit={handleEmailSignup} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    placeholder="your.email@example.com"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    placeholder="••••••••"
+                    required
+                    disabled={isLoading}
+                    minLength={8}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    placeholder="••••••••"
+                    required
+                    disabled={isLoading}
+                    minLength={8}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-lg font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </button>
+            </form>
+
+            {/* Login Link */}
+            <div className="mt-6 text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <a
+                href="/login"
+                className="text-emerald-600 hover:text-emerald-700 font-bold transition-colors"
+              >
+                Sign In
+              </a>
+            </div>
+
+            {/* Terms & Footer */}
+            <div className="mt-8 space-y-3">
+              <p className="text-xs text-gray-500 text-center">
+                By signing up, you agree to our{" "}
+                <a href="#" className="text-emerald-600 hover:underline">Terms of Service</a>
+                {" "}and{" "}
+                <a href="#" className="text-emerald-600 hover:underline">Privacy Policy</a>
+              </p>
+              <div className="text-center space-y-1">
+                <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  Secure government portal
+                </p>
+                <p className="text-xs text-gray-400">
+                  © 2026 JanSaathi • Government of India
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
