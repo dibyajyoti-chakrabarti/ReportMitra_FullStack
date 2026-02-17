@@ -136,7 +136,7 @@ export default function Sleeping({ onRetry }) {
                 className="text-xs md:text-sm text-gray-500 pt-2"
                 style={{ animation: "fadeUp 1.3s ease-out both" }}
               >
-                © 2026 NagrikMitra • We appreciate your patience
+                © 2026 ReportMitra • We appreciate your patience
               </p>
             </div>
 
