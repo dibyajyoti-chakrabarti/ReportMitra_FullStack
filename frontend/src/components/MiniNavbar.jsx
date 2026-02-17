@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
-import logo_1 from "../assets/logo-1.png";
-import logo_2 from "../assets/logo-2.png";
 import { Menu, X, Leaf } from "lucide-react";
 
 const MiniNavbar = () => {
@@ -26,7 +24,7 @@ const MiniNavbar = () => {
     return (
       <header className="bg-white border-b border-emerald-100 shadow-sm w-full">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
-          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">JanSaathi</div>
+          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">ReportMitra</div>
           <div className="text-gray-600">Loading...</div>
         </div>
       </header>
@@ -49,7 +47,7 @@ const MiniNavbar = () => {
             <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">JanSaathi</span>
+            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">ReportMitra</span>
             <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 leading-tight tracking-wide">CIVIC | CONNECT | RESOLVE</span>
           </div>
         </Link>

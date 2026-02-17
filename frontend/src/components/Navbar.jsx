@@ -16,7 +16,7 @@ const Navbar = () => {
     return (
       <header className="bg-white border-b border-emerald-100 shadow-sm w-full fixed top-0 left-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
-          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">JanSaathi</div>
+          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">ReportMitra</div>
           <div className="text-gray-600">Loading...</div>
         </div>
       </header>
@@ -39,7 +39,7 @@ const Navbar = () => {
             <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">JanSaathi</span>
+            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">ReportMitra</span>
             <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 leading-tight tracking-wide">CIVIC | CONNECT | RESOLVE</span>
           </div>
         </Link>
