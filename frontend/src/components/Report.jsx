@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import Navbar from "./MiniNavbar";
-import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
 import Footer from "./Footer";
-import Tick from "../assets/tick.png";
-import Copy from "../assets/copy.jpg";
-import Logo from "../assets/logo-1.png";
+
 import { classifyImage } from "../ai/classifyImage";
+import { useMap } from "react-leaflet";
 import {
   User,
   FileText,
   Image as ImageIcon,
   MapPin,
   AlertCircle,
+  CheckCircle,
+  X,
+  Copy as CopyIcon,
+  ArrowRight,
 } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -31,6 +33,18 @@ function Report() {
   const [showMap, setShowMap] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
   const [tempPosition, setTempPosition] = useState(null);
+  const [copiedId, setCopiedId] = useState(false);
+  const [showRateLimitPopup, setShowRateLimitPopup] = useState(false);
+  const [rateLimitMessage, setRateLimitMessage] = useState(
+    "You cannot post any report until 12:00 AM IST."
+  );
+  const [isRateLimitedToday, setIsRateLimitedToday] = useState(false);
+  const INDIA_CENTER = [20.5937, 78.9629];
+  const [mapCenter, setMapCenter] = useState(INDIA_CENTER);
+  const [mapZoom, setMapZoom] = useState(5);
+  const [hasZoomedToUser, setHasZoomedToUser] = useState(false);
+
+  const [isClassifying, setIsClassifying] = useState(false);
 
   const [formData, setFormData] = useState({
     issue_title: "",
@@ -38,6 +52,7 @@ function Report() {
     issue_description: "",
     image_url: "",
   });
+
   const [errors, setErrors] = useState({
     issue_title: "",
     issue_description: "",
@@ -67,6 +82,74 @@ function Report() {
     };
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
+
+  useEffect(() => {
+    const fetchSubmissionEligibility = async () => {
+      try {
+        const headers = await getAuthHeaders();
+        const response = await fetch(getApiUrl("/reports/eligibility/"), { headers });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (data.can_submit === false) {
+          setIsRateLimitedToday(true);
+          const retryLabel = data.retry_at_label || "12:00 AM IST";
+          setRateLimitMessage(
+            `You have reached the daily report limit. You cannot post any report until ${retryLabel}.`
+          );
+          setShowRateLimitPopup(true);
+        } else {
+          setIsRateLimitedToday(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch report eligibility:", error);
+      }
+    };
+
+    if (user) fetchSubmissionEligibility();
+  }, [user, getAuthHeaders]);
+
+  useEffect(() => {
+    if (!showMap) return;
+
+    // If there's already a selected position, zoom to that instead
+    if (tempPosition) {
+      setMapCenter(tempPosition);
+      setMapZoom(18);
+      return;
+    }
+
+    // Only zoom to user location if we haven't done it before
+    if (hasZoomedToUser) return;
+
+    if (!navigator.geolocation) {
+      console.warn("Geolocation not supported");
+      setMapCenter(INDIA_CENTER);
+      setMapZoom(5);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setMapCenter([latitude, longitude]);
+        setMapZoom(18);
+        setTempPosition([latitude, longitude]);
+        setHasZoomedToUser(true); // Mark that we've zoomed to user location
+      },
+      (err) => {
+        console.warn("Location permission denied", err);
+        setMapCenter(INDIA_CENTER);
+        setMapZoom(5);
+        setHasZoomedToUser(true); // Mark as done even on error
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, [showMap, hasZoomedToUser, tempPosition]);
 
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -111,10 +194,6 @@ function Report() {
       throw new Error("S3 upload failed: " + txt);
     }
 
-    const S3_BUCKET =
-      import.meta.env.VITE_S3_BUCKET || "reportmitra-report-images-dc";
-    const AWS_REGION = import.meta.env.VITE_AWS_REGION || "ap-south-1";
-
     return { key };
   };
 
@@ -122,6 +201,15 @@ function Report() {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
     setErrors((p) => ({ ...p, [name]: "" }));
+  };
+
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -137,16 +225,26 @@ function Report() {
       setShowUnverifiedPopup(true);
       return;
     }
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    if (isRateLimitedToday) {
+      setShowRateLimitPopup(true);
+      return;
+    }
+    if (userProfile?.is_temporarily_deactivated) {
+      const until = userProfile?.deactivated_until
+        ? new Date(userProfile.deactivated_until).toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+        : "later";
+      alert(`Account activates on ${until}`);
+      return;
     }
 
+    // Validation
     let hasError = false;
     if (!formData.issue_title.trim()) {
       setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
@@ -171,9 +269,9 @@ function Report() {
       hasError = true;
     }
     if (hasError) {
-      setIsSubmitting(false);
       return;
     }
+
     setIsSubmitting(true);
 
     try {
@@ -191,6 +289,7 @@ function Report() {
 
       let imageUrl = formData.image_url || "";
 
+      // Step 1: Upload image to S3
       if (selectedFile) {
         try {
           const { key } = await uploadFileToS3(selectedFile);
@@ -206,19 +305,26 @@ function Report() {
           return;
         }
       }
+
+      // Step 2: Classify image using the existing API-key flow
       let department = "Manual";
       if (selectedFile) {
         try {
-          const base64 = await fileToBase64(selectedFile);
-          department = await classifyImage(base64);
+          setIsClassifying(true);
+          const imageBase64 = await fileToBase64(selectedFile);
+          department = await classifyImage(imageBase64);
+          setIsClassifying(false);
           if (import.meta.env.DEV) {
             console.log("AI Department:", department);
           }
+          setIsClassifying(false);
         } catch (err) {
           console.error("Classification failed:", err);
+          setIsClassifying(false);
         }
       }
 
+      // Step 3: Submit report
       const headers =
         typeof getAuthHeaders === "function"
           ? await getAuthHeaders()
@@ -241,12 +347,29 @@ function Report() {
 
       if (!response.ok) {
         let errDetail = "Failed to submit report";
+        let errCode = "";
         try {
           const errJson = await response.json();
+          errCode = errJson.code || "";
+          if (errCode === "DAILY_REPORT_LIMIT") {
+            const retryLabel = errJson.retry_at_label || "12:00 AM IST";
+            setRateLimitMessage(
+              `You have reached the daily report limit. You cannot post any report until ${retryLabel}.`
+            );
+            setShowRateLimitPopup(true);
+            return;
+          }
           errDetail = errJson.detail || JSON.stringify(errJson);
         } catch {
           const errText = await response.text().catch(() => null);
           if (errText) errDetail = errText;
+        }
+        if (errDetail.includes("Daily report limit")) {
+          setRateLimitMessage(
+            "You have reached the daily report limit. You cannot post any report until 12:00 AM IST."
+          );
+          setShowRateLimitPopup(true);
+          return;
         }
         throw new Error(errDetail);
       }
@@ -282,6 +405,7 @@ function Report() {
       }
     } finally {
       setIsSubmitting(false);
+      setIsClassifying(false);
     }
   };
 
@@ -293,8 +417,11 @@ function Report() {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(applicationId);
-    alert("Application ID copied to clipboard!");
+    if (applicationId) {
+      navigator.clipboard.writeText(applicationId);
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+    }
   };
 
   const aadhaar = userProfile?.aadhaar || null;
@@ -328,11 +455,15 @@ function Report() {
     lastNameDisplay = lastName || "Not provided";
   }
 
-  const markerIcon = new L.Icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  const blueIcon = new L.Icon({
+    iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
   });
 
   function LocationPicker({ onSelect, position }) {
@@ -343,110 +474,69 @@ function Report() {
       },
     });
 
-    return position ? <Marker position={position} icon={markerIcon} /> : null;
+    return position ? <Marker position={position} icon={blueIcon} /> : null;
+  }
+
+  function RecenterMap({ center, zoom }) {
+    const map = useMap();
+
+    useEffect(() => {
+      map.setView(center, zoom, { animate: true });
+    }, [center, zoom]);
+
+    return null;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-white to-green-50">
       <Navbar />
 
-      {showUnverifiedPopup && (
-        <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-6 overflow-y-auto">
-          <div className="max-w-2xl w-full text-white my-8">
-
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20">
-                <img
-                  src={Logo}
-                  alt="ReportMitra Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
-
-            <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
-              Verification Required
-            </h1>
-
-            <div className="space-y-6 text-base md:text-lg leading-relaxed">
-              <p className="text-gray-300 text-center">
-                You must complete{" "}
-                <strong className="text-white">Aadhaar verification</strong>{" "}
-                before submitting reports. This ensures authenticity and
-                prevents platform misuse.
-              </p>
-
-              <div className="border-t border-gray-700 pt-6">
-                <h2 className="text-xl font-bold mb-4 text-center">
-                  Why verification matters
-                </h2>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  Aadhaar verification links your identity to every report you
-                  submit, ensuring that all reports come from real, verified
-                  citizens. This prevents spam and fake reports, creates
-                  accountability between the community and government, and
-                  complies with mandatory government regulations for civic
-                  reporting platforms. Your verified identity builds trust in
-                  the system while protecting it from misuse.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 mt-8">
-              <button
-                onClick={() => {
-                  window.location.href = "/profile";
-                }}
-                className="bg-white text-black py-3 px-6 rounded-lg font-bold text-lg hover:bg-gray-200 transition-all duration-200 cursor-pointer"
-              >
-                Verify Now
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* Success Popup */}
       {showSuccessPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">
-                <img src={Tick} alt="" className="" />
-              </span>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-all">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-emerald-600" />
+              </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-green-600 mb-3">
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
               Report Submitted Successfully!
             </h2>
-
-            <p className="text-green-600 font-bold mb-4">
-              Your report has been submitted and is now under review.
+            <p className="text-gray-600 text-center mb-6">
+              Your issue has been registered and will be reviewed shortly.
             </p>
 
-            <div className="border-3 border-dashed border-green-600 rounded-lg p-4 mb-6">
-              <p className="text-2xl text-green-600 mb-2 font-extrabold">
-                Application ID for tracking
+            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4 mb-6">
+              <p className="text-sm text-gray-700 mb-2 font-medium">
+                Your Tracking ID:
               </p>
-              <div className="flex items-center justify-center">
-                <div className="flex">
-                  <code className="bg-green-200  border-2 px-3 text-2xl font-bold text-green-700 border-green-600 py-2 rounded-l-md flex items-center">
-                    {applicationId}
-                  </code>
-                  <button
-                    onClick={copyToClipboard}
-                    className="text-white  border-2 border-green-600 transition py-2 px-3 cursor-pointer rounded-r-md bg-green-600"
-                    title="Copy to clipboard"
-                  >
-                    <img src={Copy} alt="" className="h-7" />
-                  </button>
-                </div>
+              <div className="flex items-center justify-between bg-white rounded-lg p-3 border border-emerald-300">
+                <span className="font-mono font-bold text-emerald-600 text-lg">
+                  {applicationId}
+                </span>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copiedId ? (
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  ) : (
+                    <CopyIcon className="w-5 h-5 text-gray-600" />
+                  )}
+                </button>
               </div>
+              <p className="text-xs text-gray-600 mt-2 text-center">
+                Save this ID to track your report status
+              </p>
             </div>
 
             <div className="flex flex-col gap-3">
               <button
                 onClick={closePopup}
-                className="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold transition-all"
               >
                 Continue
               </button>
@@ -455,7 +545,7 @@ function Report() {
                   closePopup();
                   window.location.href = `/track`;
                 }}
-                className="text-green-600 hover:text-green-700 underline hover:scale-110 cursor-pointer transition font-bold"
+                className="text-emerald-600 hover:text-emerald-700 underline font-bold"
               >
                 Track this report
               </button>
@@ -463,20 +553,93 @@ function Report() {
           </div>
         </div>
       )}
-      {showMap && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl w-full max-w-3xl p-4">
-            <h2 className="text-xl font-bold mb-3 text-center">
-              Choose Issue Location
+      {/* Daily Limit Popup */}
+      {showRateLimitPopup && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-10 h-10 text-orange-600" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Daily Report Limit Reached
             </h2>
 
-            <div className="h-[400px] rounded-lg overflow-hidden">
+            <p className="text-gray-600 mb-6">
+              {rateLimitMessage}
+            </p>
+
+            <button
+              onClick={() => setShowRateLimitPopup(false)}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-all"
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Unverified Popup */}
+      {showUnverifiedPopup && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-12 h-12 text-orange-600" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
+              Aadhaar Verification Required
+            </h2>
+            <p className="text-gray-600 text-center mb-6">
+              You must verify your Aadhaar before submitting reports. Please complete verification in your profile settings.
+            </p>
+
+            <button
+              onClick={() => (window.location.href = "/profile")}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-semibold transition-all mb-3"
+            >
+              Verify Now
+            </button>
+            <button
+              onClick={() => setShowUnverifiedPopup(false)}
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Map Modal */}
+      {showMap && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+            <div className="bg-emerald-600 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">Select Issue Location</h3>
+              <button
+                onClick={() => {
+                  setTempLocation(null);
+                  setTempPosition(null);
+                  setShowMap(false);
+                }}
+                className="text-white hover:bg-emerald-700 p-2 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div style={{ height: "500px", width: "100%" }}>
               <MapContainer
-                center={[20.5937, 78.9629]}
-                zoom={5}
-                className="h-full w-full"
+                center={mapCenter}
+                zoom={mapZoom}
+                style={{ height: "100%", width: "100%" }}
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <RecenterMap center={mapCenter} zoom={mapZoom} />
                 <LocationPicker
                   position={tempPosition}
                   onSelect={async (lat, lng) => {
@@ -497,260 +660,295 @@ function Report() {
               </MapContainer>
             </div>
 
-            {tempLocation && (
-              <button
-                onClick={() => {
-                  setFormData((p) => ({ ...p, location: tempLocation }));
-                  setErrors((p) => ({ ...p, location: "" }));
-                  setTempLocation(null);
-                  setTempPosition(null);
-                  setShowMap(false);
-                }}
-                className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
-              >
-                Confirm Location
-              </button>
-            )}
+            <div className="p-6 bg-gray-50">
+              {tempLocation && (
+                <div className="mb-4 p-4 bg-white rounded-lg border-2 border-emerald-200">
+                  <p className="text-sm font-semibold text-gray-700 mb-1">Selected Location:</p>
+                  <p className="text-gray-900">{tempLocation}</p>
+                </div>
+              )}
 
-            <button
-              onClick={() => {
-                setTempLocation(null);
-                setTempPosition(null);
-                setShowMap(false);
-              }}
-              className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
-            >
-              Cancel
-            </button>
+              <div className="flex gap-3">
+                {tempLocation && (
+                  <button
+                    onClick={() => {
+                      setFormData((p) => ({ ...p, location: tempLocation }));
+                      setErrors((p) => ({ ...p, location: "" }));
+                      setTempLocation(null);
+                      setTempPosition(null);
+                      setShowMap(false);
+                    }}
+                    className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 transition"
+                  >
+                    Confirm Location
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setTempLocation(null);
+                    setTempPosition(null);
+                    setShowMap(false);
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <main className="flex-grow bg-gray-50 flex justify-center py-8 md:py-12">
-        <div
-          className="bg-white w-full max-w-6xl rounded-2xl shadow-md
-          px-4 sm:px-6 md:px-10 py-6 md:py-8"
-        >
-          <h1 className="text-center font-extrabold text-3xl md:text-5xl mb-6">
-            Issue a Report
-          </h1>
+      <main className="flex-grow flex justify-center py-12 px-4">
+        <div className="bg-white w-full max-w-6xl rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-extrabold text-gray-900 mb-2">
+              Report a Civic Issue
+            </h1>
+            <p className="text-gray-600">
+              Help improve your community by reporting issues that need attention
+            </p>
+          </div>
 
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-gray-700" />
-              <h2 className="text-lg font-semibold text-gray-800">
-                Citizen Details
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              {[
-                {
-                  label: "First Name",
-                  value: firstNameDisplay,
-                },
-                {
-                  label: "Middle Name",
-                  value: middleNameDisplay,
-                },
-                {
-                  label: "Last Name",
-                  value: lastNameDisplay,
-                },
-              ].map((f) => (
-                <div key={f.label} className="flex flex-col font-bold">
-                  <label>{f.label}</label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={f.value}
-                    className="border px-2 py-1 rounded-md text-gray-500"
-                  />
+          <div className="space-y-8">
+            {/* Citizen Details */}
+            <div>
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-emerald-100">
+                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <User className="w-5 h-5 text-emerald-600" />
                 </div>
-              ))}
-
-              <div className="flex flex-col font-bold">
-                <label>Issue Date</label>
-                <input
-                  type="date"
-                  readOnly
-                  value={getCurrentDate()}
-                  className="border px-2 py-1 rounded-md text-gray-500"
-                />
-              </div>
-            </div>
-
-            <hr className="my-4" />
-
-            <div className="flex items-center gap-2 mb-4 mt-6">
-              <FileText className="w-5 h-5 text-gray-700" />
-              <h2 className="text-lg font-semibold text-gray-800">
-                Issue Details
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-6">
-              <div className="md:col-span-3 flex flex-col font-bold space-y-2">
-                <label>Issue Title</label>
-                <input
-                  type="text"
-                  name="issue_title"
-                  placeholder="Briefly name the issue"
-                  value={formData.issue_title}
-                  onChange={handleInputChange}
-                  maxLength={80}
-                  className="border px-3 py-2 rounded-md placeholder:text-gray-500"
-                />
-
-                <div className="flex justify-between text-xs mt-1">
-                  <span className="text-gray-500">
-                    {formData.issue_title.length}/80 characters
-                  </span>
-                  {errors.issue_title && (
-                    <span className="text-red-600">{errors.issue_title}</span>
-                  )}
-                </div>
-
-                <label>Issue Description</label>
-                <textarea
-                  name="issue_description"
-                  value={formData.issue_description}
-                  onChange={handleInputChange}
-                  placeholder="Describe the issue in detail"
-                  maxLength={500}
-                  required
-                  className="border px-3 py-2 rounded-md placeholder:text-gray-500 resize-none h-44 lg:h-56"
-                />
-
-                <div className="flex justify-between text-xs mt-1">
-                  <span
-                    className={
-                      formData.issue_description.length > 450
-                        ? "text-orange-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {formData.issue_description.length}/500 characters
-                  </span>
-
-                  {errors.issue_description && (
-                    <span className="text-red-600">
-                      {errors.issue_description}
-                    </span>
-                  )}
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Citizen Details
+                </h2>
               </div>
 
-              <div
-                className="md:col-span-2 flex flex-col font-bold space-y-4
-  bg-gray-50 border rounded-xl p-4 h-full"
-              >
-                <label>Issue Image</label>
-                <a
-                  href="https://www.precisely.com/glossary/geotagging/"
-                  className="underline text-sm text-blue-700 -mt-1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                ></a>
-
-                <div
-                  className="border-2 border-dashed border-gray-300 rounded-xl
-  flex-1 min-h-[220px] lg:min-h-[260px]
-  flex flex-col items-center justify-center gap-2
-  text-gray-500 overflow-hidden bg-white"
-                >
-                  {preview ? (
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="object-contain w-full h-full rounded-xl"
-                    />
-                  ) : (
-                    <>
-                      <ImageIcon className="w-6 h-6 opacity-60" />
-                      <span className="text-xs text-gray-400">
-                        No image selected
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label
-                    htmlFor="fileInput"
-                    className="cursor-pointer bg-white border-2 border-gray-400 px-4 py-2.5 rounded-md
-  flex items-center justify-center gap-2 text-sm font-semibold
-  hover:bg-gray-50 hover:border-gray-400 transition"
-                  >
-                    <img src={folder} alt="" className="h-4 w-4" />
-                    Choose File
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    First Name
                   </label>
-
                   <input
-                    id="fileInput"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
+                    type="text"
+                    readOnly
+                    value={firstNameDisplay}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
                   />
-
-                  {selectedFile && (
-                    <span className="text-xs text-gray-600 text-center truncate">
-                      {selectedFile.name}
-                    </span>
-                  )}
-                  {errors.image && (
-                    <p className="text-red-600 text-sm font-normal text-center">
-                      {errors.image}
-                    </p>
-                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Middle Name
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={middleNameDisplay}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={lastNameDisplay}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Issue Date
+                  </label>
+                  <input
+                    type="date"
+                    readOnly
+                    value={getCurrentDate()}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
+                  />
                 </div>
               </div>
             </div>
 
-            <div
-              className="flex flex-col md:flex-row justify-between items-center
-              border-t pt-6 mt-6 gap-4"
-            >
-              <div className="flex flex-col gap-2 font-bold w-full md:max-w-[60%]">
-                <label className="whitespace-nowrap flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-gray-600" />
-                  Issue Location
-                </label>
-
-                <div className="flex gap-2 w-full">
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    readOnly
-                    required
-                    placeholder="Choose location from map"
-                    className="border px-3 py-2 rounded-md w-full
-      bg-gray-100 text-gray-600 cursor-not-allowed"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowMap(true)}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-black"
-                  >
-                    Choose
-                  </button>
+            {/* Issue Details */}
+            <div>
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-emerald-100">
+                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-emerald-600" />
                 </div>
-                {errors.location && (
-                  <p className="text-red-600 text-sm font-normal mt-1">
-                    {errors.location}
-                  </p>
-                )}
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Issue Details
+                </h2>
               </div>
 
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left side - Text inputs */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Issue Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="issue_title"
+                      placeholder="Briefly describe the issue (e.g., 'Broken streetlight on MG Road')"
+                      value={formData.issue_title}
+                      onChange={handleInputChange}
+                      maxLength={80}
+                      className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                    />
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-xs text-gray-500">
+                        {formData.issue_title.length}/80 characters
+                      </span>
+                      {errors.issue_title && (
+                        <span className="text-xs text-red-600 font-semibold">
+                          {errors.issue_title}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Issue Description <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      name="issue_description"
+                      value={formData.issue_description}
+                      onChange={handleInputChange}
+                      placeholder="Provide detailed information about the issue, including when you noticed it and any relevant details..."
+                      maxLength={500}
+                      required
+                      className="w-full px-4 py-3 bg-white border border-gray-300 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none h-40 transition-all"
+                    />
+                    <div className="flex justify-between items-center mt-2">
+                      <span
+                        className={`text-xs ${
+                          formData.issue_description.length > 450
+                            ? "text-orange-600 font-semibold"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {formData.issue_description.length}/500 characters
+                      </span>
+                      {errors.issue_description && (
+                        <span className="text-xs text-red-600 font-semibold">
+                          {errors.issue_description}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-emerald-600" />
+                      Issue Location <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        readOnly
+                        required
+                        placeholder="Select location from map"
+                        className="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700 rounded-lg cursor-not-allowed"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowMap(true)}
+                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md whitespace-nowrap"
+                      >
+                        Select on Map
+                      </button>
+                    </div>
+                    {errors.location && (
+                      <p className="text-xs text-red-600 font-semibold mt-2">
+                        {errors.location}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right side - Image upload */}
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl p-6 flex flex-col">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-sm font-semibold text-gray-900">
+                      Issue Image <span className="text-red-500">*</span>
+                    </label>
+                  </div>
+
+                  <div className="flex-1 border-2 border-dashed border-emerald-300 rounded-xl bg-white min-h-[280px] flex items-center justify-center overflow-hidden">
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center text-emerald-600">
+                        <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                        <span className="text-sm font-medium opacity-75">
+                          No image selected
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <label
+                      htmlFor="fileInput"
+                      className="cursor-pointer bg-white hover:bg-gray-50 border-2 border-emerald-600 text-emerald-600 px-4 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all shadow-sm hover:shadow-md"
+                    >
+                      <ImageIcon className="w-5 h-5" />
+                      Choose Image
+                    </label>
+
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
+                    {selectedFile && (
+                      <p className="text-xs text-gray-700 text-center truncate">
+                        📎 {selectedFile.name}
+                      </p>
+                    )}
+
+                    {errors.image && (
+                      <p className="text-xs text-red-600 font-semibold text-center">
+                        {errors.image}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr className="my-8 border-gray-200" />
+
+            {/* Submit Button */}
+            <div className="flex justify-center">
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-black text-white rounded-xl text-lg font-bold hover:scale-105 transition disabled:opacity-50"
+                disabled={isSubmitting || isClassifying}
+                className="group bg-emerald-600 hover:bg-emerald-700 text-white px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3"
               >
-                {isSubmitting ? "Submitting..." : "Submit Report"}
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    {isClassifying ? "Analyzing image..." : "Submitting Report..."}
+                  </>
+                ) : (
+                  <>
+                    Submit Report
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </button>
             </div>
           </div>
