@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
-import logo_1 from "../assets/logo-1.png";
-import logo_2 from "../assets/logo-2.png";
 import { Menu, X } from "lucide-react";
+import logo from "../assets/logo-1.png";
 
 const MiniNavbar = () => {
   const { logout, isAuthenticated, isLoading } = useAuth();
@@ -24,47 +23,69 @@ const MiniNavbar = () => {
 
   if (isLoading) {
     return (
-      <header className="bg-black text-white p-4 shadow-md w-full">
-        <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold">ReportMitra</div>
-          <div>Loading...</div>
+      <header className="bg-white border-b border-emerald-100 shadow-sm w-full">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
+          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">ReportMitra</div>
+          <div className="text-gray-600">Loading...</div>
         </div>
       </header>
     );
   }
 
   return (
-    <header className="bg-black text-white px-4 py-2 shadow-md w-full">
-      <div className="max-w-screen-xl mx-auto flex justify-between items-center">
+    <header className="bg-white/98 backdrop-blur-md border-b border-emerald-100 shadow-sm w-full">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3">
+        {/* Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 font-bold py-1 hover:opacity-80 transition"
+          className="flex items-center gap-3 font-bold py-1 hover:opacity-90 transition-opacity group"
         >
-          <img src={logo_1} alt="logo" className="w-12 h-12 sm:w-16 sm:h-16" />
-          <img src={logo_2} alt="logo" className="h-8 sm:h-12" />
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+            <img src={logo} alt="ReportMitra logo" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">ReportMitra</span>
+            <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 leading-tight tracking-wide">CIVIC | CONNECT | RESOLVE</span>
+          </div>
         </Link>
 
-        <nav className="hidden md:flex items-center font-bold text-xl lg:text-2xl gap-6">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center font-semibold text-base lg:text-lg gap-6 lg:gap-8">
           {isAuthenticated ? (
             <>
-              <Link to="/report" className="hover:underline transition">
+              <Link 
+                to="/report" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Report
               </Link>
-              <Link to="/track" className="hover:underline transition">
+              <Link 
+                to="/track" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Track
               </Link>
-              <Link to="/history" className="hover:underline transition">
+              <Link 
+                to="/history" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 History
               </Link>
-              <Link to="/profile" className="hover:underline transition">
+              <Link 
+                to="/profile" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Profile
               </Link>
-              <Link to="/community" className="hover:underline transition">
+              <Link 
+                to="/community" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Community
               </Link>
               <button
                 onClick={handleLogout}
-                className="hover:underline cursor-pointer"
+                className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md font-semibold"
               >
                 Logout
               </button>
@@ -73,13 +94,13 @@ const MiniNavbar = () => {
             <>
               <button
                 onClick={handleLogin}
-                className="hover:underline cursor-pointer"
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 font-semibold"
               >
                 Login
               </button>
               <button
                 onClick={handleRegister}
-                className="hover:underline cursor-pointer"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md font-semibold"
               >
                 Sign Up
               </button>
@@ -87,8 +108,9 @@ const MiniNavbar = () => {
           )}
         </nav>
 
+        {/* Mobile Menu Button */}
         <button
-          className="md:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-800 transition"
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-emerald-50 transition text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -96,9 +118,10 @@ const MiniNavbar = () => {
         </button>
       </div>
 
+      {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-black text-white font-bold text-lg flex flex-col items-center gap-4 overflow-hidden transition-all duration-300 ${
-          menuOpen ? "max-h-96 py-4" : "max-h-0 py-0"
+        className={`md:hidden bg-white border-t border-emerald-100 text-gray-700 font-semibold text-base flex flex-col items-center gap-4 overflow-hidden transition-all duration-300 ${
+          menuOpen ? "max-h-96 py-6" : "max-h-0 py-0"
         }`}
       >
         {isAuthenticated ? (
@@ -106,35 +129,35 @@ const MiniNavbar = () => {
             <Link
               to="/report"
               onClick={() => setMenuOpen(false)}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Report
             </Link>
             <Link
               to="/track"
               onClick={() => setMenuOpen(false)}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Track
             </Link>
             <Link
               to="/history"
               onClick={() => setMenuOpen(false)}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               History
             </Link>
             <Link
               to="/profile"
               onClick={() => setMenuOpen(false)}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Profile
             </Link>
             <Link
               to="/community"
               onClick={() => setMenuOpen(false)}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Community
             </Link>
@@ -143,7 +166,7 @@ const MiniNavbar = () => {
                 handleLogout();
                 setMenuOpen(false);
               }}
-              className="hover:underline"
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-lg transition-all duration-200 shadow-sm"
             >
               Logout
             </button>
@@ -155,7 +178,7 @@ const MiniNavbar = () => {
                 handleLogin();
                 setMenuOpen(false);
               }}
-              className="hover:underline"
+              className="hover:text-emerald-600 transition-colors"
             >
               Login
             </button>
@@ -164,7 +187,7 @@ const MiniNavbar = () => {
                 handleRegister();
                 setMenuOpen(false);
               }}
-              className="hover:underline"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-lg transition-all duration-200 shadow-sm"
             >
               Sign Up
             </button>

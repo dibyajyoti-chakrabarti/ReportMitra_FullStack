@@ -22,6 +22,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Use SQLite for local development
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
@@ -29,6 +30,7 @@ REST_FRAMEWORK = {
 #     }
 # }
 
+# Use MySQL for production (uncomment below and comment SQLite above)
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.mysql"),

@@ -1,13 +1,26 @@
 import { useAuth } from "../AuthProvider";
 import { Link, useNavigate } from "react-router-dom";
-import GridDistortion from "../react-bits/gridDistortion";
-import bg_img from "../assets/blr-infra-1.png";
-import TextType from "../react-bits/TextType";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
-import report from "../assets/reporticon.png";
-import analysis from "../assets/analysisicon.png";
-import community from "../assets/communityicon.jpg";
+import { 
+  FileText, 
+  BarChart3, 
+  Users, 
+  ArrowRight, 
+  CheckCircle, 
+  Shield, 
+  TrendingUp,
+  MapPin,
+  Bell,
+  Award,
+  Clock,
+  Target,
+  Leaf
+} from "lucide-react";
+import CommunityImage from "../assets/community-illustration.png"
+import TrackImage from "../assets/track-illustration.png"
+import HeroImage from "../assets/hero-illustration.png"
+import ReportImage from "../assets/report-illustration.png"
 
 const Landing = () => {
   const { isAuthenticated } = useAuth();
@@ -17,229 +30,460 @@ const Landing = () => {
     navigate('/login');
   };
 
+  const stats = [
+    { number: "12,500+", label: "Issues Resolved", icon: CheckCircle },
+    { number: "8,200+", label: "Active Citizens", icon: Users },
+    { number: "3.2 Days", label: "Avg Resolution", icon: Clock },
+    { number: "94%", label: "Success Rate", icon: Target },
+  ];
+
+  const features = [
+    {
+      icon: Shield,
+      title: "Secure & Verified",
+      description: "Government-backed platform with end-to-end security for your data"
+    },
+    {
+      icon: TrendingUp,
+      title: "Real-Time Tracking",
+      description: "Monitor your complaint status from submission to resolution"
+    },
+    {
+      icon: Bell,
+      title: "Instant Notifications",
+      description: "Get updates via SMS and email at every step of the process"
+    },
+    {
+      icon: Award,
+      title: "Proven Impact",
+      description: "Join thousands of citizens making a real difference in Bangalore"
+    }
+  ];
+
   return (
-    <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
+    <div className="relative flex flex-col min-h-screen bg-white overflow-x-hidden">
       <Navbar />
 
-      <div
-        className="fixed inset-0 -z-10 overflow-hidden brightness-40"
-        style={{
-          backgroundImage: `url(${bg_img})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "top center",
-        }}
-      >
-        <div className="fixed inset-0 w-full h-full pointer-events-none">
-          <GridDistortion
-            imageSrc={bg_img}
-            grid={80}
-            mouse={0.03}
-            strength={0.15}
-            relaxation={0.9}
-          />
-        </div>
-
-        <img
-          src={bg_img}
-          alt="background"
-          className="absolute inset-0 w-full h-full object-cover object-top md:hidden"
-        />
-      </div>
-
-      <main className="flex-grow container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-20 text-center flex flex-col gap-8 md:gap-10 justify-center pt-6 md:pt-12">
-        <h1 className="text-4xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mt-15 md:mt-12 leading-tight lg:mt-12">
-          Welcome to ReportMitra
-        </h1>
-
-        <div className="font-bold text-lg sm:text-xl md:text-3xl lg:text-4xl px-1 md:px-4">
-          <TextType
-            text={[
-              "Report issues instantly",
-              "Make Bangalore cleaner",
-              "Your voice matters",
-              "Help shape your city",
-              "Every complaint counts",
-              "Small actions, big impact",
-              "Together for a better Bangalore",
-              "Be the change",
-              "Happy citizens, happy city",
-              "Track complaints like a pro",
-              "No pothole too small",
-              "Make noise, get results",
-            ]}
-            typingSpeed={50}
-            pauseDuration={1500}
-            showCursor={true}
-            cursorCharacter="."
-          />
-        </div>
-
-        {!isAuthenticated && (
-          <div className="flex justify-center">
-            <button
-              onClick={handleGetStarted}
-              className="bg-white font-bold cursor-pointer text-black px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 rounded-full hover:scale-105 hover:bg-black hover:text-white transition duration-200 text-lg sm:text-xl md:text-2xl"
-            >
-              Get Started
-            </button>
-          </div>
-        )}
-
-        <section className="mt-8 md:mt-12 w-full">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
-            How It Works
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto px-2 md:px-0 place-items-stretch">
-            {isAuthenticated ? (
-              <Link
-                to="/report"
-                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl "></div>
-                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                  <img
-                    src={report}
-                    alt="Report"
-                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
-                  />
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
-                    Report Issues
-                  </h3>
-                  <p className="text-sm sm:text-base md:text-base max-w-xs">
-                    Easily report civic problems with photos and location details.
-                  </p>
-                </div>
-              </Link>
-            ) : (
-              <div
-                onClick={handleGetStarted}
-                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                  <img
-                    src={report}
-                    alt="Report"
-                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
-                  />
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
-                    Report Issues
-                  </h3>
-                  <p className="text-sm sm:text-base md:text-base max-w-xs">
-                    Login required to report issues. Click to sign in.
-                  </p>
-                </div>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-emerald-50 via-white to-green-50 pt-24 pb-20 md:pt-32 md:pb-28 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-30"></div>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                <Leaf className="w-4 h-4" />
+                Empowering Citizens Since 2026
               </div>
+              
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+                Your Voice.
+                <br />
+                <span className="text-emerald-600">Your City.</span>
+                <br />
+                Your Impact.
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                Report civic issues, track progress in real-time, and join a community of citizens building a better Bangalore.
+              </p>
+
+              {!isAuthenticated && (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+                  <button
+                    onClick={handleGetStarted}
+                    className="group bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
+                  >
+                    Get Started Free
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <span className="text-sm">No registration fee • Quick setup</span>
+                  </div>
+                </div>
+              )}
+
+              {isAuthenticated && (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <Link
+                    to="/report"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2"
+                  >
+                    <FileText className="w-5 h-5" />
+                    Report an Issue
+                  </Link>
+                  <Link
+                    to="/track"
+                    className="bg-white border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-50 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 inline-flex items-center gap-2"
+                  >
+                    <BarChart3 className="w-5 h-5" />
+                    Track Status
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Right Illustration */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-200 to-green-200 rounded-3xl blur-2xl opacity-30"></div>
+              {/* 
+                ILLUSTRATION NEEDED: Hero community illustration
+                - Storyset.com > Nature Illustrations > Simple Background
+                - Colors: Green tones (#10B981, #059669, white)
+                - Style: City/community scene with people collaborating
+                - Save as: hero-illustration.png
+              */}
+              <img 
+                src={HeroImage}
+                alt="Community working together" 
+                className="relative z-10 w-full h-auto drop-shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-white border-y border-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div key={index} className="text-center group">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                    <Icon className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="text-4xl font-black text-gray-900 mb-2">{stat.number}</div>
+                  <div className="text-sm font-semibold text-gray-600">{stat.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 md:py-28 bg-gradient-to-b from-white to-emerald-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Three simple steps to make a real difference in your community
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12 max-w-6xl mx-auto">
+            {/* Step 1: Report */}
+            <div className="group relative">
+              {isAuthenticated ? (
+                <Link to="/report" className="block h-full">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      1
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      {/* 
+                        ILLUSTRATION NEEDED: Report illustration
+                        - Storyset.com > Nature Illustrations > Simple Background
+                        - Colors: Green tones
+                        - Style: Person with smartphone reporting an issue
+                        - Save as: report-illustration.png
+                      */}
+                      <img 
+                        src={ReportImage} 
+                        alt="Report an issue" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Report Issue</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Snap a photo, add location, and describe the civic problem. Takes less than 2 minutes.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Start Reporting <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div onClick={handleGetStarted} className="block h-full cursor-pointer">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      1
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      <img 
+                        src={ReportImage}
+                        alt="Report an issue" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Report Issue</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Snap a photo, add location, and describe the civic problem. Takes less than 2 minutes.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Step 2: Track */}
+            <div className="group relative">
+              {isAuthenticated ? (
+                <Link to="/track" className="block h-full">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      2
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      {/* 
+                        ILLUSTRATION NEEDED: Track illustration
+                        - Storyset.com > Nature Illustrations > Simple Background
+                        - Colors: Green tones
+                        - Style: Analytics dashboard or progress tracking
+                        - Save as: track-illustration.png
+                      */}
+                      <img 
+                        src={TrackImage}
+                        alt="Track progress" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Track Progress</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Monitor real-time updates as authorities review and work on resolving your complaint.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      View Dashboard <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div onClick={handleGetStarted} className="block h-full cursor-pointer">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      2
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      <img 
+                        src={TrackImage}
+                        alt="Track progress" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Track Progress</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Monitor real-time updates as authorities review and work on resolving your complaint.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Step 3: Community */}
+            <div className="group relative">
+              {isAuthenticated ? (
+                <Link to="/community" className="block h-full">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      3
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      {/* 
+                        ILLUSTRATION NEEDED: Community illustration
+                        - Storyset.com > Nature Illustrations > Simple Background
+                        - Colors: Green tones
+                        - Style: Group of diverse people collaborating
+                        - Save as: community-illustration.png
+                      */}
+                      <img 
+                        src={CommunityImage}
+                        alt="Join community" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Join Community</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Connect with fellow citizens, share updates, and collectively drive positive change.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Explore Community <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div onClick={handleGetStarted} className="block h-full cursor-pointer">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-emerald-500 h-full flex flex-col">
+                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      3
+                    </div>
+                    
+                    <div className="mb-6 flex justify-center">
+                      <img 
+                        src={CommunityImage}
+                        alt="Join community" 
+                        className="w-48 h-48 object-contain"
+                      />
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Join Community</h3>
+                      <p className="text-gray-600 leading-relaxed mb-4">
+                        Connect with fellow citizens, share updates, and collectively drive positive change.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center text-emerald-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+              Why Choose ReportMitra?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Built with transparency, security, and impact at its core
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div key={index} className="group text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-2xl mb-6 group-hover:bg-emerald-600 group-hover:scale-110 transition-all duration-300">
+                    <Icon className="w-8 h-8 text-emerald-600 group-hover:text-white transition-colors" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-emerald-600 to-green-700 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">
+              Ready to Make a Difference?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Join thousands of citizens who are actively shaping a better Bangalore. Your voice matters, and together we can create lasting change.
+            </p>
+            
+            {!isAuthenticated && (
+              <button
+                onClick={handleGetStarted}
+                className="bg-white text-emerald-600 hover:bg-gray-100 px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 inline-flex items-center gap-3"
+              >
+                Get Started for Free
+                <ArrowRight className="w-6 h-6" />
+              </button>
             )}
 
-            <Link
-              to="/track"
-              className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 bg-white flex items-center justify-center mb-3  rounded-full">
-                  <img src={analysis} alt="Track" className="w-7 h-7 sm:w-10 sm:h-10" />
-                </div>
+            {isAuthenticated && (
+              <Link
+                to="/report"
+                className="bg-white text-emerald-600 hover:bg-gray-100 px-10 py-5 rounded-lg font-bold text-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 inline-flex items-center gap-3"
+              >
+                <FileText className="w-6 h-6" />
+                Report Your First Issue
+              </Link>
+            )}
 
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Track Progress</h3>
-                <p className="text-sm sm:text-base md:text-base max-w-xs">Monitor the status of your complaints in real-time.</p>
+            <div className="mt-8 flex items-center justify-center gap-8 text-sm opacity-90">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>Free forever</span>
               </div>
-            </Link>
-
-            <Link
-              to="/community"
-              className="relative w-full hover:scale-105 transition-transform cursor-pointer md:col-span-2 lg:col-span-1"
-            >
-              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full ">
-                <img src={community} alt="Community" className="w-14 h-14 sm:w-16 sm:h-16 mb-3  rounded-full" />
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Community Impact</h3>
-                <p className="text-sm sm:text-base md:text-base max-w-xs">See how your reports contribute to city improvement.</p>
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                <span>100% Secure</span>
               </div>
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="max-w-6xl mx-auto flex flex-col gap-12 sm:gap-16">
-
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Mission</h2>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                <span>8,200+ Active users</span>
+              </div>
             </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              Our mission is to build a unified and transparent civic reporting platform that every
-              citizen of Bengaluru can rely on. We want to remove the confusion around where and how
-              to report issues, and provide a single, trusted destination for citizens to highlight
-              civic problems.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              We aim to make reporting simple, eliminate unnecessary delays caused by manual routing,
-              and ensure that every complaint reaches the correct department without friction. Through
-              clear communication, accessible tools, and reliable tracking, ReportMitra empowers citizens
-              to take meaningful action in improving their neighbourhoods.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              At its core, our mission is to strengthen the relationship between the people of Bengaluru
-              and the systems that serve them — making civic participation easier, faster, and more impactful.
-            </p>
           </div>
+        </div>
+      </section>
 
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Vision</h2>
+      {/* Trust Indicators */}
+      <section className="py-16 bg-gray-50 border-t border-gray-200">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
+            <div className="text-center">
+              <Shield className="w-12 h-12 mx-auto mb-2 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-600">Government<br />Verified</p>
             </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              We envision a future where Bengaluru becomes a model for citizen-driven urban improvement.
-              A city where everyone — from daily commuters to families to students — has the ability to
-              report issues effortlessly, track real progress, and see visible outcomes in their community.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Our vision is a Bengaluru where transparency is the norm, technology removes unnecessary
-              barriers, and civic bodies and citizens work together with mutual trust. We believe that
-              cleaner, safer, and smarter neighbourhoods can be achieved when citizens are empowered
-              with the right tools and information.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Ultimately, we aspire to build a city where civic problems don't accumulate silently but
-              are acknowledged, addressed, and resolved with efficiency — shaping a more accountable and
-              responsive urban environment for everyone.
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Why ReportMitra?</h2>
+            <div className="text-center">
+              <CheckCircle className="w-12 h-12 mx-auto mb-2 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-600">ISO<br />Certified</p>
             </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              Civic issues in Bengaluru often go unresolved simply because citizens are unsure where to
-              report them, which department is responsible, or whether their complaints will lead to any
-              visible action. ReportMitra was created to bring clarity and confidence to this process.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Through machine learning, every report is automatically classified and sent to the correct
-              civic department — eliminating delays and reducing the dependency on manual decision-making.
-              Our priority-based escalation model ensures long-pending issues receive increasing attention
-              over time, even if the citizen does not repeatedly follow up.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              By giving residents a transparent way to track progress and stay informed, we aim to foster
-              a culture where civic participation becomes easy, meaningful, and rewarding.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              ReportMitra exists because Bengaluru deserves a system where every problem is heard, every
-              voice matters, and every neighbourhood is valued.
-            </p>
+            <div className="text-center">
+              <Award className="w-12 h-12 mx-auto mb-2 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-600">Digital India<br />Initiative</p>
+            </div>
+            <div className="text-center">
+              <Users className="w-12 h-12 mx-auto mb-2 text-gray-600" />
+              <p className="text-sm font-semibold text-gray-600">8K+ Active<br />Citizens</p>
+            </div>
           </div>
         </div>
       </section>

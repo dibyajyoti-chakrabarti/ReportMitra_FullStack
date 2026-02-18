@@ -86,6 +86,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const buildAuthError = (data, fallbackMessage) => {
+    const directMessage =
+      data?.message ||
+      data?.detail ||
+      data?.non_field_errors?.[0] ||
+      data?.email?.[0] ||
+      data?.password?.[0] ||
+      fallbackMessage;
+
+    const error = new Error(directMessage);
+    if (data?.code === "ACCOUNT_DEACTIVATED") {
+      error.code = data.code;
+      error.activationTime = data.activation_time;
+      error.deactivatedUntil = data.deactivated_until;
+      error.message = data.activation_time
+        ? `Account activates on ${data.activation_time}`
+        : "Account is temporarily deactivated.";
+    }
+    return error;
+  };
+
   const loginWithEmail = async (email, password) => {
     setIsLoading(true);
     try {
@@ -108,12 +129,7 @@ export const AuthProvider = ({ children }) => {
 
         return { success: true, user: data.user };
       } else {
-        const errorMessage =
-          data.non_field_errors?.[0] ||
-          data.email?.[0] ||
-          data.password?.[0] ||
-          "Login failed";
-        throw new Error(errorMessage);
+        throw buildAuthError(data, "Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -186,7 +202,7 @@ export const AuthProvider = ({ children }) => {
 
         return { success: true, user: data.user };
       } else {
-        throw new Error(data.error || "Google authentication failed");
+        throw buildAuthError(data, "Google authentication failed");
       }
     } catch (error) {
       console.error("Google auth error:", error);
