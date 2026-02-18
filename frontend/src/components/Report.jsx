@@ -617,7 +617,7 @@ function Report() {
       {/* Map Modal */}
       {showMap && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="bg-emerald-600 px-6 py-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">Select Issue Location</h3>
               <button
@@ -632,7 +632,7 @@ function Report() {
               </button>
             </div>
 
-            <div style={{ height: "500px", width: "100%" }}>
+            <div className="h-[45vh] sm:h-[500px] w-full">
               <MapContainer
                 center={mapCenter}
                 zoom={mapZoom}
