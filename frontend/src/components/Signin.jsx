@@ -1,9 +1,10 @@
 import { useAuth } from "../AuthProvider";
 import { useState, useEffect } from "react";
-import { Mail, Lock, User, Home, Leaf, Shield, Check } from "lucide-react";
+import { Mail, Lock, Home, Leaf, Shield, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import SignupImage from "../assets/signup-illustration.png"
+import BrandLogo from "../assets/logo-1.png";
 
 const Signin = () => {
   const { loginWithGoogle, register, isAuthenticated } = useAuth();
@@ -85,11 +86,13 @@ const Signin = () => {
           {/* Logo */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                <Leaf className="w-9 h-9 text-white" />
-              </div>
+              <img
+                src={BrandLogo}
+                alt="ReportMitra logo"
+                className="w-16 h-16 object-contain"
+              />
               <div>
-                <h1 className="text-3xl font-black text-gray-900">JanSaathi</h1>
+                <h1 className="text-3xl font-black text-gray-900">ReportMitra</h1>
                 <p className="text-xs font-semibold text-emerald-600 tracking-wide">CIVIC | CONNECT | RESOLVE</p>
               </div>
             </div>
@@ -106,7 +109,7 @@ const Signin = () => {
             */}
             <img 
               src={SignupImage}
-              alt="Join JanSaathi" 
+              alt="Join ReportMitra" 
               className="w-full h-auto max-h-96 object-contain drop-shadow-2xl"
             />
           </div>
@@ -151,11 +154,13 @@ const Signin = () => {
             {/* Mobile Logo */}
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                  <Leaf className="w-8 h-8 text-white" />
-                </div>
+                <img
+                  src={BrandLogo}
+                  alt="ReportMitra logo"
+                  className="w-14 h-14 object-contain"
+                />
                 <div className="text-left">
-                  <h1 className="text-2xl font-black text-gray-900">JanSaathi</h1>
+                  <h1 className="text-2xl font-black text-gray-900">ReportMitra</h1>
                   <p className="text-[10px] font-semibold text-emerald-600 tracking-wide">CIVIC | CONNECT | RESOLVE</p>
                 </div>
               </div>
@@ -164,11 +169,11 @@ const Signin = () => {
             {/* Signup Header */}
             <div className="mb-8">
               <h2 className="text-3xl font-black text-gray-900 mb-2">Create Account</h2>
-              <p className="text-gray-600">Join JanSaathi and start making a difference</p>
+              <p className="text-gray-600">Join ReportMitra and start making a difference</p>
             </div>
 
             {/* Google Signup */}
-            <div className="mb-6">
+            <div className="mb-6 flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSignup}
                 onError={handleGoogleError}
@@ -301,7 +306,7 @@ const Signin = () => {
                   Secure government portal
                 </p>
                 <p className="text-xs text-gray-400">
-                  © 2026 JanSaathi • Government of India
+                  © 2026 ReportMitra • Government of India
                 </p>
               </div>
             </div>
