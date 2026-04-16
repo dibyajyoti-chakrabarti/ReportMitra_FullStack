@@ -68,7 +68,7 @@ export default function Sleeping({ onRetry }) {
                 style={{ animation: "fadeUp 0.7s ease-out both" }}
               >
                 <Clock className="w-4 h-4" />
-                Scheduled Maintenance
+                Temporary Shutdown
               </div>
 
               {/* Title */}
@@ -76,7 +76,7 @@ export default function Sleeping({ onRetry }) {
                 className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-black text-gray-900 leading-tight"
                 style={{ animation: "fadeUp 0.8s ease-out both" }}
               >
-                We'll Be Right Back
+                Services Resume In July 2026
               </h1>
 
               {/* Description */}
@@ -84,7 +84,7 @@ export default function Sleeping({ onRetry }) {
                 className="text-base md:text-lg text-gray-600 leading-relaxed"
                 style={{ animation: "fadeUp 0.9s ease-out both" }}
               >
-                Our servers are taking a quick power nap to serve you better. We're performing routine maintenance to keep everything running smoothly.
+                ReportMitra is intentionally shut down for cost savings. Our servers will remain unavailable until July 2026.
               </p>
 
               {/* Time window */}
@@ -96,8 +96,8 @@ export default function Sleeping({ onRetry }) {
                   <div className="flex items-center justify-center lg:justify-start gap-3">
                     <Clock className="w-5 h-5 flex-shrink-0" />
                     <div>
-                      <div className="text-xs md:text-sm font-semibold opacity-90">Expected Uptime</div>
-                      <div className="text-lg md:text-xl font-black">10:30 AM – 1:30 PM IST</div>
+                      <div className="text-xs md:text-sm font-semibold opacity-90">Planned Reopening</div>
+                      <div className="text-lg md:text-xl font-black">July 2026</div>
                     </div>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export default function Sleeping({ onRetry }) {
                   className="w-2 h-2 bg-emerald-500 rounded-full"
                   style={{ animation: "pulse 2s ease-in-out infinite" }}
                 ></div>
-                <span className="font-semibold">System maintenance in progress</span>
+                <span className="font-semibold">System remains shut down until July 2026</span>
               </div>
 
               {/* Footer */}
